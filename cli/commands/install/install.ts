@@ -38,6 +38,7 @@ import {
   INSTALLED_SKILLS_DIR,
   installCodexWorkflowSkills,
   installConfigs,
+  installCopilotWorkflowPrompts,
   installRules,
   installShared,
   installSkill,
@@ -438,7 +439,11 @@ export async function install(options: InstallOptions = {}): Promise<void> {
       hint: "hooks + settings + CLAUDE.md",
     },
     { value: "codex", label: "Codex CLI", hint: "hooks + plugin" },
-    { value: "copilot", label: "GitHub Copilot", hint: "skill symlinks" },
+    {
+      value: "copilot",
+      label: "GitHub Copilot",
+      hint: "skill symlinks + .github/prompts/ wrappers",
+    },
     {
       value: "cursor",
       label: "Cursor",
@@ -539,6 +544,9 @@ export async function install(options: InstallOptions = {}): Promise<void> {
       installWorkflows(repoDir, cwd);
       if (vendors.includes("codex")) {
         installCodexWorkflowSkills(repoDir, cwd);
+      }
+      if (vendors.includes("copilot")) {
+        installCopilotWorkflowPrompts(repoDir, cwd);
       }
       installRules(repoDir, cwd);
       installConfigs(repoDir, cwd, false);

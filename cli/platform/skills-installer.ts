@@ -191,6 +191,55 @@ export function installCodexWorkflowSkills(
   }
 }
 
+/**
+ * Mirror `.agents/workflows/*.md` into `.github/prompts/<name>.prompt.md`
+ * wrappers so GitHub Copilot Chat can invoke workflows via slash commands.
+ * Prunes stale oma-generated prompts whose workflow no longer exists in SSOT;
+ * never touches user-authored prompts (those lack the oma:generated marker).
+ *
+ * Path note: paths inside `.prompt.md` are resolved relative to the prompt
+ * file itself, not the workspace root, so the wrapper uses `../../.agents/...`.
+ * See https://github.com/microsoft/vscode-copilot-release/issues/7317
+ */
+export function installCopilotWorkflowPrompts(
+  sourceDir: string,
+  targetDir: string,
+): void {
+  const workflowsDir = join(sourceDir, ".agents", "workflows");
+  const promptsRoot = join(targetDir, ".github", "prompts");
+  const names = listWorkflowNames(workflowsDir);
+
+  if (fs.existsSync(promptsRoot)) {
+    for (const entry of fs.readdirSync(promptsRoot, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith(".prompt.md")) continue;
+      const promptFile = join(promptsRoot, entry.name);
+      let existing: string;
+      try {
+        existing = fs.readFileSync(promptFile, "utf-8");
+      } catch {
+        continue;
+      }
+      if (!existing.includes(CODEX_WRAPPER_MARKER)) continue;
+      const name = entry.name.slice(0, -".prompt.md".length);
+      if (!names.includes(name)) {
+        fs.rmSync(promptFile, { force: true });
+      }
+    }
+  }
+
+  if (names.length === 0) return;
+
+  fs.mkdirSync(promptsRoot, { recursive: true });
+  for (const name of names) {
+    const description =
+      extractWorkflowDescription(join(workflowsDir, `${name}.md`)) ??
+      `Workflow: ${name}`;
+    const promptFile = join(promptsRoot, `${name}.prompt.md`);
+    const body = `---\ndescription: ${description}\nmode: agent\n---\n${CODEX_WRAPPER_MARKER}\n\nRead and follow [.agents/workflows/${name}.md](../../.agents/workflows/${name}.md) step by step.\n`;
+    fs.writeFileSync(promptFile, body);
+  }
+}
+
 export function installRules(sourceDir: string, targetDir: string): void {
   const src = join(sourceDir, ".agents", "rules");
   if (!fs.existsSync(src)) return;
