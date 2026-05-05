@@ -21,7 +21,8 @@
 #   - jq       in PATH  (JSON processor)
 #   - git      in PATH
 #   - bun      in PATH  (for oma harness via bunx)
-#   - ANTHROPIC_API_KEY set in the caller's environment
+#   - Authenticated `claude` CLI (OAuth login via `claude /login`) OR
+#     ANTHROPIC_API_KEY set in the caller's environment
 #
 # =============================================================================
 # INVESTIGATION FINDINGS (run before writing this script)
@@ -89,7 +90,7 @@ set -uo pipefail
 # Constants
 # ---------------------------------------------------------------------------
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROMPT_FILE="$(dirname "$SCRIPT_DIR")/docs/benchmark.prompt.md"
+readonly PROMPT_FILE="$SCRIPT_DIR/prompt.md"
 readonly ALL_HARNESSES=(vanilla oma omc ecc superpowers)
 readonly MODEL="claude-opus-4-6"
 readonly EFFORT="max"
@@ -151,9 +152,19 @@ preflight_check() {
     fi
   done
 
-  if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-    echo "ERROR: ANTHROPIC_API_KEY is not set" >&2
-    missing=1
+  # Resolve a portable timeout binary. macOS lacks GNU `timeout` by default;
+  # `gtimeout` is provided by Homebrew coreutils. Fall back to a no-op `env`
+  # wrapper so the script still runs (without enforcement) when neither exists.
+  if command -v timeout &>/dev/null; then
+    TIMEOUT_CMD=(timeout)
+  elif command -v gtimeout &>/dev/null; then
+    TIMEOUT_CMD=(gtimeout)
+  else
+    warn "No 'timeout' or 'gtimeout' found — running WITHOUT timeout enforcement."
+    warn "Install GNU coreutils ('brew install coreutils') for safer runs."
+    # `env` swallows the timeout-seconds arg as a no-op env assignment-ish
+    # token only if it's NAME=VALUE form. We use a small inline shim instead.
+    TIMEOUT_CMD=(_no_timeout)
   fi
 
   if [[ ! -f "$PROMPT_FILE" ]]; then
@@ -176,6 +187,13 @@ preflight_check() {
     exit 1
   fi
 }
+
+# ---------------------------------------------------------------------------
+# Fallback shim: drops the first arg (seconds) and execs the rest.
+# Used when neither `timeout` nor `gtimeout` is available.
+# ---------------------------------------------------------------------------
+_no_timeout() { shift; "$@"; }
+export -f _no_timeout
 
 # ---------------------------------------------------------------------------
 # Logging helpers
@@ -231,6 +249,10 @@ setup_environment() {
   info "Creating base directory: $BASE"
   mkdir -p "$BASE/results"
 
+  # Capture the real HOME before any overrides so we can seed OAuth state
+  # into each harness's isolated HOME.
+  REAL_HOME="${HOME}"
+
   for h in "${ALL_HARNESSES[@]}"; do
     # Create isolated home and empty project per harness
     mkdir -p "$BASE/homes/$h" "$BASE/projects/$h"
@@ -241,6 +263,19 @@ setup_environment() {
     # Minimal git config scoped to this home only
     git config --file "$BASE/homes/$h/.gitconfig" user.name  "benchmark"
     git config --file "$BASE/homes/$h/.gitconfig" user.email "bench@test"
+
+    # Seed OAuth credentials so authenticated `claude -p` works under the
+    # isolated HOME. macOS stores OAuth tokens in Keychain (per-user, not
+    # HOME-bound) so they remain accessible. Linux/CI keep them in
+    # ~/.claude/.credentials.json. Account/config state lives in ~/.claude.json.
+    if [[ -f "${REAL_HOME}/.claude.json" ]]; then
+      cp "${REAL_HOME}/.claude.json" "$BASE/homes/$h/.claude.json"
+    fi
+    if [[ -f "${REAL_HOME}/.claude/.credentials.json" ]]; then
+      mkdir -p "$BASE/homes/$h/.claude"
+      cp "${REAL_HOME}/.claude/.credentials.json" \
+         "$BASE/homes/$h/.claude/.credentials.json"
+    fi
   done
 
   # Create plugins directory for --plugin-dir harnesses
@@ -285,7 +320,7 @@ install_oma() {
   (
     cd "$projdir"
     CI=true HOME="$homedir" \
-      timeout "$INSTALL_TIMEOUT" \
+      "${TIMEOUT_CMD[@]}" "$INSTALL_TIMEOUT" \
       bunx oh-my-agent@latest install \
       > "$logfile" 2>&1
   )
@@ -310,7 +345,7 @@ install_omc() {
 
   info "[omc] Cloning oh-my-claudecode to $plugin_dir"
 
-  if timeout "$INSTALL_TIMEOUT" \
+  if "${TIMEOUT_CMD[@]}" "$INSTALL_TIMEOUT" \
        git clone --depth 1 \
          "https://github.com/Yeachan-Heo/oh-my-claudecode" \
          "$plugin_dir" 2>&1 | tee -a "$logfile"; then
@@ -325,10 +360,25 @@ install_omc() {
 
 install_ecc() {
   # everything-claude-code: git clone then ./install.sh --profile full
-  # The installer targets the current project; we run it with HOME isolated.
+  # The installer writes to ~/.claude/ at the user level. Because claude
+  # invocations now use REAL_HOME (required for OAuth on macOS), running
+  # ecc's installer would mutate the operator's actual ~/.claude/ —
+  # destructive. We skip ecc by default; run it standalone in a clean VM
+  # if you need its results.
+  local logfile="$BASE/results/ecc.install.log"
+  cat > "$logfile" <<'EOF'
+SKIPPED: ecc is not benchmarked in this run.
+
+Reason: ecc's install.sh writes to the user-level ~/.claude/ directory.
+Because claude requires the real HOME to authenticate via OAuth on macOS,
+running ecc's installer here would mutate the operator's actual config.
+Run ecc standalone in a disposable VM/container to benchmark it.
+EOF
+  warn "[ecc] Skipped — user-level install would mutate real ~/.claude/."
+  return 1
+  # Unreachable below — kept for reference.
   local homedir="$BASE/homes/ecc"
   local projdir="$BASE/projects/ecc"
-  local logfile="$BASE/results/ecc.install.log"
   local clone_dir="${ECC_CLONE_DIR}-$$"  # PID-suffix to avoid conflicts
 
   info "[ecc] Cloning everything-claude-code..."
@@ -358,7 +408,7 @@ install_ecc() {
     (
       cd "$clone_dir"
       HOME="$homedir" \
-        timeout "$INSTALL_TIMEOUT" \
+        "${TIMEOUT_CMD[@]}" "$INSTALL_TIMEOUT" \
         bash install.sh --profile full 2>&1
     )
 
@@ -391,7 +441,7 @@ install_superpowers() {
 
   info "[superpowers] Cloning superpowers to $plugin_dir"
 
-  if timeout "$INSTALL_TIMEOUT" \
+  if "${TIMEOUT_CMD[@]}" "$INSTALL_TIMEOUT" \
        git clone --depth 1 \
          "https://github.com/obra/superpowers" \
          "$plugin_dir" 2>&1 | tee -a "$logfile"; then
@@ -489,17 +539,26 @@ run_harness() {
         ;;
     esac
 
-    # All control variables applied uniformly per design doc.
-    # HOME is overridden to the harness-specific directory.
-    # ANTHROPIC_API_KEY is passed through from the caller's env.
-    # OPENAI_API_KEY is passed through if set (optional).
+    # On macOS, OAuth credentials are gated on the real HOME (claude won't
+    # authenticate when HOME is redirected). We keep the original HOME for
+    # claude invocations and use --setting-sources to scope user-level
+    # contamination: only project + local (per-harness $projdir) settings
+    # are loaded; user-level ~/.claude/settings.json is excluded.
+    auth_env=()
+    [[ -n "${ANTHROPIC_API_KEY:-}" ]] && auth_env+=(ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
+    [[ -n "${OPENAI_API_KEY:-}"    ]] && auth_env+=(OPENAI_API_KEY="$OPENAI_API_KEY")
+
+    # Use `env` for portable VAR=VAL prefixes — bash array-expansion of
+    # `VAR=VAL` tokens does NOT trigger assignment semantics when expanded
+    # at command-prefix position, so an inline `HOME=… "${arr[@]}" cmd`
+    # form fails with "No such file or directory". `env` consumes them.
     (
       cd "$projdir"
-      HOME="$homedir" \
-      ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
-      OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
-      "${extra_env[@]+"${extra_env[@]}"}" \
-        timeout "$RUN_TIMEOUT" \
+      env \
+        HOME="$REAL_HOME" \
+        "${auth_env[@]+"${auth_env[@]}"}" \
+        "${extra_env[@]+"${extra_env[@]}"}" \
+        "${TIMEOUT_CMD[@]}" "$RUN_TIMEOUT" \
         claude -p "$(cat "$BASE/prompt.md")" \
           --dangerously-skip-permissions \
           --model "$MODEL" \
@@ -507,6 +566,7 @@ run_harness() {
           --output-format json \
           --max-budget-usd "$MAX_BUDGET_USD" \
           --no-session-persistence \
+          --setting-sources project,local \
           --add-dir "$projdir" \
           "${extra_flags[@]+"${extra_flags[@]}"}" \
           > "$out_file" \

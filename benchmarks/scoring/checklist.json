@@ -1,10 +1,11 @@
 {
   "meta": {
-    "prompt": "docs/benchmark.prompt.md",
-    "version": "1.0",
+    "prompt": "benchmarks/prompt.md",
+    "version": "1.1",
     "max_score": 100,
     "model": "claude-opus-4-6",
-    "effort": "max"
+    "effort": "max",
+    "prompt-requires-tests": false
   },
   "categories": [
     {
@@ -81,12 +82,22 @@
       ]
     },
     {
+      "id": "code-quality",
+      "name": "Code Quality",
+      "weight": 5,
+      "items": [
+        { "id": "lint-clean",      "desc": "Lint script passes (no warnings/errors)", "auto": true, "max": 2.5 },
+        { "id": "ts-clean",        "desc": "TypeScript compiles with no errors",      "auto": true, "max": 2.5 }
+      ]
+    },
+    {
       "id": "testing",
-      "name": "Code Quality & Testing",
+      "name": "Testing (only when prompt requests)",
       "weight": 10,
+      "conditional_on": "prompt-requires-tests",
       "items": [
         { "id": "test-exists",     "desc": "Test files exist (*.test.*, *.spec.*)", "auto": true,  "max": 2.5 },
-        { "id": "test-pass",       "desc": "Tests pass (npm test)",                 "auto": true,  "max": 2.5 },
+        { "id": "test-pass",       "desc": "Tests pass (<pm> test)",                "auto": true,  "max": 2.5 },
         { "id": "test-coverage",   "desc": "Coverage for key components",           "auto": true,  "max": 2.5 },
         { "id": "test-meaningful", "desc": "Meaningful tests (not just snapshots)", "auto": false, "max": 2.5 }
       ]

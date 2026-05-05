@@ -101,34 +101,79 @@ PROMPT="Your harness ID for this run is: ${HARNESS}
 
 $(cat "$SCORE_PROMPT_FILE")"
 
-# ── run claude -p ─────────────────────────────────────────────────────────────
-# Timeout: 300 s (5 min) — generous for npm install + dev-server boot + 4 screenshots.
+# ── run claude -p with retries ───────────────────────────────────────────────
+# Timeout: 300 s (5 min) per attempt — generous for install + dev-server boot
+#   + 4 screenshots.
 # --strict-mcp-config: use only the chrome-devtools MCP, ignore any .mcp.json
 #   present in the project directory.
 # --add-dir: grants file-system access to the project tree.
 # --no-session-persistence: each scoring run is isolated.
+#
+# Retry policy: up to MAX_ATTEMPTS times if the model returns an empty
+# response or an unparseable JSON. Empty responses have been observed when
+# the dev server fails to boot in time or the MCP server isn't ready;
+# a fresh attempt usually succeeds.
 echo "Starting visual scoring for harness '${HARNESS}' in ${PROJECT_DIR} ..." >&2
 
-(
-  cd "$PROJECT_DIR"
-  timeout 300 claude -p "$PROMPT" \
-    --dangerously-skip-permissions \
-    --model claude-opus-4-6 \
-    --effort max \
-    --output-format json \
-    --max-budget-usd 5 \
-    --no-session-persistence \
-    --mcp-config "$MCP_CONFIG" \
-    --strict-mcp-config \
-    --add-dir "$PROJECT_DIR"
-) > "$OUTPUT_DIR/visual-score-raw.json" \
-  2> "$OUTPUT_DIR/visual-score.stderr"
+MAX_ATTEMPTS=3
+ATTEMPT=0
+SCORE_OK=false
 
-EXIT_CODE=$?
+# Helper: report whether the raw JSON contains a non-empty result body that
+# parses to either valid JSON or non-trivial text.
+result_is_valid() {
+  local raw="$1"
+  [[ -s "$raw" ]] || return 1
+  local result
+  result="$(jq -r '.result // empty' "$raw" 2>/dev/null)"
+  # Strip whitespace
+  result="${result#"${result%%[![:space:]]*}"}"
+  result="${result%"${result##*[![:space:]]}"}"
+  [[ -n "$result" ]] || return 1
+  # If the prompt asked for JSON, prefer valid JSON; otherwise any non-empty
+  # text counts. We try JSON first.
+  if echo "$result" | jq -e . >/dev/null 2>&1; then
+    return 0
+  fi
+  # Non-JSON but non-trivial (>100 chars suggests model produced something)
+  [[ ${#result} -gt 100 ]]
+}
 
-if [[ $EXIT_CODE -ne 0 ]]; then
-  echo "WARNING: claude exited with code ${EXIT_CODE}. Check ${OUTPUT_DIR}/visual-score.stderr" >&2
-fi
+while (( ATTEMPT < MAX_ATTEMPTS )); do
+  ATTEMPT=$(( ATTEMPT + 1 ))
+  echo "  attempt ${ATTEMPT}/${MAX_ATTEMPTS}..." >&2
+
+  (
+    cd "$PROJECT_DIR"
+    timeout 300 claude -p "$PROMPT" \
+      --dangerously-skip-permissions \
+      --model claude-opus-4-6 \
+      --effort max \
+      --output-format json \
+      --max-budget-usd 5 \
+      --no-session-persistence \
+      --mcp-config "$MCP_CONFIG" \
+      --strict-mcp-config \
+      --add-dir "$PROJECT_DIR"
+  ) > "$OUTPUT_DIR/visual-score-raw.json" \
+    2>> "$OUTPUT_DIR/visual-score.stderr"
+
+  EXIT_CODE=$?
+
+  if [[ $EXIT_CODE -ne 0 ]]; then
+    echo "  attempt ${ATTEMPT}: claude exited ${EXIT_CODE}" >&2
+    continue
+  fi
+
+  if result_is_valid "$OUTPUT_DIR/visual-score-raw.json"; then
+    SCORE_OK=true
+    break
+  fi
+
+  echo "  attempt ${ATTEMPT}: empty/invalid result; retrying..." >&2
+  # Preserve the failed raw for debugging
+  cp "$OUTPUT_DIR/visual-score-raw.json" "$OUTPUT_DIR/visual-score-raw.attempt${ATTEMPT}.json" 2>/dev/null || true
+done
 
 # ── move screenshots captured inside the project dir ─────────────────────────
 # score-prompt.md asks Claude to save to screenshots/ inside PROJECT_DIR.
@@ -137,13 +182,12 @@ if [[ -d "${PROJECT_DIR}/screenshots" ]]; then
 fi
 
 # ── extract the inner result JSON ─────────────────────────────────────────────
-# claude -p --output-format json wraps the model's text in the top-level
-# .result field (string). The scoring prompt instructs the model to emit a
-# raw JSON object, so we write that string out as the canonical score file.
-if [[ -f "$OUTPUT_DIR/visual-score-raw.json" ]] && \
-   jq -e '.result' "$OUTPUT_DIR/visual-score-raw.json" &>/dev/null; then
+if [[ "$SCORE_OK" == true ]]; then
   jq -r '.result' "$OUTPUT_DIR/visual-score-raw.json" > "$OUTPUT_DIR/visual-score.json"
-  echo "Scores written to: ${OUTPUT_DIR}/visual-score.json" >&2
+  echo "Scores written to: ${OUTPUT_DIR}/visual-score.json (after ${ATTEMPT} attempt(s))" >&2
 else
-  echo "WARNING: could not extract .result from raw JSON. Raw file preserved at ${OUTPUT_DIR}/visual-score-raw.json" >&2
+  echo "WARNING: visual-score gave up after ${MAX_ATTEMPTS} attempts. Raw JSON files preserved in ${OUTPUT_DIR}/" >&2
+  # Write a minimal stub so downstream collect.sh doesn't choke on truly empty file
+  echo '{"harness":"'"$HARNESS"'","error":"visual-score returned empty after '"$MAX_ATTEMPTS"' retries"}' \
+    > "$OUTPUT_DIR/visual-score.json"
 fi

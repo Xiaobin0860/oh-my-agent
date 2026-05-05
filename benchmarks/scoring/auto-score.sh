@@ -39,9 +39,61 @@ MAX_SETUP_TAILWIND="$(get_max setup-tailwind)"
 MAX_SETUP_R3F="$(get_max setup-r3f)"
 MAX_SETUP_BUILD="$(get_max setup-build)"
 MAX_AI_API="$(get_max ai-api)"
+MAX_LINT_CLEAN="$(get_max lint-clean)"
+MAX_TS_CLEAN="$(get_max ts-clean)"
+
+# Tests are scored only when the prompt explicitly asked for them. Default off
+# so prompts that don't mention tests don't penalize every harness equally.
+PROMPT_REQUIRES_TESTS="$(jq -r '.meta["prompt-requires-tests"] // false' "$CHECKLIST")"
 MAX_TEST_EXISTS="$(get_max test-exists)"
 MAX_TEST_PASS="$(get_max test-pass)"
 MAX_TEST_COVERAGE="$(get_max test-coverage)"
+
+# ---------------------------------------------------------------------------
+# Package manager detection — picks pnpm/yarn/bun/npm based on lockfile so
+# pnpm-workspace projects are not scored against `npm install` failures.
+# ---------------------------------------------------------------------------
+detect_pm() {
+  local dir="$1"
+  if [[ -f "$dir/pnpm-lock.yaml" || -f "$dir/pnpm-workspace.yaml" ]]; then
+    echo pnpm
+  elif [[ -f "$dir/yarn.lock" ]]; then
+    echo yarn
+  elif [[ -f "$dir/bun.lock" || -f "$dir/bun.lockb" ]]; then
+    echo bun
+  else
+    echo npm
+  fi
+}
+
+pm_install_cmd() {
+  case "$1" in
+    pnpm) echo "pnpm install --silent" ;;
+    yarn) echo "yarn install --silent" ;;
+    bun)  echo "bun install --silent" ;;
+    *)    echo "npm install --no-audit --no-fund --loglevel=error" ;;
+  esac
+}
+
+pm_run_cmd() {
+  local pm="$1" script="$2"
+  case "$pm" in
+    pnpm) echo "pnpm run $script" ;;
+    yarn) echo "yarn $script" ;;
+    bun)  echo "bun run $script" ;;
+    *)    echo "npm run $script" ;;
+  esac
+}
+
+pm_test_cmd() {
+  local pm="$1" extra="$2"
+  case "$pm" in
+    pnpm) echo "pnpm test -- $extra" ;;
+    yarn) echo "yarn test $extra" ;;
+    bun)  echo "bun test $extra" ;;
+    *)    echo "npm test -- $extra" ;;
+  esac
+}
 
 # ---------------------------------------------------------------------------
 # Logging helpers
@@ -75,12 +127,16 @@ PKG_JSON="$PROJECT_DIR/package.json"
 
 if [[ ! -f "$PKG_JSON" ]]; then
   log "ERROR: package.json not found in $PROJECT_DIR"
-  for id in setup-nextjs setup-tailwind setup-r3f setup-build ai-api test-exists test-pass test-coverage; do
+  for id in setup-nextjs setup-tailwind setup-r3f setup-build ai-api lint-clean ts-clean test-exists test-pass test-coverage; do
     max_var="MAX_$(echo "$id" | tr '[:lower:]-' '[:upper:]_')"
     set_result "$id" false 0 "${!max_var}" "package.json not found"
   done
   add_error "package.json not found in $PROJECT_DIR — all auto-checks scored 0"
 else
+
+# Detected package manager drives every install/run/test command below.
+PM="$(detect_pm "$PROJECT_DIR")"
+log "Detected package manager: $PM"
 
 # ---------------------------------------------------------------------------
 # CHECK: setup-nextjs
@@ -130,8 +186,12 @@ fi
 # ---------------------------------------------------------------------------
 log "Check: setup-build"
 BUILD_START="$(date +%s)"
+INSTALL_CMD="$(pm_install_cmd "$PM")"
+BUILD_CMD="$(pm_run_cmd "$PM" build)"
+log "  install: $INSTALL_CMD"
+log "  build:   $BUILD_CMD"
 build_output="$(
-  timeout 300 bash -c "cd $(printf '%q' "$PROJECT_DIR") && npm install && npm run build" \
+  timeout 300 bash -c "cd $(printf '%q' "$PROJECT_DIR") && $INSTALL_CMD && $BUILD_CMD" \
     >>"$LOG_FILE" 2>>"$LOG_FILE"
   echo $?
 )"
@@ -152,29 +212,152 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# CHECK: ai-api
+# CHECK: ai-api  — three-state evaluation
+#   PASS_FULL    (max):     real LLM SDK import + env-var-based config
+#   PASS_PARTIAL (max/2):   no SDK, BUT explicit deferred-stub markers
+#                           (e.g., "MVP", "TODO", "replace with API",
+#                           "without API dependency", "mock") AND a working
+#                           local AI substitute (a function generating
+#                           non-trivial responses). Rewards graceful
+#                           degradation when no API key is provided.
+#   FAIL         (0):       neither
 # ---------------------------------------------------------------------------
 log "Check: ai-api"
 SRC_DIR="$PROJECT_DIR/src"
+PARTIAL_AI=$(awk -v m="$MAX_AI_API" 'BEGIN{printf "%.2f", m/2}')
 if [[ -d "$SRC_DIR" ]]; then
-  ai_match="$(timeout 300 grep -r "openai\|@anthropic-ai/sdk" "$SRC_DIR" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" -l 2>>"$LOG_FILE" | head -1)"
-  ai_grep_exit=$?
-  if [[ $ai_grep_exit -eq 124 ]]; then
-    set_result "ai-api" false 0 "$MAX_AI_API" "timeout after 300s"
-    add_error "ai-api: grep timed out after 300s"
-    log "ai-api: TIMEOUT"
-  elif [[ -n "$ai_match" ]]; then
-    ai_match_rel="${ai_match#$PROJECT_DIR/}"
-    set_result "ai-api" true "$MAX_AI_API" "$MAX_AI_API" "found in $ai_match_rel"
-    log "ai-api: PASS ($ai_match_rel)"
+  # Recognize three integration styles:
+  #   1. SDK import (`from "openai"`, `@anthropic-ai/sdk`, `@google/genai`)
+  #   2. Raw fetch to provider endpoint (`api.openai.com`, `api.anthropic.com`,
+  #      `generativelanguage.googleapis.com`)
+  #   3. Hosted provider via OpenAI-compatible URL
+  ai_full_match="$(timeout 60 grep -rE \
+    "(from ['\"]openai)|(from ['\"]@anthropic-ai/sdk)|(from ['\"]@google/genai)|(require\(['\"]openai)|(require\(['\"]@anthropic-ai/sdk)|(api\.openai\.com)|(api\.anthropic\.com)|(generativelanguage\.googleapis\.com)" \
+    "$SRC_DIR" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" -l 2>>"$LOG_FILE" | head -1)"
+  has_env_ref="$(timeout 60 grep -rE \
+    "(OPENAI_API_KEY)|(ANTHROPIC_API_KEY)|(GEMINI_API_KEY)|(GOOGLE_API_KEY)|(process\.env\.[A-Z_]*API[A-Z_]*KEY)" \
+    "$SRC_DIR" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" -l 2>>"$LOG_FILE" | head -1)"
+
+  if [[ -n "$ai_full_match" && -n "$has_env_ref" ]]; then
+    ai_match_rel="${ai_full_match#$PROJECT_DIR/}"
+    set_result "ai-api" true "$MAX_AI_API" "$MAX_AI_API" "real SDK + env config in $ai_match_rel"
+    log "ai-api: PASS_FULL ($ai_match_rel)"
+  elif [[ -n "$ai_full_match" ]]; then
+    # SDK imported but no env-var config — likely hardcoded or broken
+    ai_match_rel="${ai_full_match#$PROJECT_DIR/}"
+    set_result "ai-api" true "$PARTIAL_AI" "$MAX_AI_API" "SDK imported but no API-key env config in $ai_match_rel"
+    log "ai-api: PASS_PARTIAL ($ai_match_rel — missing env config)"
   else
-    set_result "ai-api" false 0 "$MAX_AI_API" "not found"
-    log "ai-api: FAIL"
+    # No SDK — check for a deferred-stub pattern (intentional graceful fallback)
+    deferred_marker="$(timeout 60 grep -rE -i \
+      "(replace.*with.*API|TODO.*API|MVP[: ].*(local|without|mock)|without.*API.*dependency|mock.*OpenAI|mock.*LLM|integrate.*OpenAI.*later|local.*responses.*without)" \
+      "$SRC_DIR" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" -l 2>>"$LOG_FILE" | head -1)"
+    has_substitute="$(timeout 60 grep -rE \
+      "(generateResponse|aiResponse|companion|getRandomPrompt|whatif|reflect)" \
+      "$SRC_DIR" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" -l 2>>"$LOG_FILE" | head -1)"
+
+    if [[ -n "$deferred_marker" && -n "$has_substitute" ]]; then
+      marker_rel="${deferred_marker#$PROJECT_DIR/}"
+      set_result "ai-api" true "$PARTIAL_AI" "$MAX_AI_API" "deferred stub with local substitute ($marker_rel)"
+      log "ai-api: PASS_PARTIAL (deferred stub at $marker_rel)"
+    else
+      set_result "ai-api" false 0 "$MAX_AI_API" "no AI integration or deferred stub"
+      log "ai-api: FAIL"
+    fi
   fi
 else
   set_result "ai-api" false 0 "$MAX_AI_API" "src/ directory not found"
   log "ai-api: FAIL (no src/ directory)"
 fi
+
+# ---------------------------------------------------------------------------
+# CHECK: lint-clean — `<pm> run lint` exits 0
+# ---------------------------------------------------------------------------
+log "Check: lint-clean"
+has_lint_script="$(jq -r '.scripts.lint // empty' "$PKG_JSON" 2>>"$LOG_FILE")"
+if [[ -z "$has_lint_script" ]]; then
+  set_result "lint-clean" false 0 "$MAX_LINT_CLEAN" "no lint script in package.json"
+  log "lint-clean: SKIP (no script)"
+else
+  # Detect a deprecated `next lint` setup that prompts interactively in
+  # Next.js 16+. We can't reliably score it here without an eslint config,
+  # so mark n/a (max=0) instead of penalizing.
+  if [[ "$has_lint_script" == "next lint" ]]; then
+    has_eslint_cfg=false
+    for f in eslint.config.mjs eslint.config.js eslint.config.cjs eslint.config.ts .eslintrc.json .eslintrc.js .eslintrc.cjs; do
+      [[ -f "$PROJECT_DIR/$f" ]] && has_eslint_cfg=true && break
+    done
+    if [[ "$has_eslint_cfg" == false ]]; then
+      set_result "lint-clean" true 0 0 "n/a (deprecated 'next lint' without eslint config)"
+      log "lint-clean: SKIP (next lint deprecated, no eslint config)"
+      LINT_HANDLED=true
+    fi
+  fi
+
+  if [[ "${LINT_HANDLED:-false}" != true ]]; then
+    LINT_CMD="$(pm_run_cmd "$PM" lint)"
+    log "  cmd: $LINT_CMD"
+    # Close stdin so any prompt in the lint script fails fast instead of hanging
+    timeout 120 bash -c "cd $(printf '%q' "$PROJECT_DIR") && $LINT_CMD < /dev/null" \
+      >>"$LOG_FILE" 2>>"$LOG_FILE"
+    lint_exit=$?
+    if [[ $lint_exit -eq 0 ]]; then
+      set_result "lint-clean" true "$MAX_LINT_CLEAN" "$MAX_LINT_CLEAN" "exit 0"
+      log "lint-clean: PASS"
+    elif [[ $lint_exit -eq 124 ]]; then
+      set_result "lint-clean" false 0 "$MAX_LINT_CLEAN" "timeout after 120s"
+      log "lint-clean: TIMEOUT"
+    else
+      set_result "lint-clean" false 0 "$MAX_LINT_CLEAN" "exit $lint_exit"
+      log "lint-clean: FAIL ($lint_exit)"
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# CHECK: ts-clean — `tsc --noEmit` exits 0 (only when tsconfig.json exists)
+# ---------------------------------------------------------------------------
+log "Check: ts-clean"
+if [[ ! -f "$PROJECT_DIR/tsconfig.json" ]]; then
+  set_result "ts-clean" false 0 "$MAX_TS_CLEAN" "no tsconfig.json"
+  log "ts-clean: SKIP (no tsconfig)"
+else
+  # Use locally-installed tsc via npx; bun and pnpm both expose it through PATH
+  # after install. Falls back to global tsc if local not installed.
+  TSC_CMD="npx --no-install tsc --noEmit"
+  case "$PM" in
+    bun)  TSC_CMD="bunx tsc --noEmit" ;;
+    pnpm) TSC_CMD="pnpm exec tsc --noEmit" ;;
+    yarn) TSC_CMD="yarn tsc --noEmit" ;;
+  esac
+  log "  cmd: $TSC_CMD"
+  timeout 180 bash -c "cd $(printf '%q' "$PROJECT_DIR") && $TSC_CMD" \
+    >>"$LOG_FILE" 2>>"$LOG_FILE"
+  tsc_exit=$?
+  if [[ $tsc_exit -eq 0 ]]; then
+    set_result "ts-clean" true "$MAX_TS_CLEAN" "$MAX_TS_CLEAN" "exit 0"
+    log "ts-clean: PASS"
+  elif [[ $tsc_exit -eq 124 ]]; then
+    set_result "ts-clean" false 0 "$MAX_TS_CLEAN" "timeout after 180s"
+    log "ts-clean: TIMEOUT"
+  else
+    set_result "ts-clean" false 0 "$MAX_TS_CLEAN" "exit $tsc_exit"
+    log "ts-clean: FAIL ($tsc_exit)"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Test checks — only scored when the prompt explicitly asked for tests.
+# When PROMPT_REQUIRES_TESTS=false, all three are recorded as "n/a (not
+# requested)" with score=0 and max=0 so they don't penalize harnesses that
+# correctly skipped writing tests for a non-test prompt.
+# ---------------------------------------------------------------------------
+if [[ "$PROMPT_REQUIRES_TESTS" != "true" ]]; then
+  log "Tests: SKIPPED — prompt does not request tests"
+  set_result "test-exists"   true 0 0 "n/a (prompt did not request tests)"
+  set_result "test-pass"     true 0 0 "n/a (prompt did not request tests)"
+  set_result "test-coverage" true 0 0 "n/a (prompt did not request tests)"
+else
 
 # ---------------------------------------------------------------------------
 # CHECK: test-exists
@@ -209,7 +392,9 @@ fi
 # ---------------------------------------------------------------------------
 log "Check: test-pass"
 TEST_START="$(date +%s)"
-timeout 300 bash -c "cd $(printf '%q' "$PROJECT_DIR") && npm test -- --passWithNoTests" \
+TEST_CMD="$(pm_test_cmd "$PM" "--passWithNoTests")"
+log "  cmd: $TEST_CMD"
+timeout 300 bash -c "cd $(printf '%q' "$PROJECT_DIR") && $TEST_CMD" \
   >>"$LOG_FILE" 2>>"$LOG_FILE"
 test_exit=$?
 TEST_END="$(date +%s)"
@@ -232,7 +417,9 @@ fi
 # ---------------------------------------------------------------------------
 log "Check: test-coverage"
 COV_START="$(date +%s)"
-cov_raw="$(timeout 300 bash -c "cd $(printf '%q' "$PROJECT_DIR") && npm test -- --coverage --passWithNoTests" \
+COV_CMD="$(pm_test_cmd "$PM" "--coverage --passWithNoTests")"
+log "  cmd: $COV_CMD"
+cov_raw="$(timeout 300 bash -c "cd $(printf '%q' "$PROJECT_DIR") && $COV_CMD" \
   2>>"$LOG_FILE")"
 cov_exit=$?
 COV_END="$(date +%s)"
@@ -292,6 +479,8 @@ else
   fi
 fi
 
+fi  # end of PROMPT_REQUIRES_TESTS block
+
 fi  # end of package.json block
 
 # ---------------------------------------------------------------------------
@@ -300,7 +489,7 @@ fi  # end of package.json block
 AUTO_TOTAL=0
 AUTO_MAX=0
 
-for id in setup-nextjs setup-tailwind setup-r3f setup-build ai-api test-exists test-pass test-coverage; do
+for id in setup-nextjs setup-tailwind setup-r3f setup-build ai-api lint-clean ts-clean test-exists test-pass test-coverage; do
   AUTO_TOTAL="$(echo "$AUTO_TOTAL + ${SCORE[$id]:-0}" | bc)"
   AUTO_MAX="$(echo "$AUTO_MAX + ${MAX[$id]:-0}" | bc)"
 done
@@ -330,11 +519,15 @@ jq -n \
   --arg harness "$HARNESS_ID" \
   --arg project_dir "$PROJECT_DIR" \
   --arg timestamp "$TIMESTAMP" \
+  --arg pm "${PM:-unknown}" \
+  --arg requires_tests "$PROMPT_REQUIRES_TESTS" \
   --argjson nextjs    "$(build_check_json setup-nextjs)" \
   --argjson tailwind  "$(build_check_json setup-tailwind)" \
   --argjson r3f       "$(build_check_json setup-r3f)" \
   --argjson build     "$(build_check_json setup-build)" \
   --argjson ai_api    "$(build_check_json ai-api)" \
+  --argjson lint      "$(build_check_json lint-clean)" \
+  --argjson ts        "$(build_check_json ts-clean)" \
   --argjson texists   "$(build_check_json test-exists)" \
   --argjson tpass     "$(build_check_json test-pass)" \
   --argjson tcoverage "$(build_check_json test-coverage)" \
@@ -345,12 +538,16 @@ jq -n \
     harness: $harness,
     project_dir: $project_dir,
     timestamp: $timestamp,
+    package_manager: $pm,
+    prompt_requires_tests: ($requires_tests == "true"),
     checks: {
       "setup-nextjs":   $nextjs,
       "setup-tailwind": $tailwind,
       "setup-r3f":      $r3f,
       "setup-build":    $build,
       "ai-api":         $ai_api,
+      "lint-clean":     $lint,
+      "ts-clean":       $ts,
       "test-exists":    $texists,
       "test-pass":      $tpass,
       "test-coverage":  $tcoverage

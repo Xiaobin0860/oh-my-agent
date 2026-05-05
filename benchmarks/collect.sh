@@ -500,7 +500,7 @@ build_report_md() {
   local date_only="${generated_at%%T*}"
 
   # Determine prompt path relative to repo root
-  local prompt_display="docs/benchmark.prompt.md"
+  local prompt_display="benchmarks/prompt.md"
 
   # ---------------------------------------------------------------------------
   # Header

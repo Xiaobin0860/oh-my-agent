@@ -20,7 +20,7 @@ Compare oh-my-agent against other Claude Code harnesses by running an identical 
 
 | Variable | Value |
 |---|---|
-| Prompt | `docs/benchmark.prompt.md` (identical raw prompt, no harness workflow) |
+| Prompt | `benchmarks/prompt.md` (identical raw prompt, no harness workflow) |
 | Model | claude-opus-4-6 (1M context) |
 | Effort | `--effort max` |
 | Initial state | Empty directory + `git init` only |
@@ -77,7 +77,7 @@ benchmarks/
 ├── run.sh                       # env setup + harness install + unattended exec
 ├── collect.sh                   # aggregate scores + generate report
 ├── prompt/
-│   └── benchmark.prompt.md
+│   └── prompt.md
 ├── runs/                        # generated code per harness (excludes node_modules)
 │   ├── vanilla/
 │   ├── oma/
@@ -222,7 +222,7 @@ A single human review pass at the end is the only manual step.
 4. Create 5 isolated `homes/{harness}` and `projects/{harness}`
 5. `git init` each project
 6. Record `claude --version`
-7. Copy `benchmark.prompt.md` to `$BASE/prompt.md`
+7. Copy `prompt.md` to `$BASE/prompt.md`
 
 ### Phase 2: Harness Installation (`run.sh`, sequential)
 
