@@ -4,7 +4,32 @@ Copy-paste ready patterns. Use these as starting points, adapt to the specific t
 
 ---
 
-## React Component with Props
+## Next.js 16 framework canonicals (use these — never the legacy alternatives)
+
+```tsx
+// ✅ Internal nav: <Link>, never <a href="/...">
+import Link from "next/link";
+<Link href="/gallery" className="...">View gallery</Link>
+
+// ✅ Custom font: next/font, never <link rel="stylesheet">
+import { Inter } from "next/font/google";
+const inter = Inter({ subsets: ["latin"] });
+<body className={inter.className}>...</body>
+
+// ✅ Images: next/image, never raw <img>
+import Image from "next/image";
+<Image src="/hero.png" alt="Hero scene" width={1200} height={600} priority />
+
+// ✅ Imports: only what you use. After refactoring, remove orphans.
+// ✅ useCallback / useEffect deps: list every referenced symbol exactly.
+```
+
+---
+
+## Accessible Card (focus ring + contrast + keyboard + ARIA)
+
+Use as the baseline for every interactive surface. Adjust colors but keep the
+focus-ring, contrast, and ARIA structure.
 
 ```tsx
 interface CardProps {
@@ -16,8 +41,17 @@ interface CardProps {
 export function Card({ title, description, onClick }: CardProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="rounded-lg border bg-card p-4 text-left shadow-sm transition-colors hover:bg-accent"
+      aria-label={title}
+      className={[
+        "rounded-lg border bg-card p-4 text-left shadow-sm transition-colors",
+        "hover:bg-accent",
+        // visible focus ring (WCAG 2.4.7)
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        // text/background contrast >= 4.5:1 via theme tokens
+        "text-foreground",
+      ].join(" ")}
     >
       <h3 className="text-lg font-semibold">{title}</h3>
       {description && (
@@ -27,6 +61,12 @@ export function Card({ title, description, onClick }: CardProps) {
   );
 }
 ```
+
+Required for every interactive element:
+- `focus-visible:ring-2 ring-offset-2` (or equivalent visible focus indicator)
+- `aria-label` when content is icon-only or non-obvious
+- text/background contrast >= 4.5:1 (use theme tokens, not raw colors)
+- keyboard reachable (use semantic `<button>`/`<a>`/`<Link>`, not clickable `<div>`)
 
 ---
 

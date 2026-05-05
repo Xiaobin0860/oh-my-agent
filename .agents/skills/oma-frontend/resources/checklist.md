@@ -32,6 +32,12 @@ Run through every item before submitting your work.
 - [ ] Empty state (helpful message + CTA)
 - [ ] Optimistic updates where appropriate
 
+## Deferred / Stub Markers (transparency)
+- [ ] Every deferred external integration is wrapped in `// TODO(oma-deferred): <vendor or feature>`
+- [ ] Every mock data block has `// MVP: replace with <real-source>` on top
+- [ ] Every save/persist UI has a working storage adapter (localStorage, IndexedDB, or API). Empty `onClick={() => console.log("save")}` does NOT count — wire actual persistence, or mark explicitly: `// TODO(oma-deferred): persist <state> to <storage>`
+- [ ] Reload-after-save round-trips state for any save action surfaced in the UI
+
 ## Performance
 - [ ] No unnecessary re-renders (check with React DevTools Profiler)
 - [ ] Code splitting for route-level components
