@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FFF8F0;
+  --color-cream-dark: #F5EDE0;
+  --color-coral: #FF6B6B;
+  --color-coral-light: #FF8E8E;
+  --color-sky: #87CEEB;
+  --color-sky-light: #B0DFEF;
+  --color-mint: #98D8C8;
+  --color-mint-light: #B5E6D8;
+  --color-sunshine: #FFD93D;
+  --color-sunshine-light: #FFE566;
+  --color-lavender: #C3ACD0;
+  --color-lavender-light: #D4C1DF;
+  --color-charcoal: #2D3436;
+  --color-charcoal-light: #636E72;
+  --color-forest: #2D5016;
+  --color-ocean-deep: #1A535C;
+  --color-candy-pink: #FFB5E8;
+
+  --font-family-display: 'Nunito', ui-rounded, system-ui, -apple-system, sans-serif;
+  --font-family-body: 'Nunito', ui-rounded, system-ui, -apple-system, sans-serif;
+
+  --radius-btn: 1rem;
+  --radius-card: 1.25rem;
+  --radius-panel: 1.5rem;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-family-body);
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .tap-target {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .shadow-soft {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-glow-coral {
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+  }
+}
