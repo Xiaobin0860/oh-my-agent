@@ -215,11 +215,17 @@ function resolveScript(
   docPath: string,
   repoRoot: string,
 ): { ok: boolean; reason?: string } {
-  // Walk up from the doc's directory to find the nearest package.json
+  // Walk up from the doc's directory and check every ancestor package.json
+  // up to (and including) the repo root. Workspace-aware: a doc in
+  // `web/docs/` may legitimately reference root scripts even though
+  // `web/package.json` doesn't declare them. Resolution succeeds when
+  // ANY ancestor package.json declares the script.
   let current = path.dirname(path.join(repoRoot, docPath));
-  const root = path.parse(current).root;
+  const fsRoot = path.parse(current).root;
+  const checked: string[] = [];
+  let parseError: string | null = null;
 
-  while (current !== root && current.startsWith(repoRoot)) {
+  while (current.startsWith(repoRoot)) {
     const pkgPath = path.join(current, "package.json");
     if (fs.existsSync(pkgPath)) {
       try {
@@ -229,19 +235,27 @@ function resolveScript(
         if (pkg.scripts && Object.hasOwn(pkg.scripts, scriptName)) {
           return { ok: true };
         }
-        return {
-          ok: false,
-          reason: `script_not_in_package_json (${path.relative(repoRoot, pkgPath)})`,
-        };
+        checked.push(path.relative(repoRoot, pkgPath) || "package.json");
       } catch {
-        return { ok: false, reason: "package_json_parse_error" };
+        parseError = path.relative(repoRoot, pkgPath) || "package.json";
       }
     }
+
+    if (current === repoRoot || current === fsRoot) break;
     const parent = path.dirname(current);
     if (parent === current) break;
     current = parent;
   }
 
+  if (checked.length > 0) {
+    return {
+      ok: false,
+      reason: `script_not_in_package_json (${checked.join(", ")})`,
+    };
+  }
+  if (parseError) {
+    return { ok: false, reason: `package_json_parse_error (${parseError})` };
+  }
   return { ok: false, reason: "package_json_not_found" };
 }
 

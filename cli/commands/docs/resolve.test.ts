@@ -464,6 +464,49 @@ describe("resolveRefs - script: package.json lookup", () => {
     expect(report.broken).toHaveLength(1);
     expect(report.broken[0].reason).toMatch(/package_json_not_found/);
   });
+
+  it("script in workspace root is ok when nearest package.json lacks it", async () => {
+    const rootPkg = {
+      scripts: { test: "vitest run", lint: "biome check ." },
+      workspaces: ["web"],
+    };
+    fs.writeFileSync(path.join(tmp, "package.json"), JSON.stringify(rootPkg));
+    const webDir = path.join(tmp, "web");
+    fs.mkdirSync(webDir, { recursive: true });
+    const webPkg = { scripts: { dev: "docusaurus start" } };
+    fs.writeFileSync(path.join(webDir, "package.json"), JSON.stringify(webPkg));
+    fs.mkdirSync(path.join(webDir, "docs"), { recursive: true });
+
+    const index = makeIndex("web/docs/guide.md", [
+      { kind: "script", target: "test", line: 1 },
+    ]);
+
+    const report = await resolveRefs(index, tmp);
+    expect(report.broken).toHaveLength(0);
+  });
+
+  it("script absent from all ancestor package.json files is broken with full chain", async () => {
+    fs.writeFileSync(
+      path.join(tmp, "package.json"),
+      JSON.stringify({ scripts: { build: "bun build" } }),
+    );
+    const webDir = path.join(tmp, "web");
+    fs.mkdirSync(path.join(webDir, "docs"), { recursive: true });
+    fs.writeFileSync(
+      path.join(webDir, "package.json"),
+      JSON.stringify({ scripts: { dev: "docusaurus start" } }),
+    );
+
+    const index = makeIndex("web/docs/guide.md", [
+      { kind: "script", target: "missing-script", line: 1 },
+    ]);
+
+    const report = await resolveRefs(index, tmp);
+    expect(report.broken).toHaveLength(1);
+    expect(report.broken[0].reason).toMatch(/script_not_in_package_json/);
+    expect(report.broken[0].reason).toContain("web/package.json");
+    expect(report.broken[0].reason).toContain("package.json");
+  });
 });
 
 // ---------------------------------------------------------------------------

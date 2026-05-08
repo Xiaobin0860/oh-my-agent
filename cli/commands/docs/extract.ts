@@ -477,15 +477,17 @@ function extractRefsFromAst(tree: Root, ignoreRanges: IgnoreRange[]): DocRef[] {
         const val = code.value ?? "";
 
         if (SHELL_LANGS.has(lang)) {
-          // Extract CLI commands line by line
+          // Extract CLI commands line by line.
+          //
+          // Script refs (`npm run X`, `bun run X`) are intentionally NOT
+          // extracted from fenced code blocks: those blocks frequently carry
+          // illustrative polyglot examples (`npm test`, `pip install`,
+          // `cargo build`) that aren't claims about THIS project's scripts.
+          // To assert a real local script ref, use inline code in prose:
+          // "run `bun run test`".
           for (const rawLine of val.split("\n")) {
             const stripped = rawLine.replace(/^[$#]\s*/, "").trim();
             if (!stripped) continue;
-
-            // Scripts first
-            for (const s of extractScripts(stripped)) {
-              addRef("script", s, line);
-            }
 
             // CLI — if first token is known binary and not a script pattern
             const firstTok = stripped.split(/\s+/)[0] ?? "";
