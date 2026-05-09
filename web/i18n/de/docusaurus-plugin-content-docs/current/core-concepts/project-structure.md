@@ -210,15 +210,22 @@ Registriert Hooks und Berechtigungen für Claude Code. Enthält Verweise auf die
 ### hooks/
 
 **`triggers.json`** — Die Keyword-zu-Workflow-Zuordnung. Definiert:
-- `workflows`: Zuordnung von Workflow-Name zu `{ persistent: boolean, keywords: { language: [...] } }`
+- `workflows`: Zuordnung von Workflow-Name zu `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. `keywords` sind wörtliche Phrasen; `patterns` sind rohe Regex-Strings (kompiliert mit den Flags `iu`).
 - `informationalPatterns`: Phrasen, die auf Fragen hindeuten (aus der Auto-Erkennung gefiltert)
 - `excludedWorkflows`: Workflows, die explizite `/command`-Aufrufung erfordern
 - `cjkScripts`: Sprachcodes mit CJK-Schriften (ko, ja, zh)
 
+Sprachabschnitte in `keywords`, `patterns` und `informationalPatterns` folgen dieser Konvention:
+- `*` — Universal/Englisch. Wird unabhängig von der Einstellung `language` in `.agents/oma-config.yaml` immer geladen.
+- `en` — Wird aus Gründen der Abwärtskompatibilität geladen. Funktional gleichwertig mit `*`. Neue englische Inhalte gehören in `*`.
+- `ko`/`ja`/`zh`/usw. — Sprachspezifisch. Wird nur geladen, wenn `language: <code>` in `.agents/oma-config.yaml` gesetzt ist.
+
 **`keyword-detector.ts`** — TypeScript-Hook, der:
-1. Benutzereingabe gegen Trigger-Keywords scannt
-2. Auf informationelle Muster prüft
-3. `[OMA WORKFLOW: ...]` oder `[OMA PERSISTENT MODE: ...]` in den Kontext injiziert
+1. Eingabe bereinigt (entfernt Codeblöcke, zitierte Strings, eingefügte System-Echo-Blöcke)
+2. Bereinigte Eingabe gegen Trigger-`keywords` (wörtlich) und `patterns` (Regex) scannt
+3. In einem 60-Zeichen-Fenster um jeden Treffer auf informationelle Muster prüft
+4. Verstärkungsschutz anwendet (unterdrückt, wenn derselbe Workflow innerhalb von 60s mehr als zweimal ausgelöst wurde)
+5. `[OMA WORKFLOW: ...]` oder `[OMA PERSISTENT MODE: ...]` in den Kontext injiziert
 
 **`persistent-mode.ts`** — Prüft auf aktive Zustandsdateien in `.agents/state/` und verstärkt die Ausführung persistenter Workflows.
 

@@ -37,6 +37,15 @@ Les workflows persistants continuent de s'exécuter jusqu'à ce que toutes les t
 | Néerlandais | "orkestreren", "parallel", "alles uitvoeren" |
 | Polonais | "orkiestrować", "równolegle", "wykonaj wszystko" |
 
+**Patterns regex de déclenchement** (intention + liste blanche de noms, voir [Détection automatique : champ Pattern](#pattern-field-raw-regex)) :
+| Section | Pattern | Exemples qui déclenchent |
+|---------|---------|--------------------------|
+| `*` (universel) | `(build\|create\|make\|develop\|implement\|scaffold) + (a\|an\|the) + [modifier]{0,3} + <noun>` | "Build a TODO app with user authentication", "Create an awesome web service", "Develop a backend with PostgreSQL" |
+| `*` (universel) | `i want a/an + <noun>` | "I want a CLI for parsing logs" |
+| `ko` | `<noun> + (을\|를\|이\|가)? + (만들어\|구현해\|개발해 + 변형)` | "TODO 앱 만들어줘", "REST API 구현해", "백엔드를 개발해주세요" |
+
+Liste blanche de noms (15) : app, api, service, server, cli, tool, website, dashboard, system, feature, backend, frontend, prototype, mvp, bot.
+
 **Étapes :**
 1. **Étape 0 -- Préparation :** Lire la compétence de coordination, le guide de chargement du contexte, le protocole de mémoire. Détecter le fournisseur.
 2. **Étape 1 -- Charger/Créer le plan :** Vérifier la présence de `.agents/results/plan-{sessionId}.json`. Si absent, inviter l'utilisateur à exécuter `/plan` d'abord.
@@ -394,26 +403,64 @@ oh-my-agent utilise un hook `UserPromptSubmit` qui s'exécute avant le traitemen
 
 ### Flux de détection
 
-1. L'utilisateur saisit une entrée en langage naturel
-2. Le hook vérifie si une commande explicite `/command` est présente (si oui, la détection est ignorée pour éviter les doublons)
-3. Le hook scanne l'entrée par rapport aux listes de mots-clés de `triggers.json`
-4. Si une correspondance est trouvée, vérifier si l'entrée correspond à des patterns informationnels
-5. Si informationnelle (ex. : « what is orchestrate? »), la filtrer -- pas de déclenchement de workflow
-6. Si actionnable, injecter `[OMA WORKFLOW: {workflow-name}]` dans le contexte
-7. L'agent lit le tag injecté et charge le fichier de workflow correspondant depuis `.agents/workflows/`
+1. L'utilisateur saisit une entrée en langage naturel.
+2. Le hook vérifie si une commande explicite `/command` est présente (le cas échéant, la détection est ignorée pour éviter toute duplication).
+3. Le hook assainit l'entrée (suppression des blocs de code, des chaînes entre guillemets et des échos système collés tels que `[OMA WORKFLOW: ...]` ou `[OMA PERSISTENT MODE: ...]`), puis la scanne par rapport à `.agents/hooks/core/triggers.json` — à la fois les listes de mots-clés (phrases littérales) et les `patterns` (regex bruts). Un garde-fou de renforcement supprime les redéclenchements lorsque le même workflow s'est activé 2 fois ou plus au cours des 60 dernières secondes.
+4. Si une correspondance est trouvée, vérifiez si l'entrée correspond à des patterns informationnels.
+5. Si l'entrée est informationnelle (par ex. « what is orchestrate? »), filtrez-la — aucun workflow n'est déclenché.
+6. Si l'entrée est actionnable, injectez `[OMA WORKFLOW: {workflow-name}]` dans le contexte.
+7. L'agent lit le tag injecté et charge le fichier de workflow correspondant depuis `.agents/workflows/`.
+
+### Convention des sections de langue
+
+`.agents/hooks/core/triggers.json` utilise une structure de sections par langue pour `keywords`, `patterns` et `informationalPatterns` :
+
+| Section | Comportement |
+|---------|--------------|
+| `*` | Universel — toujours chargé indépendamment du paramètre `language` dans `.agents/oma-config.yaml`. À utiliser pour le contenu en anglais (lingua franca) et les jetons réellement transversaux aux langues (par ex. le nom de workflow `"orchestrate"`). |
+| `en` | Anglais — chargé pour la rétrocompatibilité. Fonctionnellement équivalent à `*`. Le nouveau contenu en anglais doit aller dans `*`. |
+| `ko`, `ja`, `zh`, `es`, `fr`, `de`, `pt`, `ru`, `nl`, `pl` | Spécifique à une langue — chargé uniquement lorsque `language: <lang>` est défini dans `.agents/oma-config.yaml`. |
+
+**Implication** : Si vous définissez `language: en` dans `.agents/oma-config.yaml`, seuls les patterns `*` et `en` sont chargés. Les déclencheurs en langage naturel coréen/japonais/etc. ne se déclencheront pas, même si l'utilisateur saisit du texte dans ces langues. Pour activer une langue autre que l'anglais, définissez `language: <code>` en conséquence. Le repli anglais dans `*` reste toujours actif.
+
+### Champ Pattern (regex brut)
+
+En plus des `keywords` littéraux, chaque workflow peut déclarer des `patterns` — des chaînes regex brutes compilées avec les drapeaux `iu`. Les patterns permettent de faire correspondre des intentions multi-jetons qui exigeraient sinon des listes de mots-clés combinatoires.
+
+```jsonc
+{
+  "workflows": {
+    "orchestrate": {
+      "persistent": true,
+      "keywords": { "*": ["orchestrate"], "en": ["parallel", ...] },
+      "patterns": {
+        "*": ["\\b(build|create|make)\\s+(?:an?|the)\\s+...\\b"],
+        "ko": ["(앱|API|...)\\s*(?:을|를)?\\s*(?:만들어\\s*(?:주세요|줘)?|...)"]
+      }
+    }
+  }
+}
+```
+
+Règles d'écriture :
+- Les chaînes sont compilées directement — échappez les antislashs une fois pour JSON, une fois pour la regex (`\\b`, `\\s+`)
+- Pas d'enveloppement automatique des limites de mot — les auteurs de patterns gèrent eux-mêmes `\b`
+- Les regex invalides sont silencieusement ignorées à l'exécution (visibles au moment de l'édition de la configuration via les échecs de tests)
 
 ### Filtrage des patterns informationnels
 
-La section `informationalPatterns` de `triggers.json` définit des phrases qui indiquent des questions plutôt que des commandes. Elles sont vérifiées avant l'activation du workflow :
+La section `informationalPatterns` de `.agents/hooks/core/triggers.json` définit des phrases qui indiquent des questions plutôt que des commandes. Vérifiées dans une fenêtre de 60 caractères autour de chaque correspondance potentielle de workflow :
 
-| Langue | Patterns informationnels |
-|--------|-------------------------|
-| Anglais | "what is", "what are", "how to", "how does", "explain", "describe", "tell me about" |
-| Coréen | "뭐야", "무엇", "어떻게", "설명해", "알려줘" |
-| Japonais | "とは", "って何", "どうやって", "説明して" |
-| Chinois | "是什么", "什么是", "怎么", "解释" |
+| Section | Exemples de patterns |
+|---------|----------------------|
+| `*` (anglais universel) | "what is", "what are", "how to", "how does", "how do", "should we", "should i", "could we", "would you", "what if", "what about", "why build", "false positive", "trigger when", "auto-trigger" |
+| `ko` | "뭐야", "무엇", "어떻게", "설명해", "알려줘", "트리거", "발동", "메타", "왜 만들", "어떻게 만들", "어떨까", "한다면", "할까요" |
+| `ja` | "とは", "って何", "どうやって", "説明して" |
+| `zh` | "是什么", "什么是", "怎么", "解释" |
 
-Si l'entrée correspond à la fois à un mot-clé de workflow et à un pattern informationnel, le pattern informationnel a priorité et aucun workflow n'est déclenché.
+Si l'entrée correspond à la fois à un déclencheur de workflow et à un pattern informationnel, le pattern informationnel a priorité et aucun workflow n'est déclenché. C'est ce qui bloque des prompts comme :
+- `"How do you build a TODO app?"` — `how do` dans `*` bloque la regex d'intention orchestrate
+- `"orchestrate 트리거 해주면 되나요?"` (sous `language: ko`) — `트리거` dans `ko` bloque le mot-clé orchestrate
 
 ### Workflows exclus
 

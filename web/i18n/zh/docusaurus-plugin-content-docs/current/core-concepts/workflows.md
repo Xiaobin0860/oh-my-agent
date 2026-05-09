@@ -37,6 +37,15 @@ description: 全部 16 个 oh-my-agent 工作流的完整参考 —— 斜杠命
 | 荷兰语 | "orkestreren"、"parallel"、"alles uitvoeren" |
 | 波兰语 | "orkiestrować"、"równolegle"、"wykonaj wszystko" |
 
+**触发正则模式**（意图 + 名词白名单，参见[自动检测：模式字段](#pattern-field-raw-regex)）：
+| 分节 | 模式 | 触发示例 |
+|------|------|---------|
+| `*`（通用） | `(build\|create\|make\|develop\|implement\|scaffold) + (a\|an\|the) + [modifier]{0,3} + <noun>` | "Build a TODO app with user authentication"、"Create an awesome web service"、"Develop a backend with PostgreSQL" |
+| `*`（通用） | `i want a/an + <noun>` | "I want a CLI for parsing logs" |
+| `ko` | `<noun> + (을\|를\|이\|가)? + (만들어\|구현해\|개발해 + 변형)` | "TODO 앱 만들어줘"、"REST API 구현해"、"백엔드를 개발해주세요" |
+
+名词白名单（15 个）：app、api、service、server、cli、tool、website、dashboard、system、feature、backend、frontend、prototype、mvp、bot。
+
 **步骤：**
 1. **步骤 0 —— 准备：** 读取协调技能、上下文加载指南、内存协议。检测供应商。
 2. **步骤 1 —— 加载/创建计划：** 检查 `.agents/results/plan-{sessionId}.json`。如果缺失，提示用户先运行 `/plan`。
@@ -394,26 +403,64 @@ oh-my-agent 使用 `UserPromptSubmit` 钩子，在处理每条用户消息之前
 
 ### 检测流程
 
-1. 用户输入自然语言
-2. 钩子检查是否存在显式 `/command`（如果有，跳过检测以避免重复）
-3. 钩子扫描输入与 `triggers.json` 关键词列表的匹配
-4. 如果找到匹配，检查输入是否匹配信息性模式
-5. 如果是信息性的（如 "什么是 orchestrate？"），过滤掉 —— 不触发工作流
-6. 如果是可操作的，将 `[OMA WORKFLOW: {workflow-name}]` 注入上下文
-7. 智能体读取注入的标签并从 `.agents/workflows/` 加载对应的工作流文件
+1. 用户输入自然语言。
+2. 钩子检查是否存在显式 `/command`（如果有，跳过检测以避免重复）。
+3. 钩子先净化输入（剥离代码块、引号字符串以及粘贴的系统回显块），再扫描其与 `.agents/hooks/core/triggers.json` 的匹配，涵盖关键词列表（字面短语）和 `patterns`（原始正则）；同时强化保护机制会抑制 60 秒内已触发 2 次或以上的同一工作流，避免重复触发。
+4. 如果找到匹配，检查输入是否匹配信息性模式。
+5. 如果是信息性的（如 "什么是 orchestrate？"），过滤掉，不触发工作流。
+6. 如果是可操作的，将 `[OMA WORKFLOW: {workflow-name}]` 注入上下文。
+7. 智能体读取注入的标签，并从 `.agents/workflows/` 加载对应的工作流文件。
+
+### 语言分节约定
+
+`.agents/hooks/core/triggers.json` 对 `keywords`、`patterns` 和 `informationalPatterns` 使用按语言分节的结构：
+
+| 分节 | 行为 |
+|------|------|
+| `*` | 通用 —— 无论 `.agents/oma-config.yaml` 中的 `language` 设置如何都会加载。用于英语内容（通用语）以及真正跨语言的 token（如工作流名 `"orchestrate"`）。 |
+| `en` | 英语 —— 为向后兼容而加载。功能上等价于 `*`。新的英语内容应放入 `*`。 |
+| `ko`、`ja`、`zh`、`es`、`fr`、`de`、`pt`、`ru`、`nl`、`pl` | 语言专用 —— 仅当 `.agents/oma-config.yaml` 中设置了 `language: <lang>` 时才加载。 |
+
+**含义**：如果在 `.agents/oma-config.yaml` 中设置 `language: en`，则只会加载 `*` 和 `en` 模式。即使用户使用韩语/日语等输入，这些自然语言触发器也不会触发。要启用非英语语言，请相应地设置 `language: <code>`。`*` 中的英语回退始终保持活跃。
+
+### 模式字段（原始正则）
+
+除了字面量 `keywords` 之外，每个工作流还可以声明 `patterns` —— 使用 `iu` 标志编译的原始正则表达式字符串。模式可实现多 token 的意图匹配，否则需要组合爆炸的关键词列表才能覆盖。
+
+```jsonc
+{
+  "workflows": {
+    "orchestrate": {
+      "persistent": true,
+      "keywords": { "*": ["orchestrate"], "en": ["parallel", ...] },
+      "patterns": {
+        "*": ["\\b(build|create|make)\\s+(?:an?|the)\\s+...\\b"],
+        "ko": ["(앱|API|...)\\s*(?:을|를)?\\s*(?:만들어\\s*(?:주세요|줘)?|...)"]
+      }
+    }
+  }
+}
+```
+
+编写规则：
+- 字符串会被直接编译 —— 反斜杠需要转义两次：一次给 JSON，一次给正则（`\\b`、`\\s+`）
+- 不会自动包裹单词边界 —— 模式作者需自行处理 `\b`
+- 无效正则在运行时会被静默跳过（在配置编辑期间通过测试失败可见）
 
 ### 信息性模式过滤
 
-`triggers.json` 中的 `informationalPatterns` 部分定义了表示提问而非命令的短语。这些在工作流激活前被检查：
+`.agents/hooks/core/triggers.json` 中的 `informationalPatterns` 部分定义了表示提问而非命令的短语。在每个潜在工作流匹配周围 60 个字符的窗口内进行检查：
 
-| 语言 | 信息性模式 |
-|------|----------|
-| 英语 | "what is"、"what are"、"how to"、"how does"、"explain"、"describe"、"tell me about" |
-| 韩语 | "뭐야"、"무엇"、"어떻게"、"설명해"、"알려줘" |
-| 日语 | "とは"、"って何"、"どうやって"、"説明して" |
-| 中文 | "是什么"、"什么是"、"怎么"、"解释" |
+| 分节 | 模式示例 |
+|------|---------|
+| `*`（通用英语） | "what is"、"what are"、"how to"、"how does"、"how do"、"should we"、"should i"、"could we"、"would you"、"what if"、"what about"、"why build"、"false positive"、"trigger when"、"auto-trigger" |
+| `ko` | "뭐야"、"무엇"、"어떻게"、"설명해"、"알려줘"、"트리거"、"발동"、"메타"、"왜 만들"、"어떻게 만들"、"어떨까"、"한다면"、"할까요" |
+| `ja` | "とは"、"って何"、"どうやって"、"説明して" |
+| `zh` | "是什么"、"什么是"、"怎么"、"解释" |
 
-如果输入同时匹配工作流关键词和信息性模式，信息性模式优先，不触发任何工作流。
+如果输入同时匹配工作流触发器和信息性模式，信息性模式优先，不触发任何工作流。这正是用于阻止以下提示的机制：
+- `"How do you build a TODO app?"` —— `*` 中的 `how do` 阻止 orchestrate 意图正则
+- `"orchestrate 트리거 해주면 되나요?"`（在 `language: ko` 下） —— `ko` 中的 `트리거` 阻止 orchestrate 关键词
 
 ### 排除的工作流
 

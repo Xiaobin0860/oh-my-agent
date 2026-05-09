@@ -37,6 +37,15 @@ description: oh-my-agent 16개 워크플로우 완전 레퍼런스 — 슬래시
 | 네덜란드어 | "orkestreren", "parallel", "alles uitvoeren" |
 | 폴란드어 | "orkiestrować", "równolegle", "wykonaj wszystko" |
 
+**트리거 정규식 패턴** (의도 + 명사 화이트리스트, [자동 감지: Pattern 필드](#pattern-field-raw-regex) 참조):
+| 섹션 | 패턴 | 트리거 예시 |
+|---------|---------|----------------------|
+| `*` (공통) | `(build\|create\|make\|develop\|implement\|scaffold) + (a\|an\|the) + [modifier]{0,3} + <noun>` | "Build a TODO app with user authentication", "Create an awesome web service", "Develop a backend with PostgreSQL" |
+| `*` (공통) | `i want a/an + <noun>` | "I want a CLI for parsing logs" |
+| `ko` | `<noun> + (을\|를\|이\|가)? + (만들어\|구현해\|개발해 + 변형)` | "TODO 앱 만들어줘", "REST API 구현해", "백엔드를 개발해주세요" |
+
+명사 화이트리스트 (15개): app, api, service, server, cli, tool, website, dashboard, system, feature, backend, frontend, prototype, mvp, bot.
+
 **단계:**
 1. **Step 0 — 준비:** 코디네이션 스킬, 컨텍스트 로딩 가이드, 메모리 프로토콜 읽기. 벤더 감지.
 2. **Step 1 — 계획 로딩/생성:** `.agents/results/plan-{sessionId}.json` 확인. 없으면 `/plan`을 먼저 실행하도록 안내.
@@ -384,26 +393,64 @@ oh-my-agent는 각 사용자 메시지가 처리되기 전에 실행되는 `User
 
 ### 감지 흐름
 
-1. 사용자가 자연어 입력을 타이핑
-2. 훅이 명시적 `/command`가 있는지 확인 (있으면 감지 건너뛰기)
-3. 훅이 `triggers.json` 키워드 목록에 대해 입력 스캔
-4. 매칭이 발견되면, 입력이 정보성 패턴에 해당하는지 확인
-5. 정보성이면 필터링 — 워크플로우 트리거 안 함
-6. 행동 가능하면, 컨텍스트에 `[OMA WORKFLOW: {workflow-name}]` 주입
-7. 에이전트가 해당 워크플로우 파일 로딩
+1. 사용자가 자연어 입력을 타이핑합니다.
+2. 훅이 명시적 `/command`가 있는지 확인합니다. 있으면 중복 방지를 위해 감지를 건너뜁니다.
+3. 훅이 입력을 정제(코드 블록, 인용 문자열, 붙여넣은 시스템 에코 블록 제거)한 뒤 `.agents/hooks/core/triggers.json`의 키워드 목록(리터럴 문구)과 `patterns`(원시 정규식) 양쪽에 대조하여 스캔합니다. 강화 가드는 동일 워크플로우가 최근 60초 내에 2회 이상 발동된 경우 재트리거를 억제합니다.
+4. 매칭이 발견되면, 입력이 정보성 패턴에 해당하는지 확인합니다.
+5. 정보성이면 필터링되며(예: "what is orchestrate?"), 워크플로우는 트리거되지 않습니다.
+6. 행동 가능하면, 컨텍스트에 `[OMA WORKFLOW: {workflow-name}]`를 주입합니다.
+7. 에이전트가 주입된 태그를 읽고 `.agents/workflows/`에서 해당 워크플로우 파일을 로드합니다.
+
+### 언어 섹션 컨벤션
+
+`.agents/hooks/core/triggers.json`은 `keywords`, `patterns`, `informationalPatterns`에 대해 언어별 섹션 구조를 사용합니다.
+
+| 섹션 | 동작 |
+|---------|----------|
+| `*` | 공통. `.agents/oma-config.yaml`의 `language` 설정과 무관하게 항상 로드됩니다. 영어 콘텐츠(공용어)와 진정한 언어 무관 토큰(예: 워크플로우 이름 `"orchestrate"`)에 사용합니다. |
+| `en` | 영어. 하위 호환성을 위해 로드되며, 기능적으로 `*`와 동일합니다. 새로운 영어 콘텐츠는 `*`에 추가해야 합니다. |
+| `ko`, `ja`, `zh`, `es`, `fr`, `de`, `pt`, `ru`, `nl`, `pl` | 언어별. `.agents/oma-config.yaml`에 `language: <lang>`이 설정된 경우에만 로드됩니다. |
+
+**의미**: `.agents/oma-config.yaml`에 `language: en`을 설정하면 `*`와 `en` 패턴만 로드됩니다. 사용자가 한국어나 일본어 등으로 입력하더라도 해당 언어의 자연어 트리거는 발동되지 않습니다. 비영어권 언어를 활성화하려면 `language: <code>`를 알맞게 설정해야 합니다. `*`의 영어 폴백은 항상 활성 상태로 유지됩니다.
+
+### Pattern 필드 (원시 정규식)
+
+리터럴 `keywords` 외에도 각 워크플로우는 `patterns`를 선언할 수 있습니다. `patterns`는 `iu` 플래그로 컴파일되는 원시 정규식 문자열입니다. 패턴을 사용하면 키워드 목록을 조합해 나열해야 했을 멀티 토큰 의도 매칭을 간결하게 표현할 수 있습니다.
+
+```jsonc
+{
+  "workflows": {
+    "orchestrate": {
+      "persistent": true,
+      "keywords": { "*": ["orchestrate"], "en": ["parallel", ...] },
+      "patterns": {
+        "*": ["\\b(build|create|make)\\s+(?:an?|the)\\s+...\\b"],
+        "ko": ["(앱|API|...)\\s*(?:을|를)?\\s*(?:만들어\\s*(?:주세요|줘)?|...)"]
+      }
+    }
+  }
+}
+```
+
+작성 규칙:
+- 문자열은 그대로 컴파일됩니다. JSON용으로 한 번, 정규식용으로 한 번씩 백슬래시를 이스케이프해야 합니다 (`\\b`, `\\s+`).
+- 자동 단어 경계 래핑이 없습니다. 패턴 작성자가 직접 `\b`를 처리해야 합니다.
+- 잘못된 정규식은 런타임에 조용히 건너뜁니다 (설정 편집 시점에 테스트 실패로 확인 가능).
 
 ### 정보성 패턴 필터링
 
-`triggers.json`의 `informationalPatterns` 섹션은 명령이 아닌 질문을 나타내는 구문을 정의합니다:
+`.agents/hooks/core/triggers.json`의 `informationalPatterns` 섹션은 명령이 아닌 질문을 나타내는 구문을 정의합니다. 잠재적 워크플로우 매치 주변 60자 윈도우에서 확인됩니다.
 
-| 언어 | 정보성 패턴 |
-|----------|----------------------|
-| 영어 | "what is", "what are", "how to", "how does", "explain", "describe", "tell me about" |
-| 한국어 | "뭐야", "무엇", "어떻게", "설명해", "알려줘" |
-| 일본어 | "とは", "って何", "どうやって", "説明して" |
-| 중국어 | "是什么", "什么是", "怎么", "解释" |
+| 섹션 | 패턴 예시 |
+|---------|----------------------|
+| `*` (공통 영어) | "what is", "what are", "how to", "how does", "how do", "should we", "should i", "could we", "would you", "what if", "what about", "why build", "false positive", "trigger when", "auto-trigger" |
+| `ko` | "뭐야", "무엇", "어떻게", "설명해", "알려줘", "트리거", "발동", "메타", "왜 만들", "어떻게 만들", "어떨까", "한다면", "할까요" |
+| `ja` | "とは", "って何", "どうやって", "説明して" |
+| `zh` | "是什么", "什么是", "怎么", "解释" |
 
-입력이 워크플로우 키워드와 정보성 패턴 모두에 매칭되면, 정보성 패턴이 우선합니다.
+입력이 워크플로우 트리거와 정보성 패턴 모두에 매칭되면, 정보성 패턴이 우선하고 워크플로우는 트리거되지 않습니다. 다음과 같은 프롬프트가 차단되는 이유입니다.
+- `"How do you build a TODO app?"`: `*`의 `how do`가 orchestrate 의도 정규식을 차단
+- `"orchestrate 트리거 해주면 되나요?"` (`language: ko` 환경): `ko`의 `트리거`가 orchestrate 키워드를 차단
 
 ### 제외된 워크플로우
 

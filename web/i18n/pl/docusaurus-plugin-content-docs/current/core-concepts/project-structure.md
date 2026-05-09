@@ -147,11 +147,22 @@ Ten katalog łączy oh-my-agent z Claude Code i innymi IDE.
 ### hooks/
 
 **`triggers.json`** — Mapowanie słów kluczowych na workflow. Definiuje:
-- `workflows`: Mapa nazwy workflow na `{ persistent: boolean, keywords: { language: [...] } }`
+- `workflows`: Mapa nazwy workflow na `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. `keywords` to literalne frazy; `patterns` to surowe ciągi regex (kompilowane z flagami `iu`).
 - `informationalPatterns`: Frazy wskazujące pytania (filtrowane z automatycznego wykrywania)
 - `excludedWorkflows`: Workflow wymagające jawnego wywołania `/komendą`
+- `cjkScripts`: Kody języków używających pism CJK (ko, ja, zh)
 
-**`keyword-detector.ts`** — Hook TypeScript który skanuje dane wejściowe użytkownika względem słów kluczowych, sprawdza wzorce informacyjne i wstrzykuje kontekst aktywacji workflow.
+Sekcje językowe w `keywords`, `patterns` i `informationalPatterns` przestrzegają następującej konwencji:
+- `*` — Uniwersalne/angielskie. Zawsze ładowane niezależnie od ustawienia `language` w `.agents/oma-config.yaml`.
+- `en` — Ładowane dla zachowania kompatybilności wstecznej. Funkcjonalnie równoważne `*`. Nową zawartość angielską należy umieszczać w `*`.
+- `ko`/`ja`/`zh`/itd. — Specyficzne dla języka. Ładowane tylko gdy w `.agents/oma-config.yaml` ustawiono `language: <kod>`.
+
+**`keyword-detector.ts`** — Hook TypeScript, który:
+1. Sanityzuje dane wejściowe (usuwa bloki kodu, ciągi w cudzysłowach, wklejone bloki echo systemowego)
+2. Skanuje oczyszczone dane wejściowe względem `keywords` (literalnych) i `patterns` (regex) z triggerów
+3. Sprawdza wzorce informacyjne w oknie 60 znaków wokół każdego dopasowania
+4. Stosuje zabezpieczenie wzmocnienia (tłumi, jeśli ten sam workflow został wyzwolony 2+ razy w ciągu 60 s)
+5. Wstrzykuje `[OMA WORKFLOW: ...]` lub `[OMA PERSISTENT MODE: ...]` do kontekstu
 
 **`persistent-mode.ts`** — Sprawdza aktywne pliki stanu w `.agents/state/` i wzmacnia wykonanie trwałych workflow.
 

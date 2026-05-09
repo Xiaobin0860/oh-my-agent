@@ -188,8 +188,22 @@ Claude Code用のフックとパーミッション登録。
 
 ### hooks/
 
-- **`triggers.json`** — 11言語のキーワード-ワークフローマッピング、情報パターン、除外ワークフロー
-- **`keyword-detector.ts`** — 入力スキャン、情報パターンチェック、ワークフローコンテキスト注入
+- **`triggers.json`** — キーワード-ワークフローマッピング。以下を定義します：
+  - `workflows`: ワークフロー名から `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }` へのマップ。`keywords` はリテラルなフレーズ、`patterns` は生の正規表現文字列（`iu` フラグでコンパイル）です。
+  - `informationalPatterns`: 質問を示すフレーズ（自動検出からフィルタリングされます）
+  - `excludedWorkflows`: 明示的な `/command` 呼び出しを必要とするワークフロー
+  - `cjkScripts`: CJK スクリプトを使用する言語コード（ko、ja、zh）
+
+  `keywords`、`patterns`、`informationalPatterns` 内の言語セクションは次の規約に従います：
+  - `*` — ユニバーサル/英語。`.agents/oma-config.yaml` の `language` 設定に関わらず常にロードされます。
+  - `en` — 後方互換性のためにロードされます。機能的には `*` と等価です。新しい英語コンテンツは `*` に追加してください。
+  - `ko` / `ja` / `zh` など — 言語固有。`.agents/oma-config.yaml` で `language: <code>` が設定されている場合のみロードされます。
+- **`keyword-detector.ts`** — 以下を行う TypeScript フックです：
+  1. 入力をサニタイズ（コードブロック、引用符付き文字列、貼り付けられたシステムエコーブロックを除去）
+  2. クリーンアップされた入力をトリガー `keywords`（リテラル）と `patterns`（正規表現）に対してスキャン
+  3. 各マッチの周囲 60 文字のウィンドウで情報パターンを確認
+  4. 強化ガードを適用（同じワークフローが 60 秒以内に 2 回以上トリガーされた場合は抑制）
+  5. `[OMA WORKFLOW: ...]` または `[OMA PERSISTENT MODE: ...]` をコンテキストに注入
 - **`persistent-mode.ts`** — アクティブ状態ファイル確認と永続モード強制
 - **`hud.ts`** — [OMA]インジケーター表示（モデル名、コンテキスト使用率、ワークフロー状態）
 

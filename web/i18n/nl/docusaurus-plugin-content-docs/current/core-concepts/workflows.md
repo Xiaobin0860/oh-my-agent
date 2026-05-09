@@ -37,6 +37,15 @@ Persistente workflows blijven draaien totdat alle taken klaar zijn. Ze behouden 
 | Nederlands | "orkestreren", "parallel", "alles uitvoeren" |
 | Pools | "orkiestrować", "równolegle", "wykonaj wszystko" |
 
+**Trigger regex-patronen** (intentie + zelfstandig naamwoord-whitelist, zie [Auto-Detectie: Pattern-veld](#pattern-field-raw-regex)):
+| Sectie | Patroon | Voorbeelden die triggeren |
+|--------|---------|---------------------------|
+| `*` (universeel) | `(build\|create\|make\|develop\|implement\|scaffold) + (a\|an\|the) + [modifier]{0,3} + <noun>` | "Build a TODO app with user authentication", "Create an awesome web service", "Develop a backend with PostgreSQL" |
+| `*` (universeel) | `i want a/an + <noun>` | "I want a CLI for parsing logs" |
+| `ko` | `<noun> + (을\|를\|이\|가)? + (만들어\|구현해\|개발해 + 변형)` | "TODO 앱 만들어줘", "REST API 구현해", "백엔드를 개발해주세요" |
+
+Whitelist van zelfstandige naamwoorden (15): app, api, service, server, cli, tool, website, dashboard, system, feature, backend, frontend, prototype, mvp, bot.
+
 **Stappen:**
 1. **Stap 0 — Voorbereiding:** Lees coordinatieskill, contextladingsgids, geheugenprotocol. Detecteer leverancier.
 2. **Stap 1 — Plan Laden/Aanmaken:** Controleer op `.agents/results/plan-{sessionId}.json`. Indien afwezig, vraag gebruiker eerst `/plan` uit te voeren.
@@ -326,22 +335,64 @@ oh-my-agent gebruikt een `UserPromptSubmit`-hook die draait voordat elk gebruike
 
 ### Detectiestroom
 
-1. Gebruiker typt invoer in natuurlijke taal
-2. Hook controleert of expliciet `/command` aanwezig is (zo ja, sla detectie over)
-3. Hook scant invoer tegen `triggers.json` trefwoordlijsten
-4. Indien een match gevonden, controleer of de invoer overeenkomt met informatiepatronen
-5. Indien informationeel (bijv. "wat is orchestrate?"), filter het uit — geen workflow triggers
-6. Indien actiegericht, injecteer `[OMA WORKFLOW: {workflow-naam}]` in de context
-7. De agent leest de geïnjecteerde tag en laadt het bijbehorende workflowbestand uit `.agents/workflows/`
+1. De gebruiker typt invoer in natuurlijke taal in.
+2. De hook controleert of er een expliciet `/command` aanwezig is (zo ja, dan slaat hij de detectie over om duplicatie te voorkomen).
+3. De hook saneert de invoer (verwijdert codeblokken, geciteerde strings en geplakte system-echo blokken) en scant deze vervolgens tegen `.agents/hooks/core/triggers.json` — zowel de trefwoordlijsten (letterlijke zinsdelen) als de `patterns` (raw regex). Een versterkingsbeveiliging onderdrukt opnieuw triggeren wanneer dezelfde workflow in de afgelopen 60 seconden al 2 of meer keren is geactiveerd.
+4. Indien een match wordt gevonden, controleert de hook of de invoer overeenkomt met informatiepatronen.
+5. Indien de invoer informationeel is (bijv. "wat is orchestrate?"), filtert de hook deze uit — er wordt geen workflow getriggerd.
+6. Indien de invoer actiegericht is, injecteert de hook `[OMA WORKFLOW: {workflow-naam}]` in de context.
+7. De agent leest de geïnjecteerde tag en laadt het bijbehorende workflowbestand uit `.agents/workflows/`.
+
+### Taalsectieconventie
+
+`.agents/hooks/core/triggers.json` gebruikt een per-taal sectiestructuur voor `keywords`, `patterns` en `informationalPatterns`:
+
+| Sectie | Gedrag |
+|--------|--------|
+| `*` | Universeel — altijd geladen ongeacht de `language`-instelling in `.agents/oma-config.yaml`. Gebruik voor Engelse content (lingua franca) en echte cross-taal tokens (bijv. workflownaam `"orchestrate"`). |
+| `en` | Engels — geladen voor achterwaartse compatibiliteit. Functioneel gelijkwaardig aan `*`. Nieuwe Engelse content hoort in `*` thuis. |
+| `ko`, `ja`, `zh`, `es`, `fr`, `de`, `pt`, `ru`, `nl`, `pl` | Taalspecifiek — alleen geladen wanneer `language: <lang>` is ingesteld in `.agents/oma-config.yaml`. |
+
+**Implicatie**: Indien u `language: en` instelt in `.agents/oma-config.yaml`, worden alleen `*` en `en` patronen geladen. Koreaanse/Japanse/etc. natuurlijke-taal triggers vuren niet, ook al typt de gebruiker in die talen. Om een niet-Engelse taal in te schakelen, stel `language: <code>` overeenkomstig in. De Engelse fallback in `*` blijft altijd actief.
+
+### Pattern-veld (Raw Regex)
+
+Naast letterlijke `keywords` kan elke workflow ook `patterns` declareren — raw regex-strings gecompileerd met `iu`-flags. Patronen maken multi-token intentiematching mogelijk die anders combinatorische trefwoordlijsten zou vereisen.
+
+```jsonc
+{
+  "workflows": {
+    "orchestrate": {
+      "persistent": true,
+      "keywords": { "*": ["orchestrate"], "en": ["parallel", ...] },
+      "patterns": {
+        "*": ["\\b(build|create|make)\\s+(?:an?|the)\\s+...\\b"],
+        "ko": ["(앱|API|...)\\s*(?:을|를)?\\s*(?:만들어\\s*(?:주세요|줘)?|...)"]
+      }
+    }
+  }
+}
+```
+
+Auteursregels:
+- Strings worden direct gecompileerd — escape backslashes één keer voor JSON, één keer voor regex (`\\b`, `\\s+`)
+- Geen automatische word-boundary wrapping — patroonauteurs handelen `\b` zelf af
+- Ongeldige regex wordt stilzwijgend overgeslagen tijdens runtime (zichtbaar bij config-bewerking via testfouten)
 
 ### Informatiepatroonfiltering
 
-| Taal | Informatiepatronen |
-|------|-------------------|
-| Engels | "what is", "what are", "how to", "how does", "explain", "describe", "tell me about" |
-| Koreaans | "뭐야", "무엇", "어떻게", "설명해", "알려줘" |
-| Japans | "とは", "って何", "どうやって", "説明して" |
-| Chinees | "是什么", "什么是", "怎么", "解释" |
+De `informationalPatterns`-sectie van `.agents/hooks/core/triggers.json` definieert zinsdelen die wijzen op vragen in plaats van commando's. Gecontroleerd in een venster van 60 tekens rond elke potentiële workflowmatch:
+
+| Sectie | Patroonvoorbeelden |
+|--------|---------------------|
+| `*` (universeel Engels) | "what is", "what are", "how to", "how does", "how do", "should we", "should i", "could we", "would you", "what if", "what about", "why build", "false positive", "trigger when", "auto-trigger" |
+| `ko` | "뭐야", "무엇", "어떻게", "설명해", "알려줘", "트리거", "발동", "메타", "왜 만들", "어떻게 만들", "어떨까", "한다면", "할까요" |
+| `ja` | "とは", "って何", "どうやって", "説明して" |
+| `zh` | "是什么", "什么是", "怎么", "解释" |
+
+Indien de invoer zowel een workflowtrigger als een informatiepatroon matcht, krijgt het informatiepatroon voorrang en wordt geen workflow getriggerd. Dit blokkeert prompts zoals:
+- `"How do you build a TODO app?"` — `how do` in `*` blokkeert de orchestrate-intentie regex
+- `"orchestrate 트리거 해주면 되나요?"` (onder `language: ko`) — `트리거` in `ko` blokkeert het orchestrate-trefwoord
 
 ### Uitgesloten Workflows
 

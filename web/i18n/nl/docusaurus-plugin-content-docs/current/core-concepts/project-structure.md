@@ -185,10 +185,28 @@ MCP-serverconfiguratie inclusief serverdefinities, geheugenconfiguratie en toolg
 Registreert hooks en permissies voor Claude Code.
 
 ### hooks/
-- **`triggers.json`** — Trefwoord-naar-workflow mapping voor 11 talen
-- **`keyword-detector.ts`** — Scant invoer, injecteert workflowcontext
-- **`persistent-mode.ts`** — Versterkt persistente workflows
-- **`hud.ts`** — Rendert de `[OMA]`-indicator in de statusbalk
+
+**`triggers.json`** — De trefwoord-naar-workflow mapping. Definieert:
+- `workflows`: Mapping van workflownaam naar `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. `keywords` zijn letterlijke zinsdelen; `patterns` zijn raw regex-strings (gecompileerd met `iu`-flags).
+- `informationalPatterns`: Zinsdelen die wijzen op vragen (worden uitgefilterd in auto-detectie)
+- `excludedWorkflows`: Workflows die expliciete `/command`-aanroep vereisen
+- `cjkScripts`: Taalcodes die CJK-schriften gebruiken (ko, ja, zh)
+
+Taalsecties in `keywords`, `patterns` en `informationalPatterns` volgen deze conventie:
+- `*` — Universeel/Engels. Altijd geladen, ongeacht de `language`-instelling in `.agents/oma-config.yaml`.
+- `en` — Geladen voor achterwaartse compatibiliteit. Functioneel gelijkwaardig aan `*`. Nieuwe Engelse content hoort in `*` thuis.
+- `ko`/`ja`/`zh`/etc. — Taalspecifiek. Alleen geladen wanneer `language: <code>` is ingesteld in `.agents/oma-config.yaml`.
+
+**`keyword-detector.ts`** — TypeScript-hook die:
+1. Invoer saniteert (verwijdert codeblokken, geciteerde strings, geplakte system-echo blokken)
+2. De geschoonde invoer scant tegen trigger-`keywords` (letterlijk) en `patterns` (regex)
+3. Controleert op informatiepatronen in een venster van 60 tekens rond elke match
+4. Versterkingsbeveiliging toepast (onderdrukt indien dezelfde workflow 2+ keer is getriggerd in 60s)
+5. `[OMA WORKFLOW: ...]` of `[OMA PERSISTENT MODE: ...]` in de context injecteert
+
+**`persistent-mode.ts`** — Controleert actieve statusbestanden in `.agents/state/` en versterkt de uitvoering van persistente workflows.
+
+**`hud.ts`** — Rendert de `[OMA]`-indicator in de statusbalk
 
 ### skills/
 Symlinks naar `.agents/skills/`. Maakt skills zichtbaar voor IDE's terwijl `.agents/` de single source of truth blijft.

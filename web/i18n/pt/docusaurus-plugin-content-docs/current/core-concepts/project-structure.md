@@ -213,15 +213,22 @@ Registra hooks e permissões para Claude Code. Contém referências aos scripts 
 ### hooks/
 
 **`triggers.json`** — O mapeamento de palavras-chave para workflow. Define:
-- `workflows`: Mapa de nome de workflow para `{ persistent: boolean, keywords: { language: [...] } }`
+- `workflows`: Mapa de nome de workflow para `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. `keywords` são frases literais; `patterns` são strings regex brutas (compiladas com flags `iu`).
 - `informationalPatterns`: Frases que indicam perguntas (filtradas da auto-detecção)
 - `excludedWorkflows`: Workflows que requerem invocação explícita com `/command`
 - `cjkScripts`: Códigos de idioma usando scripts CJK (ko, ja, zh)
 
+As seções de idioma em `keywords`, `patterns` e `informationalPatterns` seguem esta convenção:
+- `*` — Universal/Inglês. Sempre carregado independentemente da configuração `language` em `.agents/oma-config.yaml`.
+- `en` — Carregado por compatibilidade retroativa. Funcionalmente equivalente a `*`. Novo conteúdo em inglês deve ir em `*`.
+- `ko`/`ja`/`zh`/etc. — Específicos por idioma. Carregados apenas quando `language: <code>` estiver definido em `.agents/oma-config.yaml`.
+
 **`keyword-detector.ts`** — Hook TypeScript que:
-1. Escaneia entrada do usuário contra palavras-chave gatilho
-2. Verifica padrões informativos
-3. Injeta `[OMA WORKFLOW: ...]` ou `[OMA PERSISTENT MODE: ...]` no contexto
+1. Sanitiza a entrada (remove blocos de código, strings entre aspas, blocos de eco do sistema colados)
+2. Escaneia a entrada limpa contra `keywords` gatilho (literais) e `patterns` (regex)
+3. Verifica padrões informativos em uma janela de 60 caracteres ao redor de cada correspondência
+4. Aplica guarda de reforço (suprime se o mesmo workflow foi acionado 2+ vezes em 60s)
+5. Injeta `[OMA WORKFLOW: ...]` ou `[OMA PERSISTENT MODE: ...]` no contexto
 
 **`persistent-mode.ts`** — Verifica arquivos de estado ativos em `.agents/state/` e reforça execução de workflow persistente.
 

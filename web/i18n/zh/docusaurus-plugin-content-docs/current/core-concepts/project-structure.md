@@ -353,15 +353,22 @@ MCP 服务器配置，包括：
 ### hooks/
 
 **`triggers.json`** —— 关键词到工作流的映射。定义：
-- `workflows`：工作流名称到 `{ persistent: boolean, keywords: { language: [...] } }` 的映射
+- `workflows`：工作流名称到 `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }` 的映射。`keywords` 是字面短语；`patterns` 是原始正则表达式字符串（使用 `iu` 标志编译）。
 - `informationalPatterns`：表示提问的短语（从自动检测中过滤掉）
 - `excludedWorkflows`：需要显式 `/command` 调用的工作流
 - `cjkScripts`：使用 CJK 脚本的语言代码（ko、ja、zh）
 
+`keywords`、`patterns` 和 `informationalPatterns` 中的语言分节遵循以下约定：
+- `*` —— 通用/英语。无论 `.agents/oma-config.yaml` 中的 `language` 设置如何都会加载。
+- `en` —— 为向后兼容而加载。功能上等价于 `*`。新的英语内容应放入 `*`。
+- `ko`/`ja`/`zh`/等 —— 语言专用。仅当 `.agents/oma-config.yaml` 中设置了 `language: <code>` 时才加载。
+
 **`keyword-detector.ts`** —— TypeScript 钩子：
-1. 扫描用户输入与触发关键词的匹配
-2. 检查信息性模式
-3. 注入 `[OMA WORKFLOW: ...]` 或 `[OMA PERSISTENT MODE: ...]` 到上下文
+1. 净化输入（剥离代码块、引号字符串、粘贴的系统回显块）
+2. 扫描净化后的输入与触发器中的 `keywords`（字面）和 `patterns`（正则）的匹配
+3. 在每次匹配周围 60 个字符的窗口内检查信息性模式
+4. 应用强化保护机制（如果同一工作流在 60 秒内已触发 2 次或以上则抑制）
+5. 注入 `[OMA WORKFLOW: ...]` 或 `[OMA PERSISTENT MODE: ...]` 到上下文
 
 **`persistent-mode.ts`** —— 检查 `.agents/state/` 中的活跃状态文件并强化持久化工作流执行。
 

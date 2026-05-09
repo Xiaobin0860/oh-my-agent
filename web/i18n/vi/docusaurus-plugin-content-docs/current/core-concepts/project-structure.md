@@ -165,9 +165,23 @@ Thư mục này kết nối oh-my-agent với Claude Code và các IDE khác.
 
 ### hooks/
 
-**`triggers.json`** — Ánh xạ từ khóa-workflow. Định nghĩa workflow, mẫu thông tin, workflow loại trừ và script CJK.
+**`triggers.json`** — Ánh xạ từ khóa-workflow. Định nghĩa:
+- `workflows`: Map tên workflow tới `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. `keywords` là cụm từ literal; `patterns` là chuỗi regex thô (biên dịch với cờ `iu`).
+- `informationalPatterns`: Cụm từ chỉ ra câu hỏi (lọc khỏi phát hiện tự động)
+- `excludedWorkflows`: Workflow yêu cầu gọi `/command` tường minh
+- `cjkScripts`: Mã ngôn ngữ dùng script CJK (ko, ja, zh)
 
-**`keyword-detector.ts`** — Hook TypeScript quét đầu vào người dùng so với từ khóa trigger và đưa ngữ cảnh kích hoạt workflow vào.
+Section ngôn ngữ trong `keywords`, `patterns` và `informationalPatterns` tuân theo quy ước sau:
+- `*` — Chung/tiếng Anh. Luôn được tải bất kể cài đặt `language` trong `.agents/oma-config.yaml`.
+- `en` — Được tải để tương thích ngược. Tương đương về chức năng với `*`. Nội dung tiếng Anh mới nên đưa vào `*`.
+- `ko`/`ja`/`zh`/v.v. — Theo ngôn ngữ. Chỉ được tải khi `language: <code>` được đặt trong `.agents/oma-config.yaml`.
+
+**`keyword-detector.ts`** — Hook TypeScript:
+1. Làm sạch đầu vào (loại bỏ code blocks, chuỗi trích dẫn, khối system-echo đã dán)
+2. Quét đầu vào đã làm sạch so với `keywords` (literal) và `patterns` (regex) trigger
+3. Kiểm tra mẫu thông tin trong cửa sổ 60 ký tự xung quanh mỗi khớp
+4. Áp dụng bảo vệ tăng cường (ngăn chặn nếu cùng workflow trigger 2+ lần trong 60 giây)
+5. Đưa `[OMA WORKFLOW: ...]` hoặc `[OMA PERSISTENT MODE: ...]` vào ngữ cảnh
 
 **`persistent-mode.ts`** — Kiểm tra file trạng thái đang hoạt động trong `.agents/state/` và tăng cường thực thi workflow liên tục.
 

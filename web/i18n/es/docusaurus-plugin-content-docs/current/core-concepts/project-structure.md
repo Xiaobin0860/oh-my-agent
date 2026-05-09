@@ -353,15 +353,22 @@ Registra hooks y permisos para Claude Code. Contiene referencias a los scripts d
 ### hooks/
 
 **`triggers.json`** — El mapeo de palabras clave a flujos. Define:
-- `workflows`: Mapa de nombre de flujo a `{ persistent: boolean, keywords: { language: [...] } }`
+- `workflows`: Mapa de nombre de flujo a `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. `keywords` son frases literales; `patterns` son cadenas regex sin procesar (compiladas con flags `iu`).
 - `informationalPatterns`: Frases que indican preguntas (filtradas de la auto-deteccion)
 - `excludedWorkflows`: Flujos que requieren invocacion explicita con `/command`
 - `cjkScripts`: Codigos de idioma que usan scripts CJK (ko, ja, zh)
 
+Las secciones de idioma en `keywords`, `patterns` e `informationalPatterns` siguen esta convencion:
+- `*` — Universal/Ingles. Siempre se carga independientemente del ajuste `language` en `.agents/oma-config.yaml`.
+- `en` — Se carga por compatibilidad hacia atras. Funcionalmente equivalente a `*`. El nuevo contenido en ingles debe ir en `*`.
+- `ko`/`ja`/`zh`/etc. — Especifico del idioma. Se carga unicamente cuando se establece `language: <code>` en `.agents/oma-config.yaml`.
+
 **`keyword-detector.ts`** — Hook TypeScript que:
-1. Escanea la entrada del usuario contra palabras clave de activacion
-2. Verifica patrones informativos
-3. Inyecta `[OMA WORKFLOW: ...]` o `[OMA PERSISTENT MODE: ...]` en el contexto
+1. Sanea la entrada (elimina bloques de codigo, cadenas entre comillas y bloques de eco del sistema pegados)
+2. Escanea la entrada saneada contra `keywords` de activacion (literal) y `patterns` (regex)
+3. Verifica patrones informativos en una ventana de 60 caracteres alrededor de cada coincidencia
+4. Aplica una salvaguarda de refuerzo (suprime si el mismo flujo se ha activado 2 o mas veces en 60s)
+5. Inyecta `[OMA WORKFLOW: ...]` o `[OMA PERSISTENT MODE: ...]` en el contexto
 
 **`persistent-mode.ts`** — Verifica archivos de estado activos en `.agents/state/` y refuerza la ejecucion de flujos persistentes.
 

@@ -352,16 +352,23 @@ Registers hooks and permissions for Claude Code. Contains references to the hook
 
 ### hooks/
 
-**`triggers.json`** — The keyword-to-workflow mapping. Defines:
-- `workflows`: Map of workflow name to `{ persistent: boolean, keywords: { language: [...] } }`
-- `informationalPatterns`: Phrases that indicate questions (filtered out from auto-detection)
-- `excludedWorkflows`: Workflows that require explicit `/command` invocation
-- `cjkScripts`: Language codes using CJK scripts (ko, ja, zh)
+**`triggers.json`** — Le mapping mot-clé/workflow. Définit :
+- `workflows` : Mapping du nom de workflow vers `{ persistent: boolean, keywords: { language: [...] }, patterns?: { language: [...] } }`. Les `keywords` sont des phrases littérales ; les `patterns` sont des chaînes regex brutes (compilées avec les drapeaux `iu`).
+- `informationalPatterns` : Phrases qui indiquent des questions (filtrées de la détection automatique)
+- `excludedWorkflows` : Workflows qui nécessitent une invocation explicite via `/command`
+- `cjkScripts` : Codes de langues utilisant les écritures CJK (ko, ja, zh)
 
-**`keyword-detector.ts`** — TypeScript hook that:
-1. Scans user input against trigger keywords
-2. Checks for informational patterns
-3. Injects `[OMA WORKFLOW: ...]` or `[OMA PERSISTENT MODE: ...]` into context
+Les sections par langue dans `keywords`, `patterns` et `informationalPatterns` suivent cette convention :
+- `*` — Universel/Anglais. Toujours chargé indépendamment du paramètre `language` dans `.agents/oma-config.yaml`.
+- `en` — Chargé pour la rétrocompatibilité. Fonctionnellement équivalent à `*`. Le nouveau contenu en anglais doit aller dans `*`.
+- `ko`/`ja`/`zh`/etc. — Spécifique à une langue. Chargé uniquement lorsque `language: <code>` est défini dans `.agents/oma-config.yaml`.
+
+**`keyword-detector.ts`** — Hook TypeScript qui :
+1. Assainit l'entrée (supprime les blocs de code, les chaînes entre guillemets, les blocs d'écho système collés)
+2. Scanne l'entrée nettoyée par rapport aux `keywords` de déclenchement (littéraux) et aux `patterns` (regex)
+3. Vérifie les patterns informationnels dans une fenêtre de 60 caractères autour de chaque correspondance
+4. Applique le garde-fou de renforcement (supprime si le même workflow s'est déclenché 2 fois ou plus en 60 s)
+5. Injecte `[OMA WORKFLOW: ...]` ou `[OMA PERSISTENT MODE: ...]` dans le contexte
 
 **`persistent-mode.ts`** — Checks for active state files in `.agents/state/` and reinforces persistent workflow execution.
 
