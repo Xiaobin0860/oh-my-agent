@@ -21,8 +21,8 @@ const {
   discoverSkills,
   parseExplicitSlash,
   parseSkillFrontmatter,
-  findHiddenSkill,
-  formatHiddenSkillContext,
+  findClaudeSlashSkill,
+  formatClaudeSlashSkillContext,
 } = await import("../../.agents/hooks/core/skill-injector.ts");
 
 describe("skill-injector", () => {
@@ -446,8 +446,8 @@ describe("skill-injector", () => {
     });
   });
 
-  describe("findHiddenSkill", () => {
-    it("returns the skill when vendor dir has disable-model-invocation: true", () => {
+  describe("findClaudeSlashSkill", () => {
+    it("returns the skill when .claude/skills has disable-model-invocation: true", () => {
       const skillContent = [
         "---",
         "name: ralph",
@@ -466,7 +466,7 @@ describe("skill-injector", () => {
         skillContent,
       );
 
-      const entry = findHiddenSkill("ralph", "/repo", "claude");
+      const entry = findClaudeSlashSkill("ralph", "/repo");
       expect(entry).not.toBe(null);
       expect(entry?.name).toBe("ralph");
       expect(entry?.skillRelPath).toContain(".claude/skills/ralph/SKILL.md");
@@ -480,17 +480,17 @@ describe("skill-injector", () => {
       (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
         "---\nname: foo\n---\n\nbody",
       );
-      expect(findHiddenSkill("foo", "/repo", "claude")).toBe(null);
+      expect(findClaudeSlashSkill("foo", "/repo")).toBe(null);
     });
 
     it("returns null when SKILL.md is missing in both candidate paths", () => {
       (fs.existsSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
         false,
       );
-      expect(findHiddenSkill("nope", "/repo", "claude")).toBe(null);
+      expect(findClaudeSlashSkill("nope", "/repo")).toBe(null);
     });
 
-    it("falls back to .agents/skills when the vendor dir does not have the skill", () => {
+    it("falls back to .agents/skills when .claude/skills lacks the skill", () => {
       const skillContent =
         "---\nname: shared\ndisable-model-invocation: true\n---\nshared body";
       (fs.existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
@@ -501,19 +501,19 @@ describe("skill-injector", () => {
         skillContent,
       );
 
-      const entry = findHiddenSkill("shared", "/repo", "codex");
+      const entry = findClaudeSlashSkill("shared", "/repo");
       expect(entry?.skillRelPath).toContain(".agents/skills/shared/SKILL.md");
     });
   });
 
-  describe("formatHiddenSkillContext", () => {
-    it("emits the OMA HIDDEN SKILL INVOKED header and the SKILL.md body", () => {
-      const ctx = formatHiddenSkillContext({
+  describe("formatClaudeSlashSkillContext", () => {
+    it("emits the OMA CLAUDE SLASH SKILL INVOKED header and the SKILL.md body", () => {
+      const ctx = formatClaudeSlashSkillContext({
         name: "ralph",
         skillRelPath: ".claude/skills/ralph/SKILL.md",
         body: "# /ralph\nRead and follow `.agents/workflows/ralph.md`.",
       });
-      expect(ctx).toContain("[OMA HIDDEN SKILL INVOKED: ralph]");
+      expect(ctx).toContain("[OMA CLAUDE SLASH SKILL INVOKED: ralph]");
       expect(ctx).toContain(".claude/skills/ralph/SKILL.md");
       expect(ctx).toContain("Read and follow `.agents/workflows/ralph.md`");
       expect(ctx).toContain("Do NOT respond that the skill is unavailable.");

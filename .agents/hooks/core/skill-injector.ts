@@ -333,21 +333,21 @@ export function parseExplicitSlash(prompt: string): string | null {
   return m?.[1] ?? null;
 }
 
-// ── Hidden Skill Resolution ───────────────────────────────────
+// ── Claude Slash Skill Resolution ─────────────────────────────
+// Claude Code deprecated `.claude/commands/` and now uses `.claude/skills/`
+// for slash-invocable workflows. To express "user-only invocation" (slash
+// command typed by the user but NOT auto-callable by the model), the
+// Claude Code idiom is `disable-model-invocation: true` in SKILL.md
+// frontmatter. Such skills are absent from the available-skills list,
+// so when the user types /<name> the model has no native signal that it
+// exists. This resolver bridges that gap. Other vendors use different
+// command/skill mechanisms; this is intentionally Claude-specific.
 
-export interface HiddenSkillEntry {
+export interface ClaudeSlashSkillEntry {
   name: string;
   skillRelPath: string;
   body: string;
 }
-
-const VENDOR_SKILL_ROOT: Record<Vendor, string> = {
-  claude: ".claude",
-  codex: ".codex",
-  cursor: ".cursor",
-  gemini: ".gemini",
-  qwen: ".qwen",
-};
 
 export function parseSkillFrontmatter(content: string): {
   frontmatter: Record<string, string | boolean>;
@@ -370,14 +370,12 @@ export function parseSkillFrontmatter(content: string): {
   return { frontmatter: fm, body: m[2] ?? "" };
 }
 
-export function findHiddenSkill(
+export function findClaudeSlashSkill(
   name: string,
   projectDir: string,
-  vendor: Vendor,
-): HiddenSkillEntry | null {
-  const vendorRoot = VENDOR_SKILL_ROOT[vendor];
+): ClaudeSlashSkillEntry | null {
   const candidates = [
-    join(projectDir, vendorRoot, "skills", name, "SKILL.md"),
+    join(projectDir, ".claude", "skills", name, "SKILL.md"),
     join(projectDir, ".agents", "skills", name, "SKILL.md"),
   ];
 
@@ -402,12 +400,14 @@ export function findHiddenSkill(
   return null;
 }
 
-export function formatHiddenSkillContext(entry: HiddenSkillEntry): string {
+export function formatClaudeSlashSkillContext(
+  entry: ClaudeSlashSkillEntry,
+): string {
   return [
-    `[OMA HIDDEN SKILL INVOKED: ${entry.name}]`,
-    `User explicitly typed /${entry.name}. This skill has \`disable-model-invocation: true\` so it does NOT appear in the available-skills list and is NOT callable via the Skill tool.`,
+    `[OMA CLAUDE SLASH SKILL INVOKED: ${entry.name}]`,
+    `User explicitly typed /${entry.name}. Claude Code deprecated \`.claude/commands/\`, so this slash-only workflow lives in SKILL.md with \`disable-model-invocation: true\` — it is NOT in the available-skills list and is NOT callable via the Skill tool.`,
     "",
-    `Honor the user's explicit invocation by reading the SKILL.md at \`${entry.skillRelPath}\` and following its instructions:`,
+    `Honor the user's explicit invocation by reading \`${entry.skillRelPath}\` and following its instructions:`,
     "",
     entry.body,
     "",
@@ -461,18 +461,21 @@ async function main() {
 
   if (!prompt.trim()) process.exit(0);
 
-  // Explicit `/<name>` slash invocation: if it resolves to a hidden skill
-  // (disable-model-invocation: true), inject the SKILL.md body so the model
-  // honors the user's intent. Must run BEFORE the slash early-exit and the
-  // persistent-workflow guard, since both would otherwise drop the signal.
-  const slashName = parseExplicitSlash(prompt);
-  if (slashName) {
-    const hidden = findHiddenSkill(slashName, projectDir, vendor);
-    if (hidden) {
-      process.stdout.write(
-        makePromptOutput(vendor, formatHiddenSkillContext(hidden)),
-      );
-      process.exit(0);
+  // Claude-specific: when the user types /<name>, surface the
+  // SKILL.md body for slash-only skills (disable-model-invocation: true).
+  // The model otherwise has no signal these skills exist — they are
+  // intentionally hidden from the available-skills list. Must run BEFORE
+  // the slash early-exit and persistent-workflow guard.
+  if (vendor === "claude") {
+    const slashName = parseExplicitSlash(prompt);
+    if (slashName) {
+      const slashSkill = findClaudeSlashSkill(slashName, projectDir);
+      if (slashSkill) {
+        process.stdout.write(
+          makePromptOutput(vendor, formatClaudeSlashSkillContext(slashSkill)),
+        );
+        process.exit(0);
+      }
     }
   }
 
