@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "7.5.0",
-  "releaseDate": "2026-05-10T05:09:30.995Z",
+  "releaseDate": "2026-05-10T05:40:18.513Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -241,13 +241,13 @@
     },
     {
       "path": ".agents/skills/_shared/conditional/exploration-loop.md",
-      "sha256": "bec72eb2159cc1d39866e2cf6d8f764f577b4a8bcd88c396b5425111c66f9619",
-      "size": 5462
+      "sha256": "5512acc67740a581b1927b222b30e7c054ee3e8ef4005d9db7a00956e0dacef6",
+      "size": 5459
     },
     {
       "path": ".agents/skills/_shared/conditional/quality-score.md",
-      "sha256": "43056dc4e79320d8b9f03ebad976652425f9f7f3fcb4ef72396572d6a61937ba",
-      "size": 4404
+      "sha256": "b29cec805d19e2dc7a46c538e12bd711d9fbbf0ad69b6a5150227f68a2a18c76",
+      "size": 4388
     },
     {
       "path": ".agents/skills/_shared/core/api-contracts/README.md",
@@ -261,8 +261,8 @@
     },
     {
       "path": ".agents/skills/_shared/core/clarification-protocol.md",
-      "sha256": "55fae292e24c2e6cd071694ecfee362350517a7b46e905de983cd7ecc7a7d11a",
-      "size": 6663
+      "sha256": "66353089bd91de713016bf7dda986edb06d5ea2e7db7c0d1982ba1682711347f",
+      "size": 6660
     },
     {
       "path": ".agents/skills/_shared/core/common-checklist.md",
@@ -271,33 +271,33 @@
     },
     {
       "path": ".agents/skills/_shared/core/context-budget.md",
-      "sha256": "8dd3fa8c764a2b97ec5306d6d5d7220ca250da734e91c9899ee04a1600db3137",
-      "size": 5772
+      "sha256": "d843efd0088494901ce714e7c04674bdb125754095ae5e1a99f272e275ab681c",
+      "size": 5757
     },
     {
       "path": ".agents/skills/_shared/core/context-loading.md",
-      "sha256": "67e69b7605c814f0bd3cd78a6b0d5c0bd1ac72e35f3ac3e90c56c98862f63b75",
-      "size": 9188
+      "sha256": "d3c832dd71532a9108745865098467abc12321f5e84f4774146e50e06a0c45d5",
+      "size": 9155
     },
     {
       "path": ".agents/skills/_shared/core/difficulty-guide.md",
-      "sha256": "fa71453172a6004a005cd7ff5a04905157a8da549de9d9ec3816e1034c21d567",
-      "size": 2489
+      "sha256": "ba100f27cd1ec1435fc0a63948889f4b1e3d532fa2183a5a88b7ee4d75eebed0",
+      "size": 2486
     },
     {
       "path": ".agents/skills/_shared/core/evaluator-tuning.md",
-      "sha256": "50a8c39b91c86c52e21c2cbf7409007467247b7942f5865df98da643e102b826",
-      "size": 2870
+      "sha256": "015037467d1cb892bfebf7e336bf232844cd91398be3bbb3c57d04d9c9bd7040",
+      "size": 2849
     },
     {
       "path": ".agents/skills/_shared/core/lessons-learned.md",
-      "sha256": "b8a856ddebf1c04ed5b6b036691fff9dd9e33a1b0d524bfbf51ae984230dd418",
-      "size": 7863
+      "sha256": "9c0422f8bfd93f4f3047b04a0f0cd8b48a4ed6b5d04be8c5e79dc6cc4675ba4b",
+      "size": 7860
     },
     {
       "path": ".agents/skills/_shared/core/prompt-structure.md",
-      "sha256": "ed50201d6bb0762e9f68f80faaf70e1cb7861b60dd471ef171e661739b3f573b",
-      "size": 2157
+      "sha256": "4e308b4d42b12e761e0156a7e3a00953fbb51b6e873404747a8e781986739250",
+      "size": 2156
     },
     {
       "path": ".agents/skills/_shared/core/quality-principles.md",
@@ -306,13 +306,13 @@
     },
     {
       "path": ".agents/skills/_shared/core/reasoning-templates.md",
-      "sha256": "15aacdd20b282e67e4a6dc4ba059a0682dc6e7f735836f8eec24faa082f91c4f",
-      "size": 6272
+      "sha256": "850373128da9fe9bfe26af8c198b0a6329a4b1e9fe2d56a3f8c64bd43543d06f",
+      "size": 6269
     },
     {
       "path": ".agents/skills/_shared/core/session-metrics.md",
-      "sha256": "9dcada7fbd4f3ec5ae6d44d37468d9b6081c6808aeb5f9b9e195b604f26e2a8d",
-      "size": 8798
+      "sha256": "dc0d7787d8059a77156524f41afe39169d19549ebcfe24f5adb1cd98502ac0ad",
+      "size": 8777
     },
     {
       "path": ".agents/skills/_shared/core/skill-routing.md",
@@ -326,28 +326,28 @@
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/claude.md",
-      "sha256": "70e885bfa4f169654e18727060a31a62032fdbe0841dd59f0a460982e6bcf703",
-      "size": 1617
+      "sha256": "df6c50993b99c15f8e3b6d4f097898ade83ea608b57339e751c0a8cbff5fe99b",
+      "size": 1611
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/codex.md",
-      "sha256": "4515aac95097086e3c1fc05c58b39e0c40404616c9f1027aa00d92a5d234710a",
-      "size": 1485
+      "sha256": "2a00605658392c32f2e665b2796dbcdb818f2322f9c55aee69709bf188a16a9f",
+      "size": 1479
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/gemini.md",
-      "sha256": "e756cb73205b3ac3d67e8da63e104c853b2b8798b042dfc38a5daa39bc71ba99",
-      "size": 1698
+      "sha256": "c3ac82f2fcdba7dc1a48dc212f6d2de8a0943a0285ab992e2d6f8d5526a7b961",
+      "size": 1692
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/qwen.md",
-      "sha256": "336543b53282b280ae7e79e45d33db30a34ae24b261182ea7c55dfe8d672675c",
-      "size": 1614
+      "sha256": "3d32a30de9542225bb9c6d815a86cb52ab1b04a528bcf16fe50a67438b36254f",
+      "size": 1608
     },
     {
       "path": ".agents/skills/_shared/runtime/memory-protocol.md",
-      "sha256": "f92ad0591ec2ed4d98a8772f88528e43e39cd0dcf48c9c915a06858037f7ddc2",
-      "size": 3736
+      "sha256": "943b574a6c28a6067aef969a602a44a1e39c32174b16b0d95ad555397b12183e",
+      "size": 3730
     },
     {
       "path": ".agents/skills/_version.json",
@@ -356,28 +356,28 @@
     },
     {
       "path": ".agents/skills/oma-academic-writer/SKILL.md",
-      "sha256": "5edb7f749ce1a0c141169266669803b144c1eb72d1a16fe654c88f690fa831f9",
-      "size": 13543
+      "sha256": "6839f1054d7497972a1a187e67e8e86f1fae7df279a09d71f19fec2b81c587e9",
+      "size": 13507
     },
     {
       "path": ".agents/skills/oma-academic-writer/resources/academic-verb-tiers.md",
-      "sha256": "ba605e1652e7e682a3bbfecf80140172b09b4ca90fd390b8d29a1c5d46b7b334",
-      "size": 9584
+      "sha256": "c27786fbe17f1df7dba3d37555359cbff77ac664cbe2cf7894c1b78a04ce5eea",
+      "size": 9546
     },
     {
       "path": ".agents/skills/oma-academic-writer/resources/anti-ai-checklist.md",
-      "sha256": "d985d40868c35f38edc27aedea09e83a06b891902d0ff13c1f488aef887f8737",
-      "size": 9444
+      "sha256": "bc703b2bddb25bdda9a09971771cc787a3652a6f0feb3b2bf2698e8d063b153e",
+      "size": 9405
     },
     {
       "path": ".agents/skills/oma-academic-writer/resources/hedging-guide.md",
-      "sha256": "1eb9d8f8cd2b1690fc805f5fb78946bac990c7c86fe3ce7f48aa667ce79738f5",
-      "size": 5466
+      "sha256": "edcaf0c67bfa42c433c9b066be9c7ef8807b1747adc6fe44083bae07e7996864",
+      "size": 5463
     },
     {
       "path": ".agents/skills/oma-academic-writer/resources/sentence-structure-reference.md",
-      "sha256": "7f9a0050df3454419858456c6e372deca1d17fe6b9e0029df6f6e626e029e45e",
-      "size": 7714
+      "sha256": "5cb2d61f6459dc8ea057fad37fe9dcb8e6987e6951b0f02f777ec1fef8fe9b3d",
+      "size": 7703
     },
     {
       "path": ".agents/skills/oma-architecture/SKILL.md",
@@ -416,18 +416,18 @@
     },
     {
       "path": ".agents/skills/oma-backend/SKILL.md",
-      "sha256": "45dde0dc925f567a1854c665d92f63eb6d37a7aaa65aec01daf6797b3d7ed79d",
-      "size": 9669
+      "sha256": "82b1be686420518dd37e13256865308d8f23a9941149de67dc2b5bf30b21bc11",
+      "size": 9645
     },
     {
       "path": ".agents/skills/oma-backend/resources/checklist.md",
-      "sha256": "6f1aff6e87c8343826549ca2e39ee00a07a1adf318a7e6d4439c63ddc73bcd5f",
-      "size": 2019
+      "sha256": "9d0ad8c6a8b6eeaac531a604eeec73266f59af9dc8982cdd20b66b828fa556c1",
+      "size": 2013
     },
     {
       "path": ".agents/skills/oma-backend/resources/error-playbook.md",
-      "sha256": "c757ed0456e71c0aede4f8cabed54cd3ee37fbce55b884407776d05725088eae",
-      "size": 3654
+      "sha256": "dc9fe9c8ce65a642e4b9c5f1a04ff0b86c2a5495d40580e1479bf7b4ce35ca98",
+      "size": 3636
     },
     {
       "path": ".agents/skills/oma-backend/resources/examples.md",
@@ -436,8 +436,8 @@
     },
     {
       "path": ".agents/skills/oma-backend/resources/execution-protocol.md",
-      "sha256": "ad16e27ecd22b46b5ae0c6147140e6551c5f654862ea2d6fbc9073e248d01407",
-      "size": 2226
+      "sha256": "f504007701aecc8cf8d3f383621cda09051fd46d14e7622cf84f816d11aad098",
+      "size": 2214
     },
     {
       "path": ".agents/skills/oma-backend/resources/orm-reference.md",
@@ -446,8 +446,8 @@
     },
     {
       "path": ".agents/skills/oma-backend/variants/node/api-template.ts",
-      "sha256": "123b1a6d7697072cc59d9d58e8a73af9063740c597be1ce482bbf91b584a2210",
-      "size": 8988
+      "sha256": "e61842acd15e43f5363edc7bb6aae9ff749ca89d148cdbe37ae73d376cb3b4c9",
+      "size": 8985
     },
     {
       "path": ".agents/skills/oma-backend/variants/node/snippets.md",
@@ -486,8 +486,8 @@
     },
     {
       "path": ".agents/skills/oma-backend/variants/rust/api-template.rs",
-      "sha256": "90a032eef28031d5af902e5061796be935dd2c20e23277c3a072d7d02f6ea05b",
-      "size": 18415
+      "sha256": "c536bf54632ae4897271d5af30dbf23c2b4f7abfd6177ea9e4f0069264888c08",
+      "size": 18391
     },
     {
       "path": ".agents/skills/oma-backend/variants/rust/snippets.md",
@@ -516,8 +516,8 @@
     },
     {
       "path": ".agents/skills/oma-coordination/SKILL.md",
-      "sha256": "2701acf0a3fb778c7dfea3296bd72a944d0510cd68629041086dec9026fd7485",
-      "size": 5727
+      "sha256": "8d3009f9dc55181d1b36607c79805e93fc3accdd78674593c942ac85cc74c47b",
+      "size": 5724
     },
     {
       "path": ".agents/skills/oma-coordination/resources/examples.md",
@@ -556,8 +556,8 @@
     },
     {
       "path": ".agents/skills/oma-db/resources/execution-protocol.md",
-      "sha256": "a211be865e7b3181e9e5144e95ec803d110f1f9405887308f4a332f32325bd62",
-      "size": 5099
+      "sha256": "d065cd1f415e38b2cd3617efa2add90c4daa78107eb98bf180de4ab08327e3ad",
+      "size": 5093
     },
     {
       "path": ".agents/skills/oma-db/resources/iso-controls.md",
@@ -596,8 +596,8 @@
     },
     {
       "path": ".agents/skills/oma-debug/resources/error-playbook.md",
-      "sha256": "addf78728e1984f903bbe50ea6dc49957701c3534a431f56095365dc35c00bfc",
-      "size": 3366
+      "sha256": "dd507f3f1073adacc39af3ff7cdcea05768c0c651ef9c6a0d58394f0f289eab9",
+      "size": 3345
     },
     {
       "path": ".agents/skills/oma-debug/resources/examples.md",
@@ -606,8 +606,8 @@
     },
     {
       "path": ".agents/skills/oma-debug/resources/execution-protocol.md",
-      "sha256": "f9ef6d47d595bd93beb18f83e65e85112fd4dd268bd7488df32a859c4a1e4055",
-      "size": 2393
+      "sha256": "cd5b059bab09489834d2f30d237603cd7bf3df87d427592ddf40e83463e68ce5",
+      "size": 2378
     },
     {
       "path": ".agents/skills/oma-deepsec/SKILL.md",
@@ -646,48 +646,48 @@
     },
     {
       "path": ".agents/skills/oma-design/SKILL.md",
-      "sha256": "80e79f78023efd98e19bf9b9f1ab41cfaf1b29b3c46196ea5161cd3ab29b2488",
-      "size": 11692
+      "sha256": "91e5a068b1d1a37a1d7defb71bd66e421fb10322b3acc3e7781a9c6077d42a27",
+      "size": 11610
     },
     {
       "path": ".agents/skills/oma-design/examples/design-context-example.md",
-      "sha256": "e12c42d6b2680bb4a0fc10740c60caa03cc54c21718003963c1230c58b66486a",
-      "size": 3060
+      "sha256": "81232e21d8c3ff5bdae50cd0b3ec32fbb389e9d91ad63f098f9421a5232c3464",
+      "size": 3039
     },
     {
       "path": ".agents/skills/oma-design/examples/landing-page-prompt.md",
-      "sha256": "222cf23aa1f299c1c4ef234e23cb4b102441577bdf3f059bf797eecdebbe6b42",
+      "sha256": "5798139fab0374c18eca49fec6e8d054b66c0634e99fb65b89f84e2d4eb734eb",
       "size": 4864
     },
     {
       "path": ".agents/skills/oma-design/reference/accessibility.md",
-      "sha256": "1484786fcef245db12029e9eb33ea740eeba7599cf0d5366d0b6e949285982f7",
-      "size": 4525
+      "sha256": "489ac2f118299c012257d582e0730b322e8da7200274cfbf8096c09fdb6d2a50",
+      "size": 4504
     },
     {
       "path": ".agents/skills/oma-design/reference/color-and-contrast.md",
-      "sha256": "40a58ba0b42d2169e873c5fc35cc81526e59c29839ef0d480ca01511185c23c1",
-      "size": 3826
+      "sha256": "f08e8c3eb118f6666bd6326127eab95ccf4ef5b9848c7521a422a75935796869",
+      "size": 3802
     },
     {
       "path": ".agents/skills/oma-design/reference/component-patterns.md",
-      "sha256": "be6b063facaea4b83d7655d04e9a4b68b7d19e65a0bbaffbb625bbec1ebc435c",
-      "size": 5854
+      "sha256": "67fb97ce9af30de0fb4bb9994d8ef089d99630c5f399e9a6109eafc33b28cd25",
+      "size": 5848
     },
     {
       "path": ".agents/skills/oma-design/reference/motion-design.md",
-      "sha256": "54f797b947a03a6178605932f052fd45854801b3dd9e2ebdd1441ceef14416a4",
-      "size": 8142
+      "sha256": "160da778a6721182d6e9ebbe38b4a0f098ca6409f14d41b7da9631eb7cea0f08",
+      "size": 8104
     },
     {
       "path": ".agents/skills/oma-design/reference/responsive-design.md",
-      "sha256": "12d2aef6f3aa32c690d7a3c6c292c2ca269448712c779ec88915610862bb38ed",
-      "size": 3707
+      "sha256": "fe9ffe65c11167f7213838c661e82439e87dda1b73e57ec43843a6ad6befbab4",
+      "size": 3701
     },
     {
       "path": ".agents/skills/oma-design/reference/shader-and-3d.md",
-      "sha256": "7e4c242bba645e61831aacf4486f579eb1098666bdd8014a01471f71e96e6939",
-      "size": 5106
+      "sha256": "a7021143882a1065e6cca72d73fb1c661737712fb0d90f02e528eab1739201b4",
+      "size": 5103
     },
     {
       "path": ".agents/skills/oma-design/reference/spatial-design.md",
@@ -696,48 +696,48 @@
     },
     {
       "path": ".agents/skills/oma-design/reference/typography.md",
-      "sha256": "daafc107990adc529597cb6327aaa9d345ac67ff59cd684304f57707696929f4",
-      "size": 2703
+      "sha256": "a49a2f92c2e16317398411c2814f3af3cbd691b10863d6a10d3d837cd9edf123",
+      "size": 2695
     },
     {
       "path": ".agents/skills/oma-design/reference/visual-hierarchy.md",
-      "sha256": "01d93ef8593ef2097f979626dbbdf1c8486fc615cf34fe542b163aae87386932",
-      "size": 9919
+      "sha256": "3e0a96f5157b1e0f19e877f25d799a981c77a98c205592f70c4b17cda28b0528",
+      "size": 9881
     },
     {
       "path": ".agents/skills/oma-design/resources/anti-patterns.md",
-      "sha256": "3b934702967b99d799c5ec2c522d0fb0501a30f673b1506313c29fdce314b5c8",
-      "size": 4156
+      "sha256": "eca06dc6e3398ff2198abddfb8a35c0df59805c63024b966b7f7d441397487ad",
+      "size": 4141
     },
     {
       "path": ".agents/skills/oma-design/resources/checklist.md",
-      "sha256": "183ff6132aeb081c3c8aedc3b105bdd910b10aabebb096b8f10f1b015216ba65",
-      "size": 3008
+      "sha256": "542a9ac09711e35657e1c7b7bdaddc65af60a574f0923c32eae157a6f3abfd88",
+      "size": 3003
     },
     {
       "path": ".agents/skills/oma-design/resources/design-md-spec.md",
-      "sha256": "6489ebcf482964975a07ad1e254900b22f795b99eade3231b6d4ed4fadbeacc9",
-      "size": 8590
+      "sha256": "a5a99f974aec6d695140e8040699049cf1524de4526ec4eba57fd1ae1715b527",
+      "size": 8532
     },
     {
       "path": ".agents/skills/oma-design/resources/design-tokens.md",
-      "sha256": "b70cc99e0e57e93a0629a47b438a70da58bbab4c9e5d1b78e92790b2cd0862e8",
-      "size": 4003
+      "sha256": "482be4161c85b09d153537feb7882c425bcff7932cf7addca0ad1f7b62af105b",
+      "size": 4000
     },
     {
       "path": ".agents/skills/oma-design/resources/error-playbook.md",
-      "sha256": "31f93af41c88efc6a6c13793795b808c324eea606b00c87a094fad183954b696",
-      "size": 4024
+      "sha256": "a7e2367cdbdd75eca9d810844c5546a0c8c1d6b2016251436d1b328aa4e0ffd9",
+      "size": 4008
     },
     {
       "path": ".agents/skills/oma-design/resources/execution-protocol.md",
-      "sha256": "ce6b28e63d69e78151d7a6431efeae13915bdf36d66a07297b01ce5073f5ab70",
-      "size": 9510
+      "sha256": "fb9e1c875399180c78e15ed2c7cecdf96ee7782ea0a14848279658442b2d6aa2",
+      "size": 9456
     },
     {
       "path": ".agents/skills/oma-design/resources/getdesign-fetcher.md",
-      "sha256": "662258bede9b2f3b92c671928464430cdf21d1639c3b3fa6250dcfc0d166897f",
-      "size": 13568
+      "sha256": "c77e101158a9f9f8a4e3c92c76107400deaa616949bb92df3a5d4ef09810a66a",
+      "size": 13491
     },
     {
       "path": ".agents/skills/oma-design/resources/prompt-enhancement.md",
@@ -746,8 +746,8 @@
     },
     {
       "path": ".agents/skills/oma-design/resources/stitch-integration.md",
-      "sha256": "278d13825f0e28706a8de9654140f42bc674a33176e4bcb7b5974c12a4e64aa0",
-      "size": 3889
+      "sha256": "e01874e55d631531063f202c4e7cc02aad7feb92798dd9ed50c4c3fcb8e1e2b4",
+      "size": 3883
     },
     {
       "path": ".agents/skills/oma-dev-workflow/SKILL.md",
@@ -786,48 +786,48 @@
     },
     {
       "path": ".agents/skills/oma-docs/SKILL.md",
-      "sha256": "56d76f3ccd99c6a00a3a5237497ed7c89c1703518ce8f970982a4a33ed2d8752",
-      "size": 14737
+      "sha256": "63ec65f071a22693fbe4eaac8f713a826a3fb3e188dce1e2d357b4bf03111ba9",
+      "size": 14650
     },
     {
       "path": ".agents/skills/oma-frontend/SKILL.md",
-      "sha256": "db4a37868cc8bd6e71fb777bf291e767f4852025bb509910a2600fd2d686fa83",
-      "size": 10095
+      "sha256": "544092a5ca8056d602c66cd3063427f0d2b909c13ab58c9b958b9ae01aa814c1",
+      "size": 10068
     },
     {
       "path": ".agents/skills/oma-frontend/resources/checklist.md",
-      "sha256": "d822afe5bf8b236e2793787cde14b009a4f3b3515692739dd70314e909eaf101",
-      "size": 4348
+      "sha256": "f065a2e03eac45df2d8f1eee0b483f7813bb12ce0e5c5db05da3c1191082888d",
+      "size": 4330
     },
     {
       "path": ".agents/skills/oma-frontend/resources/error-playbook.md",
-      "sha256": "3d2664eacfe89b0ef6f410ffb8173245deeb3ccd88a789ece1ad63c2488d7263",
-      "size": 4730
+      "sha256": "ab3d4f350e9e952c670c38adf3257bfd35cc7b9b2f9bd37afbf9ef8629418b7b",
+      "size": 4695
     },
     {
       "path": ".agents/skills/oma-frontend/resources/execution-protocol.md",
-      "sha256": "14fbe0a02f0c0d1a906a853184f9e210ee1781a644dd0624749f4d8085a7bfa7",
-      "size": 2342
+      "sha256": "690a4d8c0e3397958964ab1b4dc12b1f043bf08f203389894e10ee96de10d43e",
+      "size": 2330
     },
     {
       "path": ".agents/skills/oma-frontend/resources/snippets.md",
-      "sha256": "42152b67c11bab790a6b7eced6765b86c4d207a41fd0bf3bd1a1cef8b520a2cd",
-      "size": 9521
+      "sha256": "4dd8e7a88faafb39457846c29b9bbeeda864f07cbaa1ed4624aba89589e03e1f",
+      "size": 9497
     },
     {
       "path": ".agents/skills/oma-frontend/resources/tailwind-rules.md",
-      "sha256": "334faafdea6dcbc85b42a58dfb2076015d4a1a7dabfb4b64853696961ab9c09f",
-      "size": 2746
+      "sha256": "54a5004f8ecbcbab3805e275ab6d2e81ba1f99963a8ae2c3c8aca87a1de33d78",
+      "size": 2719
     },
     {
       "path": ".agents/skills/oma-frontend/resources/tech-stack.md",
-      "sha256": "f755f9220b3115533a849940658336a437b06c504ddb2b6ea78732aa125b5ed6",
-      "size": 1158
+      "sha256": "81f8f9b2f13dbcf70d4f585ef95f3f6e7a057c2a4f225651af7547087e7f2be0",
+      "size": 1143
     },
     {
       "path": ".agents/skills/oma-hwp/SKILL.md",
-      "sha256": "b39cc4838309992bbf09b1e8983950c9200761eb14af29018e78e0a0a3af3c93",
-      "size": 7711
+      "sha256": "48fb365f065575b2f342297a08ce6d5cf7dee5aab6b7c0af0f623402214a9039",
+      "size": 7708
     },
     {
       "path": ".agents/skills/oma-hwp/config/hwp-config.yaml",
@@ -841,13 +841,13 @@
     },
     {
       "path": ".agents/skills/oma-hwp/resources/execution-protocol.md",
-      "sha256": "0f599805979c889b297b820ddb68269b1b367d3bb8649dcb65124e6bc7f571ea",
-      "size": 5204
+      "sha256": "06dae6fa122c02ba3e3e5f9299c341e4fd59ca216721478c3a243d79445b3c6f",
+      "size": 5192
     },
     {
       "path": ".agents/skills/oma-hwp/resources/flatten-tables.ts",
-      "sha256": "2d3c6bca89979a08064b24b283d4f6b34014d2c1220c039d32e7d754320d59f2",
-      "size": 2178
+      "sha256": "74b776b55de5354f604838b1c9806267466037b40388c42a7e0676c55245edf0",
+      "size": 2163
     },
     {
       "path": ".agents/skills/oma-hwp/resources/package.json",
@@ -856,38 +856,38 @@
     },
     {
       "path": ".agents/skills/oma-hwp/resources/troubleshooting.md",
-      "sha256": "be4dcd4bcb3e12e0999a802669b98d97ec080825f8b9f4274ef273906f731791",
-      "size": 3713
+      "sha256": "f7cd2d4107be31778d6eb3ad38a0f20ac3921ed26b4dbbee400e30ab9dccf195",
+      "size": 3704
     },
     {
       "path": ".agents/skills/oma-image/SKILL.md",
-      "sha256": "d14451b93dbb19c58fba62cdacf48f80df85a0ee08fca957c71921388214959e",
-      "size": 14898
+      "sha256": "7a9fc61872f6829e939285a598f60ef06b1a3ee040edb802c53954131981c4fd",
+      "size": 14855
     },
     {
       "path": ".agents/skills/oma-image/config/image-config.yaml",
-      "sha256": "dcf0ed82cbfa2c4b1f23e84cf6be6540608b00ef549070f6f74e1c4ce911e747",
-      "size": 986
+      "sha256": "7d556f5862d6ec250dfd99e3e20605e3fa7d2ab757b26fa44e982bd64d4841d2",
+      "size": 983
     },
     {
       "path": ".agents/skills/oma-image/resources/checklist.md",
-      "sha256": "cc8cb9c76657a047e6baf246fc7fb57c130b61f93c44defcb2212ca279a271ee",
-      "size": 979
+      "sha256": "580718381291459ea5d42a5ebcbb9fb0c37d90931a60c122bbf31fc6b2aafe43",
+      "size": 973
     },
     {
       "path": ".agents/skills/oma-image/resources/execution-protocol.md",
-      "sha256": "445ce2dc5c9e673f2fdd6e951144606fddbae34d13a3e602cb9d025728e1500b",
-      "size": 6068
+      "sha256": "7b8d7052f283b49ea75c6ec0b95f83fd05a4a6e5ba794fd56c78aab4cd2ebd1c",
+      "size": 6053
     },
     {
       "path": ".agents/skills/oma-image/resources/prompt-tips.md",
-      "sha256": "a4102b22e7b2f98286e1e6bf3543801fd355c44a03b01f9eb8fba3acc5921e0d",
-      "size": 4408
+      "sha256": "3b62b7af979fbbf6479e8f4b02e3a8150b3e0fabb32e2621f105d9c9be308ecc",
+      "size": 4390
     },
     {
       "path": ".agents/skills/oma-image/resources/vendor-matrix.md",
-      "sha256": "b5e7b01183e65eb6fc2ba403eb958d5a946e20d25d553725f5df4f95115c2054",
-      "size": 4310
+      "sha256": "b9d1d1b1341148ce0430305cf229db1bf4a077043ab09cb0f2ba074c365f3795",
+      "size": 4288
     },
     {
       "path": ".agents/skills/oma-mobile/SKILL.md",
@@ -901,8 +901,8 @@
     },
     {
       "path": ".agents/skills/oma-mobile/resources/error-playbook.md",
-      "sha256": "b62e25add9cdd72e7fd7edc63e976e9c1851b17b4e3ef7454d3887cd1bcec6a0",
-      "size": 3758
+      "sha256": "7dcdb3077fdeee73db402738bcf4f110c2826953eb05e7da9f3594ffdd1addaa",
+      "size": 3741
     },
     {
       "path": ".agents/skills/oma-mobile/resources/examples.md",
@@ -911,8 +911,8 @@
     },
     {
       "path": ".agents/skills/oma-mobile/resources/execution-protocol.md",
-      "sha256": "fa163da4f23b7712d3d5cba236fcd0db3b5b92ab26ee3c391245c470cdd72c8a",
-      "size": 2151
+      "sha256": "db329a0b97637e6c4fc5ecdb5be3a43120777a083857657cea7ad6b3080e7472",
+      "size": 2139
     },
     {
       "path": ".agents/skills/oma-mobile/resources/screen-template.dart",
@@ -931,173 +931,173 @@
     },
     {
       "path": ".agents/skills/oma-observability/SKILL.md",
-      "sha256": "8d4c1ddc0f02b0d0688fc8a8d78a86b51014f1dd53d0f99257b36a4b5d6681b1",
-      "size": 19621
+      "sha256": "9ca224c17674765a82913d8c842e6e05d4017356ae370f47b83a5fd7346094d6",
+      "size": 19585
     },
     {
       "path": ".agents/skills/oma-observability/resources/anti-patterns.md",
-      "sha256": "5454757d9a6fc24fdd77f230fdbe19999fe22bc8199ea190e95f32ffb68ebfa3",
-      "size": 43212
+      "sha256": "5505963c6e4fa272893c6c68cd6073129e23015871b7c24e7b1df5f14a0a5dfb",
+      "size": 43086
     },
     {
       "path": ".agents/skills/oma-observability/resources/boundaries/cross-application.md",
-      "sha256": "429177585fb65770be925910842f08f4b475e4c9a6e8fedbb1b6af0e61bde817",
-      "size": 20052
+      "sha256": "17d51af9457e99f991b4a6d30d2f10974cc19b3f32ac6e25e27898434c86e2d2",
+      "size": 20004
     },
     {
       "path": ".agents/skills/oma-observability/resources/boundaries/multi-tenant.md",
-      "sha256": "79c53dcc594773a7989d0b58b5a8555b13e9443659e176396a8b6ff516227162",
-      "size": 18378
+      "sha256": "5b32089adc126d04f2750752133ac6ca557c79218955ab27b1842d441bdc7e53",
+      "size": 18329
     },
     {
       "path": ".agents/skills/oma-observability/resources/boundaries/release.md",
-      "sha256": "fea3e4358b20711bab10c9433b773daaf3c32df23ef7eccc2d612fe4593ab14d",
-      "size": 12721
+      "sha256": "47f02be829adba7feae5d5f97c0250aeaa84c7add14f0a6e1c6b254247660dfa",
+      "size": 12712
     },
     {
       "path": ".agents/skills/oma-observability/resources/boundaries/slo.md",
-      "sha256": "5c1ae946f8ab5a40aa3fa57218546b61e17e758dc2db02c3951f467c1fbd87ad",
-      "size": 6612
+      "sha256": "d1a60bf70b5f08d93b53487e4d05e108243a850ed2fa26bfae9084e7545e125d",
+      "size": 6603
     },
     {
       "path": ".agents/skills/oma-observability/resources/checklist.md",
-      "sha256": "02c715540071f1509e9c3716551bd81a1515bbcddd3fe6c8ff9585c51795e6a9",
-      "size": 15370
+      "sha256": "c850c90c9e63f332dab0e616427cfb7f2dca5ada22ff6c0ae02239b1f125274c",
+      "size": 15097
     },
     {
       "path": ".agents/skills/oma-observability/resources/examples.md",
-      "sha256": "31b6dd1b900e1e8b30a02ddea6efdc91f6e7c839b1257a619c8922f0b8402804",
-      "size": 16118
+      "sha256": "f3d8f6dde7e0f8b07878a46fbc8aad1ba19546ed327fe53c6042e5747d4e700c",
+      "size": 16040
     },
     {
       "path": ".agents/skills/oma-observability/resources/execution-protocol.md",
-      "sha256": "8b1179d02b33de93ea22307c7f5667a41bfb397eebc45a7c77161903e6401f06",
-      "size": 9213
+      "sha256": "1df08d61cbc2d1d8866b2a8f81dbe30e1a7018304eb715ae1264248698d68dff",
+      "size": 9171
     },
     {
       "path": ".agents/skills/oma-observability/resources/incident-forensics.md",
-      "sha256": "ab7ab07ba2f54936940898fc2d8aa5cbb28e4ea510ba095a3b43f11473707e2f",
-      "size": 23441
+      "sha256": "578cdc1a1988095ad2081d25b1b47d7d1f914853189874ad9b790dab52b969ce",
+      "size": 23318
     },
     {
       "path": ".agents/skills/oma-observability/resources/intent-rules.md",
-      "sha256": "013d2b9c0d86d66a3ea1bbe504c1b089767da3b453e0fea8bf48e54695f8875f",
-      "size": 13173
+      "sha256": "edd5d8f532cc1cf66e5ed04f95fa8f64001e6110496dd41228c1a168367a7b2c",
+      "size": 13149
     },
     {
       "path": ".agents/skills/oma-observability/resources/layers/L3-network.md",
-      "sha256": "7c1403344949369e10064751a08addf0448ca2b5ac60d393ce4eda9305657034",
-      "size": 18139
+      "sha256": "517f07e930053e29b478847e1da228efb564ff7b382ad2deffd683ca7222fe74",
+      "size": 18070
     },
     {
       "path": ".agents/skills/oma-observability/resources/layers/L4-transport.md",
-      "sha256": "b50aee590218313461c10c61ebe41c01e0201bbf71661a9d8ed00a543c20425d",
-      "size": 14985
+      "sha256": "6df7c03453cd4185f705b39ffb48c83adc3f9a25074b436370cfb4c8cd6e3ad5",
+      "size": 14941
     },
     {
       "path": ".agents/skills/oma-observability/resources/layers/L7-application/crash-analytics.md",
-      "sha256": "82e757b7c161c846f854a63618cbe6ff9c1a878d04d43d8423698b681c32bbfe",
-      "size": 18034
+      "sha256": "31499276222deccfdc5d18943b0b64af28798b82439ddb9e378fc885c226c1ee",
+      "size": 18022
     },
     {
       "path": ".agents/skills/oma-observability/resources/layers/L7-application/mobile-rum.md",
-      "sha256": "c4b7bf08f2ab7a3af4bafaf55ab87cba448771ee5090d898dfe15a8dc38bde22",
-      "size": 16214
+      "sha256": "94c84ccf528466e93c5e77de0190f8f790dd4d73ab416988c0df3911da34a5f8",
+      "size": 16205
     },
     {
       "path": ".agents/skills/oma-observability/resources/layers/L7-application/web-rum.md",
-      "sha256": "61071d13abe58f1f658965b7f2317411b3479cb9ae5e42843b3264dbd26b474e",
-      "size": 17854
+      "sha256": "0c859763482fc88c2dfed64fabc11ff335a0aa2ac9881928006d01f49b58933e",
+      "size": 17782
     },
     {
       "path": ".agents/skills/oma-observability/resources/layers/mesh.md",
-      "sha256": "20619703a955ff2034026e346aca8d8bd3e5514669f2b29967ca183e21831afd",
-      "size": 20398
+      "sha256": "c796a6180011773b1154aea5bcb6072ec85d827b4482b07f969c5c9fdca0284a",
+      "size": 20317
     },
     {
       "path": ".agents/skills/oma-observability/resources/matrix.md",
-      "sha256": "91d5bf03fc347a23712ed0c6025816abb843c7287f063c9d8ebe06673576f6ef",
-      "size": 21690
+      "sha256": "99ee353ddb3157c742b4c06211f846a040c6648814fee858b477a4f0d038f026",
+      "size": 21621
     },
     {
       "path": ".agents/skills/oma-observability/resources/meta-observability.md",
-      "sha256": "9c464b4efae7207c2221b930a55a979a17f374eca2ce7d21f0daae7a770a77c6",
-      "size": 24065
+      "sha256": "3e985350de4259205db8ac77980ae8b92c1e35d0f36e4700d29f109e20f277fa",
+      "size": 24008
     },
     {
       "path": ".agents/skills/oma-observability/resources/observability-as-code.md",
-      "sha256": "d7f449a52379c23ecbb375902ae14cd100b1512e17a1a46ba9943f83e85623dd",
-      "size": 22388
+      "sha256": "2cc51e0b0fea280f9cd7137add0ec94e5334479b0727ee29163669ec00dc30b9",
+      "size": 22352
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/audit.md",
-      "sha256": "94f32a0e5532d945661e7d44c0b919a86676c048a28c375c6df00f90a7b0152b",
-      "size": 14337
+      "sha256": "6d3f89dea3c4c1f8f48809880ea59900be4955030e14d4eb8937ed4066a33795",
+      "size": 14256
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/cost.md",
-      "sha256": "84f4aa678fd574aae3b60d97388a86f2be3bbe0609595bc1af32fcac0dfc6ba4",
-      "size": 17422
+      "sha256": "f37c5a95888be4fb37513ad42ed66cd2508439f277b2d4f3a6bd0bc88bc4c4ac",
+      "size": 17395
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/logs.md",
-      "sha256": "efe175a50deaa97d88f65162c0acdaf137e74ced8ef065f1fbbc3bb60979dcb9",
-      "size": 10446
+      "sha256": "5d2502927b2d6d577081fcad6f7fb376cd47bf6d2599278d8bba6855eac5b774",
+      "size": 10421
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/metrics.md",
-      "sha256": "fae45526832d85e4e0e107a6a408ab8b10f781ba49c24fefd442193985e1667e",
-      "size": 20055
+      "sha256": "7717a1d14d19daf8ddaea96df0a4f99dbba9b666d3290dcac9bdd1ca730802cd",
+      "size": 20028
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/privacy.md",
-      "sha256": "01dec0b06fdf6fe152efc279ef3940813c26060a9188cade61ad5d8c0a111ae1",
-      "size": 17980
+      "sha256": "228c3041370d295d199c9bbbe736e5756dbe01037aba51b01acb06e797327d53",
+      "size": 17935
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/profiles.md",
-      "sha256": "f660cb5a31a7b49ede577254fef5817269a84154efe4cd36e03511e2f59d5373",
-      "size": 15613
+      "sha256": "2cdb92b8bf143f32a6f9879dd4b6a22d9c32700151839e8f2d8c1f5748bec33f",
+      "size": 15514
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/traces.md",
-      "sha256": "f305582a6bb302f1644e5d3c52b61b81b6e4e3daa0e820a292301c38f161c202",
-      "size": 19374
+      "sha256": "db2412f20b560f9791b9fc4befcf97ae8c7b8504563a1c7ff7203e65122d80a8",
+      "size": 19314
     },
     {
       "path": ".agents/skills/oma-observability/resources/standards.md",
-      "sha256": "deb6c2365e5aaf4d7db41485b19cb6029a2e1158903f71c4b6559b654aa92f18",
-      "size": 12688
+      "sha256": "6a316ba1ca4ec5155aeec2ef7baf87d9ac939c51ef475101da9c8993382154cd",
+      "size": 12622
     },
     {
       "path": ".agents/skills/oma-observability/resources/transport/collector-topology.md",
-      "sha256": "f304c8021fd1820ba3f1daa5341a31b29b90e9dcb46b2887ce1c0dd59d3b9c8d",
-      "size": 12177
+      "sha256": "29d62873c0c6a45ea952af19f8dea9e4725e68a7fcd4b0ee3266f4117aa4dac3",
+      "size": 12144
     },
     {
       "path": ".agents/skills/oma-observability/resources/transport/otlp-grpc-vs-http.md",
-      "sha256": "b73d381d2257263c72bf49a80516e1d697d94ff6a37f6af1b7bc2a4eb496e2a3",
-      "size": 7813
+      "sha256": "8dcbb2fd7c757a052b5eab74794d08ab99003a78093f4dc923e7fdbef5c1ebe9",
+      "size": 7807
     },
     {
       "path": ".agents/skills/oma-observability/resources/transport/sampling-recipes.md",
-      "sha256": "357463ec0f9aba1cbd1f799e24bd22beb419f55fb710a9182f2b90fa569b1511",
-      "size": 11332
+      "sha256": "4c58290ea8c17ebc990139ed526f14c33ced69ffac5d094fcdeb4f0f6297b553",
+      "size": 11302
     },
     {
       "path": ".agents/skills/oma-observability/resources/transport/udp-statsd-mtu.md",
-      "sha256": "8022e10671cb6e1ff90e8085f9732c855b210cba9e18a1b543ee80f1a49f729d",
-      "size": 6431
+      "sha256": "818ade626678c2d7598333ab274f9175361608ef235c74e8b2e090ad70fb36d3",
+      "size": 6425
     },
     {
       "path": ".agents/skills/oma-observability/resources/vendor-categories.md",
-      "sha256": "fe258e14700af995b820ebae6035894a47b5e48f15aedd6fa7906241399e2f5f",
-      "size": 17996
+      "sha256": "7cc206e3c8c9528ecd5c9193813f4764165f9d0cd266b4d670218bb25e8c6619",
+      "size": 17945
     },
     {
       "path": ".agents/skills/oma-orchestrator/SKILL.md",
-      "sha256": "b529a0df26630f4a06d3b2463518073b4a078aa9002c93541cd3906b85332447",
-      "size": 12334
+      "sha256": "77d51078e01793108f0eb4386054dfe90df8c00b965c915ee2a9da61d1487607",
+      "size": 12337
     },
     {
       "path": ".agents/skills/oma-orchestrator/config/cli-config.yaml",
@@ -1171,8 +1171,8 @@
     },
     {
       "path": ".agents/skills/oma-pdf/resources/execution-protocol.md",
-      "sha256": "e485ef43b07136ddcd6677a5ca327664ebaf5947a43b486446d14a9397e6ac62",
-      "size": 2721
+      "sha256": "9fb924cc7fe378ecf51a2c7ae428f6b298a391cb11fd56ee011893937132410c",
+      "size": 2718
     },
     {
       "path": ".agents/skills/oma-pm/SKILL.md",
@@ -1181,8 +1181,8 @@
     },
     {
       "path": ".agents/skills/oma-pm/resources/error-playbook.md",
-      "sha256": "efcf78cacb4e7bfd550ded0994f568e4146a7943837b4aa0778583851921118e",
-      "size": 2507
+      "sha256": "7fa7126cbe91ae60d9d9f6c3c4b55b8e0a565317c44c48fd9d4ebf772072c808",
+      "size": 2502
     },
     {
       "path": ".agents/skills/oma-pm/resources/examples.md",
@@ -1191,8 +1191,8 @@
     },
     {
       "path": ".agents/skills/oma-pm/resources/execution-protocol.md",
-      "sha256": "d0f678ea3a57016858aa51a4ae88fa133b36055df4b87f35a561823a8e825ef0",
-      "size": 3097
+      "sha256": "ff9e1bc85655866d7d36fe12bb9d17fc6cbefad46678f5e3aa9ee3614e3d738c",
+      "size": 3082
     },
     {
       "path": ".agents/skills/oma-pm/resources/iso-planning.md",
@@ -1216,13 +1216,13 @@
     },
     {
       "path": ".agents/skills/oma-qa/resources/checklist.md",
-      "sha256": "05a6a9e0cc6320b0fab8bc94d63f8f06f8414487d72dc73959c0724f094a38dc",
-      "size": 10704
+      "sha256": "2e05c03e04bef995e3b579a533388dce1e7192a5e0a1910f7c127e7549a97089",
+      "size": 10784
     },
     {
       "path": ".agents/skills/oma-qa/resources/error-playbook.md",
-      "sha256": "238e69e5fd671fbc83429969d912988fe806d3a57d036d61d5ddca76b847c823",
-      "size": 3322
+      "sha256": "c1ad57ac80642945f1862942c71549f4ff86d8f28dfd8ccaa28afacd6b8ebe01",
+      "size": 3305
     },
     {
       "path": ".agents/skills/oma-qa/resources/examples.md",
@@ -1231,8 +1231,8 @@
     },
     {
       "path": ".agents/skills/oma-qa/resources/execution-protocol.md",
-      "sha256": "2f63b4fd6ec2c6e269d14c7c8c36b7e9866bf672d9aa2a57961a77dd0c030049",
-      "size": 8453
+      "sha256": "8092194c2b949590fd73681255b939688af131c3fdc29f1ee4caec1cbe3d580c",
+      "size": 8426
     },
     {
       "path": ".agents/skills/oma-qa/resources/iso-quality.md",
@@ -1251,63 +1251,63 @@
     },
     {
       "path": ".agents/skills/oma-recap/SKILL.md",
-      "sha256": "9a339869e936939de5adaab2c49d9a8e230f49e9f38bd2fbaeae1f681113be64",
-      "size": 10555
+      "sha256": "58462e3acbb1bda38cb209a561fc5955967dc9285dfb256493cd366673cbebb7",
+      "size": 10544
     },
     {
       "path": ".agents/skills/oma-scholar/SKILL.md",
-      "sha256": "188ae8fe6d74b00b5c89f4f18737ab8c2e7db350b95b9137aaffb53743ffc7aa",
-      "size": 13608
+      "sha256": "ec8322f012e2a889ae375668833c9f28e31914d62d755cb0eff3345bd53f0f9f",
+      "size": 13544
     },
     {
       "path": ".agents/skills/oma-scholar/config/scholar-config.yaml",
-      "sha256": "748c6ccdec11bf39e262ce8f98d133e11cb7b9054dccb45cb181b80e70f70fc4",
-      "size": 1902
+      "sha256": "9de6ace0187cc279e2628853da50400bd4de55e51d5f80537b633871926f9d91",
+      "size": 1897
     },
     {
       "path": ".agents/skills/oma-scholar/resources/api-endpoints.md",
-      "sha256": "6c4a0fe41b6618bba3717418cdb444042989c013e7d3efc447fe97127d470e5d",
-      "size": 4790
+      "sha256": "299d791c60f798f38cb20834539c53766b65ca35eae405abc730f3736a144cc2",
+      "size": 4777
     },
     {
       "path": ".agents/skills/oma-scholar/resources/checklist.md",
-      "sha256": "af9a9a2574f33478a1a3ea5f54953a5392c62c73161c270084aa6449ecb69239",
-      "size": 3649
+      "sha256": "308212d993d8104c6b9811d1163d687024eed0599545d11dc2308af56217ebfe",
+      "size": 3643
     },
     {
       "path": ".agents/skills/oma-scholar/resources/execution-protocol.md",
-      "sha256": "60343a104ffccf7e019627225fa986f9d487d1f5cdf1b23b0fe98cc0a6686a0a",
-      "size": 8009
+      "sha256": "f1bf93529ba7f780f3e51ea02755fa45ff209c4d1e8812f19aaebf6d8e61f39e",
+      "size": 7973
     },
     {
       "path": ".agents/skills/oma-scholar/resources/fallback-providers.md",
-      "sha256": "4c00f18fed5e7658f6abbbf5f927a09a3417bb631deb45d1bd39ab2395db2cbc",
-      "size": 4881
+      "sha256": "1829537d247743a60bbac0bfb842511ef3e2b5b9c2729583aab93efa4f18eca0",
+      "size": 4859
     },
     {
       "path": ".agents/skills/oma-scholar/resources/setup-openalex.md",
-      "sha256": "0cd3a3eec255df7eefd087f9b011f68a93c848d875dc849d05ca1c94bfe72742",
-      "size": 2566
+      "sha256": "be9c8a32790096f62dcb0347971ee31e94a3772a712c07d4b6d28f164492c38c",
+      "size": 2564
     },
     {
       "path": ".agents/skills/oma-scholar/resources/sidecar-spec.md",
-      "sha256": "a2b59c30b52c162b7df4e6da2548399d76b83c812c7906df770b7b6dc8b0fcde",
+      "sha256": "6dc71237c39bde2fd83bd615a743b5f449de4bc51f70c78f9821d803ffbdb84b",
       "size": 10039
     },
     {
       "path": ".agents/skills/oma-scholar/resources/upstream-spec-cache.md",
-      "sha256": "241453d72419de4613e72449407a2255411e64531bd2a564114bf3afe28ed295",
-      "size": 8444
+      "sha256": "1bffcc0cf9b84b33a8acb6b5fc57882e88fefa202c8e4ca30a428f5e49aa85d9",
+      "size": 8386
     },
     {
       "path": ".agents/skills/oma-scm/SKILL.md",
-      "sha256": "8237e50b2c760c3953bb5832e101e2f9c2aca10809097f5dedcbba0c141df266",
-      "size": 13158
+      "sha256": "1cca97ce04d75b29475b8bf8ad2d24ede41895f4c36ad258b75bff2d3f7f2400",
+      "size": 13150
     },
     {
       "path": ".agents/skills/oma-scm/config/cm-config.yaml",
-      "sha256": "dda19b806672f5ec0991b531aeef2cbec4062cdc7f5e9b67497369ab43b42637",
-      "size": 1139
+      "sha256": "ca5ba8460dd2815710e8351f124c43682e1bb0bc614371b928c287c9a6a35922",
+      "size": 1136
     },
     {
       "path": ".agents/skills/oma-scm/config/commit-config.yaml",
@@ -1331,8 +1331,8 @@
     },
     {
       "path": ".agents/skills/oma-search/SKILL.md",
-      "sha256": "c89a77af372539a3a72df2c3b35c86e91111900701f9b42a3ce91bda9edc67d2",
-      "size": 7817
+      "sha256": "7c74416e70714d239f113646e7fc39b84e66cf7eaf3a14b10d2cb5ac95e6f180",
+      "size": 7808
     },
     {
       "path": ".agents/skills/oma-search/resources/checklist.md",
@@ -1341,8 +1341,8 @@
     },
     {
       "path": ".agents/skills/oma-search/resources/error-playbook.md",
-      "sha256": "7e0452121ee2b13affc3a13eb4ef6a8a9c8c0f4f7b09b4a2b127cdbe69d708b2",
-      "size": 4901
+      "sha256": "2f20e946716dac2ffb163235386953d5d521b146e9020971582c799a3f9e6a3e",
+      "size": 4900
     },
     {
       "path": ".agents/skills/oma-search/resources/examples.md",
@@ -1351,18 +1351,18 @@
     },
     {
       "path": ".agents/skills/oma-search/resources/execution-protocol.md",
-      "sha256": "8b201ecceeba05745a949d9887b66bc296e2b12f8e8da99ab54437b66c31901d",
-      "size": 4550
+      "sha256": "d9ab93c1ba02cd4f348baa681bfc97643af223aafc7bd188cd94f4f84391e7e6",
+      "size": 4538
     },
     {
       "path": ".agents/skills/oma-search/resources/intent-rules.md",
-      "sha256": "c1ca99b5ac6e5c45fac3c14de272b9d55acada5031335d7814e3ea8492bb6bb0",
-      "size": 3520
+      "sha256": "524e4398d01d4cf2a2f26e543924f5fc0789d3b825a074610620f7ed86ae0f4c",
+      "size": 3505
     },
     {
       "path": ".agents/skills/oma-search/resources/trust-registry.md",
-      "sha256": "fad4cd28899c15a7ee81a2b5264ff72ba488883af70e16e71eb651719460021c",
-      "size": 4485
+      "sha256": "20aa7ad590b85288eef3f29a6fd1f299c6d3ce9e453ca4d8dcc42c5190413d17",
+      "size": 4491
     },
     {
       "path": ".agents/skills/oma-skill-creator/SKILL.md",
@@ -1386,8 +1386,8 @@
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/checklist.md",
-      "sha256": "d5b4cbb8a183f8e7ad80b0678789116abb7d809ec41f1c4d1ccda4ba9671ac4a",
-      "size": 2192
+      "sha256": "a9087e4fa26cff36012c113fc0f5b93d8cc7dd6cec217afcd1cf334a59f824fc",
+      "size": 2189
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/cost-optimization.md",
@@ -1396,18 +1396,18 @@
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/error-playbook.md",
-      "sha256": "12f13ffc3d32b890952dc8595f1ceb612410a2640026176d6e2fdec10dd7c5d9",
-      "size": 2283
+      "sha256": "cb900cd1651de716f5d29aaa902e6c413467da11ab646ff99d02f6433fb6894c",
+      "size": 2280
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/examples.md",
-      "sha256": "e4b03bb63c903d0ff5f7ebc52e7c2ca888ca3c1accb7e70b6f1b5819598175f1",
-      "size": 1570
+      "sha256": "03316597737a023ed0b23af19f27ad40fd78ba43266445541cf640bf5e05ebfb",
+      "size": 1564
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/execution-protocol.md",
-      "sha256": "a50e16672d486d57e9a4b6ac1252c877afa3892af43f41e6dcc90b28fce6591c",
-      "size": 6340
+      "sha256": "4fb16d99fcb7f57e03abbb9b692ee05fe21ef8cc041a06d427c9acb6d28590ae",
+      "size": 6322
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/iso-42001-infra.md",
@@ -1426,38 +1426,38 @@
     },
     {
       "path": ".agents/skills/oma-translator/SKILL.md",
-      "sha256": "218e6c6d4082e530c904dc9898874ab3f845db38fb6f3ecbeae99ad7a28ccbdb",
-      "size": 28733
+      "sha256": "e99bee45d415068c3ddfba85d0ccfd8a4deef9ecab6e87f141b74ba4a73ce5ad",
+      "size": 28637
     },
     {
       "path": ".agents/skills/oma-translator/resources/anti-ai-patterns.md",
-      "sha256": "bc675f394ebca5e76f742018c21fe814d77274690023ea561fb872c154a7b43f",
-      "size": 16423
+      "sha256": "82f7102b178da036fe444a6772fbb81bdefe946bd4db5d61131f2e2b672bf317",
+      "size": 16396
     },
     {
       "path": ".agents/skills/oma-translator/resources/translation-rubric.md",
-      "sha256": "2e14c5c27d7da392ade05238b7645d4c4a90e1c5e3a5315ef058511fe0eba8ad",
-      "size": 4086
+      "sha256": "52ea3404dbce6625848d125298b345b3e9d2254cc52096617de05ccd010ee2b9",
+      "size": 4080
     },
     {
       "path": ".agents/workflows/architecture.md",
-      "sha256": "942b7fbd9a78cfd3fc0d615d27e542c4a9bbbdf833c533a825969b034e12740f",
-      "size": 4338
+      "sha256": "38a4b28d217b801def5c3f9aed579f3e1af38785aef8ae93f0592dde9ed3c8b7",
+      "size": 4341
     },
     {
       "path": ".agents/workflows/brainstorm.md",
-      "sha256": "6a3609e2482046086e89bb4a67f9c91f730227ad8f205fdc512879b5de9169eb",
-      "size": 4990
+      "sha256": "15911bd92e714c00ee23cdead69b5aae52c1ec7e56213863a0cadc87e9aed933",
+      "size": 4976
     },
     {
       "path": ".agents/workflows/debug.md",
-      "sha256": "bc728175974886de0aa0a0d9a220eb12e337c0162570b5c3a9133f6e65d1ea3f",
-      "size": 3626
+      "sha256": "2a8774ec84cc847ab15881671707f05362eb69b43b6671cd37bb7a6bf5710837",
+      "size": 3627
     },
     {
       "path": ".agents/workflows/deepinit.md",
-      "sha256": "1540534358cd2da6527f6781a1071fdc0600592ea3f391b84730ccc031f36dab",
-      "size": 14339
+      "sha256": "6d99ff8503e4f5ebfb42e876a79720336322c72f0aebd958ebbbb839682c14fe",
+      "size": 14284
     },
     {
       "path": ".agents/workflows/deepsec.md",
@@ -1466,58 +1466,58 @@
     },
     {
       "path": ".agents/workflows/design.md",
-      "sha256": "b4fe8003d96387fd84cb11c09d1d6046efc2b98d7820ad7fd0fa8bf1a5b97079",
-      "size": 6047
+      "sha256": "1888822799c2c2608c30ba2f285b19d37eb8a3f9c0afdc855a1f184d44c7a077",
+      "size": 6005
     },
     {
       "path": ".agents/workflows/docs.md",
-      "sha256": "84b657bb0ba0c5a2739ccbd2b8440f0b22dd6052ad993e4d639061c83b0c1de1",
-      "size": 6995
+      "sha256": "150971043ed24e8c2c8e8193cdfd34ac2c59612d3d39e6318f224f55412d9d63",
+      "size": 6959
     },
     {
       "path": ".agents/workflows/orchestrate.md",
-      "sha256": "705c4df58c7b3b480e90b342b25aa99607a6c4c98a6cac325e18cf093ff2b3f1",
-      "size": 8622
+      "sha256": "ef6a267d8b9123c262eec3ab4a5304e2a5e1f855f83d4deb6bb4075376762361",
+      "size": 8620
     },
     {
       "path": ".agents/workflows/pdf.md",
-      "sha256": "af3d2cd44b310b4f4cb8cb4f9d6378b608f4452a75e928c8c4339d5d6147a8c9",
-      "size": 3875
+      "sha256": "6d48572c81fa41f52360a5c3c6ed6da95d45cac1ea4e19ca11af3897c248aa5e",
+      "size": 3871
     },
     {
       "path": ".agents/workflows/plan.md",
-      "sha256": "83221cbd9e6e7b0e35858eb564e4291b5110902c5c536a270e0461fbb5055678",
-      "size": 7532
+      "sha256": "bd40972e3e0e7707d51e5762ceed1e611379a84f6ea5f8f7ed45439c0b50f30b",
+      "size": 7521
     },
     {
       "path": ".agents/workflows/ralph/resources/judge-protocol.md",
-      "sha256": "18dee1410127d9b1d84faf4abf20ff294c2b4f8739295d1beba804bef1c9e255",
-      "size": 7912
+      "sha256": "0721f525a0f401f2efbd3f22f428a5e6eec9cf02adbe96963ac6e2dea501f328",
+      "size": 7882
     },
     {
       "path": ".agents/workflows/ralph.md",
-      "sha256": "21099162546da8b2604e28ad83627078ad9ee5517761ac3c4567cd2c7141f5ec",
-      "size": 11164
+      "sha256": "d18f25b5ddab95d9dbaaa0ef4fc4a4960c5249133f67c7da5ed63379fd483999",
+      "size": 11148
     },
     {
       "path": ".agents/workflows/review.md",
-      "sha256": "9d55f5f9fef8b4a35457e23008b751b2ef3cc583d44d2a5b513306b9d76c89d5",
-      "size": 4799
+      "sha256": "fdd1084909145b11e9260aafadef56ecbfb4427e11e10343cc84af3f3131f765",
+      "size": 4801
     },
     {
       "path": ".agents/workflows/scm.md",
-      "sha256": "a87c1136bdbb9e305f88b40a490cdc293011377c3afd32bdbe140d6c567d7c32",
-      "size": 6740
+      "sha256": "62b720e29dfe60cff785c90176980278de9a22ba28aa03df1e1f07740e64ffea",
+      "size": 6731
     },
     {
       "path": ".agents/workflows/stack-set.md",
-      "sha256": "b5e33d0c7084e65f16c2fe4a5e9d00a1275eb8cb2720039c43aa91f7494adfda",
-      "size": 2832
+      "sha256": "9c42916fc37eeba46ce7ae8581ab39e3672538be134bd00f180b63df48628ee8",
+      "size": 2829
     },
     {
       "path": ".agents/workflows/tools.md",
-      "sha256": "903fc9e26de1ef1d4b8e23f1a1c40ecbf025c0a7f01100f54c133dc0816fcc81",
-      "size": 5072
+      "sha256": "d35800af07a61ab1afc0f5ae9735c5563a43023a37b9ba98004caf502ccbef4a",
+      "size": 5069
     },
     {
       "path": ".agents/workflows/ultrawork/resources/multi-review-protocol.md",
@@ -1526,18 +1526,18 @@
     },
     {
       "path": ".agents/workflows/ultrawork/resources/phase-gates.md",
-      "sha256": "88d58e0bce1a1ce55b841b9a1a055c9de12560bed8eda2e09431c415a38a3378",
-      "size": 3280
+      "sha256": "b82abca1dffa519fb7d22ecd2644603b45fd18b9313e2fffdcbec0f84e0dc170",
+      "size": 3271
     },
     {
       "path": ".agents/workflows/ultrawork.md",
-      "sha256": "ea4c95dacaed89453ecc85fc1eae26aa2ebdf95c51e933c01802c90218d80000",
-      "size": 18798
+      "sha256": "af2219401cffae9b0aa1ccde26f1fcebbf857515afaec98e2f2daa634114f455",
+      "size": 18774
     },
     {
       "path": ".agents/workflows/work.md",
-      "sha256": "f4891b0a00ae29d676dd1ed020a7e293a9d5573661162e60d0d74a1feb54deff",
-      "size": 7020
+      "sha256": "49d2a2dc26a8e6c4feae7824fa8d8e47d9a349755c2d2a2b7fd5dfc7ec93c9cf",
+      "size": 7014
     }
   ],
   "checksums": {
