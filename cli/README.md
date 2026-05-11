@@ -70,6 +70,7 @@ Pick a preset and you're ready:
 | **oma-coordination** | Manual step-by-step multi-agent coordination guide |
 | **oma-db** | Schema design, migrations, indexing, vector DB |
 | **oma-debug** | Root cause analysis, fixes, regression tests |
+| **oma-deepsec** | Agent-powered vulnerability scanner (Vercel deepsec) with PR gates and custom matchers |
 | **oma-design** | Design systems, tokens, accessibility, responsive |
 | **oma-dev-workflow** | CI/CD, releases, monorepo automation |
 | **oma-docs** | Reference integrity checks, diff-affected doc detection |
@@ -77,15 +78,15 @@ Pick a preset and you're ready:
 | **oma-hwp** | HWP/HWPX/HWPML to Markdown conversion |
 | **oma-image** | Multi-vendor AI image generation |
 | **oma-mobile** | Flutter cross-platform apps |
-| **oma-observability** | Observability router — APM/RUM, metrics/logs/traces/profiles, SLO, incident forensics, transport tuning |
+| **oma-observability** | Observability router for APM/RUM, metrics/logs/traces/profiles, SLO, incident forensics, transport tuning |
 | **oma-orchestrator** | Parallel agent execution via CLI |
 | **oma-pdf** | PDF to Markdown conversion |
 | **oma-pm** | Plans tasks, breaks down requirements, defines API contracts |
 | **oma-qa** | OWASP security, performance, accessibility review |
 | **oma-recap** | Conversation history recap and themed work summaries |
-| **oma-scholar** | Academic research companion — literature search, peer review |
-| **oma-scm** | SCM (software configuration management) — branching, merges, worktrees, baselines; Conventional Commits |
-| **oma-search** | Intent-based search router with trust scoring — docs, web, code, local |
+| **oma-scholar** | Academic research companion for literature search and peer review |
+| **oma-scm** | Software configuration management with branching, merges, worktrees, baselines, Conventional Commits |
+| **oma-search** | Intent-based search router with trust scoring across docs, web, code, local |
 | **oma-skill-creator** | Authors and audits OMA skills in the SSL-lite format |
 | **oma-tf-infra** | Multi-cloud Terraform IaC (Infrastructure as Code) |
 | **oma-translator** | Natural multilingual translation |
@@ -118,6 +119,7 @@ Or use slash commands for structured workflows:
 | 3 | `/ultrawork` | 5-phase quality workflow with 11 review gates |
 | 3 | `/ralph` | Wraps `/ultrawork` in an independent verifier loop until criteria pass |
 | 4 | `/review` | Security + performance + accessibility audit |
+| 4 | `/deepsec` | Deep agent-powered security scan (Vercel deepsec) |
 | 5 | `/debug` | Structured root-cause debugging |
 | 5 | `/docs` | Documentation drift verify + sync via `oma-docs` |
 | 6 | `/scm` | SCM + Git workflow and Conventional Commit support |
@@ -153,7 +155,7 @@ Set `model_preset` in `.agents/oma-config.yaml` to choose which AI models each a
 
 ```yaml
 language: en
-model_preset: antigravity   # claude-only | codex-only | gemini-only | qwen-only | antigravity
+model_preset: antigravity   # claude-only | codex-only | gemini-only | qwen-only | cursor-only | antigravity
 
 # Optional per-agent overrides
 agents:

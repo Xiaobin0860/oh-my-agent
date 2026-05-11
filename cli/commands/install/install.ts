@@ -337,25 +337,25 @@ export async function install(options: InstallOptions = {}): Promise<void> {
     : await p.select({
         message: "What type of project?",
         options: [
-          { value: "all", label: "✨ All", hint: "Install everything" },
+          { value: "all", label: "All", hint: "Install everything" },
           {
             value: "fullstack",
-            label: "🌐 Fullstack",
+            label: "Fullstack",
             hint: "Frontend + Backend + PM + QA",
           },
-          { value: "frontend", label: "🎨 Frontend", hint: "React/Next.js" },
+          { value: "frontend", label: "Frontend", hint: "React/Next.js" },
           {
             value: "backend",
-            label: "⚙️ Backend",
+            label: "Backend",
             hint: "Python, Node.js, Rust, ...",
           },
-          { value: "mobile", label: "📱 Mobile", hint: "Flutter/Dart" },
+          { value: "mobile", label: "Mobile", hint: "Flutter/Dart" },
           {
             value: "devops",
-            label: "🚀 DevOps",
+            label: "DevOps",
             hint: "Terraform + CI/CD + Workflows",
           },
-          { value: "custom", label: "🔧 Custom", hint: "Choose skills" },
+          { value: "custom", label: "Custom", hint: "Choose skills" },
         ],
       });
 
