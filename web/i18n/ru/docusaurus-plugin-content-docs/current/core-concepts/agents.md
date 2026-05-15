@@ -92,7 +92,7 @@ description: Полный справочник по всем 21 агентам o
 - Задачи должны быть выполнимы одним агентом
 - Вывод: JSON-план + task-board.md для совместимости с оркестратором
 
-**Вывод:** `.agents/results/plan-{sessionId}.json`, `.agents/brain/current-plan.md`, запись в память для оркестратора.
+**Вывод:** `.agents/results/plan-{sessionId}.json`, `.agents/results/result-pm.md`, запись в память для оркестратора.
 
 **Ресурсы:** `execution-protocol.md`, `examples.md`, `iso-planning.md`, `task-template.json`, `../_shared/core/api-contracts/`.
 
@@ -345,7 +345,7 @@ description: Полный справочник по всем 21 агентам o
 - Минимальное исправление: менять только необходимое
 - Каждое исправление сопровождается регрессионным тестом
 - Искать похожие паттерны в других местах
-- Документировать в `.agents/brain/bugs/`
+- Документировать в `.agents/results/bugs/`
 
 **Используемые инструменты Serena MCP:**
 - `find_symbol("functionName")` — найти функцию

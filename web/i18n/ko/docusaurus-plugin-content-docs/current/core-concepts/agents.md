@@ -92,7 +92,7 @@ oh-my-agent의 에이전트는 전문화된 엔지니어링 역할입니다. 각
 - 태스크는 단일 에이전트가 완료 가능해야 함
 - 오케스트레이터 호환성을 위한 JSON 계획 + task-board.md 출력
 
-**출력:** `.agents/results/plan-{sessionId}.json`, `.agents/results/current-plan.md`, 오케스트레이터용 메모리 기록.
+**출력:** `.agents/results/plan-{sessionId}.json`, `.agents/results/result-pm.md`, 오케스트레이터용 메모리 기록.
 
 **리소스:** `execution-protocol.md`, `examples.md`, `iso-planning.md`, `task-template.json`, `../_shared/core/api-contracts/`.
 

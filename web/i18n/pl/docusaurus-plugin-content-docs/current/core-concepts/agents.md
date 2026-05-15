@@ -92,7 +92,7 @@ Agenci w oh-my-agent to wyspecjalizowane role inżynierskie. Każdy agent ma zde
 - Zadania muszą być wykonalne przez jednego agenta
 - Generuj plan JSON + task-board.md dla kompatybilności z orkiestratorem
 
-**Wyjście:** `.agents/results/plan-{sessionId}.json`, `.agents/brain/current-plan.md`, zapis do pamięci dla orkiestratora.
+**Wyjście:** `.agents/results/plan-{sessionId}.json`, `.agents/results/result-pm.md`, zapis do pamięci dla orkiestratora.
 
 **Zasoby:** `execution-protocol.md`, `examples.md`, `iso-planning.md`, `task-template.json`, `../_shared/core/api-contracts/`.
 
@@ -345,7 +345,7 @@ Agenci w oh-my-agent to wyspecjalizowane role inżynierskie. Każdy agent ma zde
 - Minimalna poprawka: zmieniaj tylko to, co konieczne
 - Każda poprawka otrzymuje test regresji
 - Szukaj podobnych wzorców w innych miejscach
-- Dokumentuj w `.agents/brain/bugs/`
+- Dokumentuj w `.agents/results/bugs/`
 
 **Narzędzia Serena MCP:**
 - `find_symbol("functionName")` — lokalizacja funkcji

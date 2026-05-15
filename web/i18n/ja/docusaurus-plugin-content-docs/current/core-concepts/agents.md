@@ -92,7 +92,7 @@ oh-my-agentのエージェントは、専門化されたエンジニアリング
 - タスクは単一エージェントで完了可能であること
 - オーケストレータ互換のJSON plan + task-board.mdを出力
 
-**出力：** `.agents/results/plan-{sessionId}.json`、`.agents/brain/current-plan.md`、オーケストレータ用メモリ書き込み。
+**出力：** `.agents/results/plan-{sessionId}.json`、`.agents/results/result-pm.md`、オーケストレータ用メモリ書き込み。
 
 **リソース：** `execution-protocol.md`、`examples.md`、`iso-planning.md`、`task-template.json`、`../_shared/core/api-contracts/`。
 
@@ -345,7 +345,7 @@ oh-my-agentのエージェントは、専門化されたエンジニアリング
 - 最小限の修正：必要な箇所のみ変更
 - すべての修正に回帰テスト
 - 他の場所で類似パターンを検索
-- `.agents/brain/bugs/`にドキュメント化
+- `.agents/results/bugs/`にドキュメント化
 
 **使用するSerena MCPツール：**
 - `find_symbol("functionName")`: 関数の特定

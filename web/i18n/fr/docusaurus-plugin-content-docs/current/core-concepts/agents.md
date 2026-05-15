@@ -92,7 +92,7 @@ Les agents dans oh-my-agent sont des rôles d'ingénierie spécialisés. Chaque 
 - Les tâches doivent être réalisables par un seul agent
 - Sortie : plan JSON + task-board.md pour la compatibilité avec l'orchestrateur
 
-**Sortie :** `.agents/results/plan-{sessionId}.json`, `.agents/brain/current-plan.md`, écriture en mémoire pour l'orchestrateur.
+**Sortie :** `.agents/results/plan-{sessionId}.json`, `.agents/results/result-pm.md`, écriture en mémoire pour l'orchestrateur.
 
 **Ressources :** `execution-protocol.md`, `examples.md`, `iso-planning.md`, `task-template.json`, `../_shared/core/api-contracts/`.
 
@@ -345,7 +345,7 @@ Les agents dans oh-my-agent sont des rôles d'ingénierie spécialisés. Chaque 
 - Correction minimale : ne modifier que le nécessaire
 - Chaque correction est accompagnée d'un test de régression
 - Rechercher des motifs similaires ailleurs
-- Documenter dans `.agents/brain/bugs/`
+- Documenter dans `.agents/results/bugs/`
 
 **Outils MCP Serena utilisés :**
 - `find_symbol("functionName")` -- localiser la fonction
