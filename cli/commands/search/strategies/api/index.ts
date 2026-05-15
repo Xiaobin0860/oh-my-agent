@@ -5,9 +5,12 @@ import type {
 } from "../../types.js";
 import { arxiv, crossref, openLibrary, wikipedia } from "./academic.js";
 import { bluesky, mastodon } from "./atproto.js";
+import { clien } from "./clien.js";
+import { duckduckgo } from "./duckduckgo.js";
 import { devto, hackerNews, lobsters, v2ex } from "./hackernews.js";
 import { errorResult } from "./helpers.js";
 import { naverBlog, naverFinance } from "./naver.js";
+import { okky } from "./okky.js";
 import { reddit } from "./reddit.js";
 import { npmRegistry, pypiRegistry } from "./registry.js";
 import { stackExchange } from "./stackexchange.js";
@@ -34,6 +37,9 @@ export const PLATFORM_HANDLERS: PlatformHandler[] = [
   pypiRegistry,
   naverBlog,
   naverFinance,
+  clien,
+  okky,
+  duckduckgo,
 ];
 
 export function findHandler(url: URL): PlatformHandler | null {
