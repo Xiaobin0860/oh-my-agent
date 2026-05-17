@@ -70,6 +70,68 @@ const config: Config = {
     ],
   ],
 
+  plugins: [
+    [
+      "@docusaurus/plugin-pwa",
+      {
+        debug: false,
+        offlineModeActivationStrategies: [
+          "appInstalled",
+          "standalone",
+          "queryString",
+        ],
+        pwaHead: [
+          {
+            tagName: "link",
+            rel: "icon",
+            href: "icons/favicon.png",
+          },
+          {
+            tagName: "link",
+            rel: "manifest",
+            href: "manifest.json",
+          },
+          {
+            tagName: "meta",
+            name: "theme-color",
+            content: "#b23a34",
+          },
+          {
+            tagName: "meta",
+            name: "apple-mobile-web-app-capable",
+            content: "yes",
+          },
+          {
+            tagName: "meta",
+            name: "apple-mobile-web-app-status-bar-style",
+            content: "#0b1020",
+          },
+          {
+            tagName: "link",
+            rel: "apple-touch-icon",
+            href: "icons/ios/180.png",
+          },
+          {
+            tagName: "link",
+            rel: "mask-icon",
+            href: "icons/ios/512.png",
+            color: "#b23a34",
+          },
+          {
+            tagName: "meta",
+            name: "msapplication-TileImage",
+            content: "icons/windows11/Square150x150Logo.scale-200.png",
+          },
+          {
+            tagName: "meta",
+            name: "msapplication-TileColor",
+            content: "#0b1020",
+          },
+        ],
+      },
+    ],
+  ],
+
   presets: [
     [
       "classic",
