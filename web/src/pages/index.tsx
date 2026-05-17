@@ -54,8 +54,6 @@ function Hero() {
               Documentation
             </Link>
           </div>
-
-          <p className={styles.motto}>MAKE ENGINEER GREAT AGAIN</p>
         </div>
       </div>
     </header>
