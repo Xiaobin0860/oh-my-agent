@@ -242,8 +242,8 @@ export async function stats(
     `│ Sessions            │ ${String(metrics.sessions).padEnd(12)} │`,
     `│ Tasks Completed     │ ${String(metrics.tasksCompleted).padEnd(12)} │`,
     `│ Files Changed       │ ${String(metrics.filesChanged).padEnd(12)} │`,
-    `│ Lines Added         │ ${pc.green(`+${metrics.linesAdded}`).padEnd(12)} │`,
-    `│ Lines Removed       │ ${pc.red(`-${metrics.linesRemoved}`).padEnd(12)} │`,
+    `│ Lines Added         │ ${pc.green(`+${metrics.linesAdded}`.padEnd(12))} │`,
+    `│ Lines Removed       │ ${pc.red(`-${metrics.linesRemoved}`.padEnd(12))} │`,
     "└─────────────────────┴──────────────┘",
   ].join("\n");
 
