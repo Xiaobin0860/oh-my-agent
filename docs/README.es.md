@@ -60,6 +60,67 @@ Elige un preset y listo:
 | 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
 | 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
 
+## Compatible con Todos los Agentes
+
+`oh-my-agent` mantiene `.agents/` como única fuente de verdad (SSOT) y la proyecta al diseño nativo de cada runtime. Así, todas las herramientas compatibles comparten los mismos skills, workflows y reglas.
+
+<table>
+<tr>
+<td align="center" width="20%">
+<a href="https://claude.com/product/claude-code"><img src="https://github.com/anthropics.png?size=120" alt="Claude Code" width="48" height="48" /></a><br/>
+<strong>Claude Code</strong><br/>
+<sub>nativo + adaptador</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/openai/codex"><img src="https://github.com/openai.png?size=120" alt="Codex CLI" width="48" height="48" /></a><br/>
+<strong>Codex CLI</strong><br/>
+<sub>nativo + adaptador</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/google-gemini/gemini-cli"><img src="https://github.com/google-gemini.png?size=120" alt="Gemini CLI" width="48" height="48" /></a><br/>
+<strong>Gemini CLI</strong><br/>
+<sub>nativo + adaptador</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://cursor.com"><img src="https://github.com/cursor.png?size=120" alt="Cursor" width="48" height="48" /></a><br/>
+<strong>Cursor</strong><br/>
+<sub>nativo + adaptador</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/QwenLM/qwen-code"><img src="https://github.com/QwenLM.png?size=120" alt="Qwen Code" width="48" height="48" /></a><br/>
+<strong>Qwen Code</strong><br/>
+<sub>dispatch nativo</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="20%">
+<a href="https://antigravity.google"><img src="./assets/agents/antigravity.png" alt="Antigravity" width="48" height="48" /></a><br/>
+<strong>Antigravity</strong><br/>
+<sub>SSOT nativo</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/anomalyco/opencode"><img src="./assets/agents/opencode.png" alt="OpenCode" width="48" height="48" /></a><br/>
+<strong>OpenCode</strong><br/>
+<sub>compatible nativamente</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://ampcode.com"><img src="./assets/agents/amp.png" alt="Amp" width="48" height="48" /></a><br/>
+<strong>Amp</strong><br/>
+<sub>compatible nativamente</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/features/copilot"><img src="https://github.com/github.png?size=120" alt="GitHub Copilot" width="48" height="48" /></a><br/>
+<strong>GitHub Copilot</strong><br/>
+<sub>skills por symlink</sub>
+</td>
+<td align="center" width="20%">
+<a href="./SUPPORTED_AGENTS.md"><img src="https://img.shields.io/badge/%E2%80%A6-more-555?style=flat-square" alt="More" height="48" /></a><br/>
+<strong>& más</strong><br/>
+<sub><a href="./SUPPORTED_AGENTS.md">matriz de soporte →</a></sub>
+</td>
+</tr>
+</table>
+
 ## Tu Equipo de Agentes
 
 | Agente | Qué Hace |

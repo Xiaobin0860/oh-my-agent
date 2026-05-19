@@ -60,6 +60,67 @@ APM은 스킬만 제공합니다. 워크플로우, 규칙, `oma-config.yaml`, �
 | 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
 | 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
 
+## 모든 에이전트에서 동작
+
+`oh-my-agent`는 `.agents/`를 단일 소스(SSOT)로 유지하면서 각 런타임의 네이티브 레이아웃으로 그대로 투영합니다. 덕분에 지원되는 도구 전부가 같은 스킬, 워크플로우, 규칙을 공유합니다.
+
+<table>
+<tr>
+<td align="center" width="20%">
+<a href="https://claude.com/product/claude-code"><img src="https://github.com/anthropics.png?size=120" alt="Claude Code" width="48" height="48" /></a><br/>
+<strong>Claude Code</strong><br/>
+<sub>네이티브 + 어댑터</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/openai/codex"><img src="https://github.com/openai.png?size=120" alt="Codex CLI" width="48" height="48" /></a><br/>
+<strong>Codex CLI</strong><br/>
+<sub>네이티브 + 어댑터</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/google-gemini/gemini-cli"><img src="https://github.com/google-gemini.png?size=120" alt="Gemini CLI" width="48" height="48" /></a><br/>
+<strong>Gemini CLI</strong><br/>
+<sub>네이티브 + 어댑터</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://cursor.com"><img src="https://github.com/cursor.png?size=120" alt="Cursor" width="48" height="48" /></a><br/>
+<strong>Cursor</strong><br/>
+<sub>네이티브 + 어댑터</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/QwenLM/qwen-code"><img src="https://github.com/QwenLM.png?size=120" alt="Qwen Code" width="48" height="48" /></a><br/>
+<strong>Qwen Code</strong><br/>
+<sub>네이티브 디스패치</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="20%">
+<a href="https://antigravity.google"><img src="./assets/agents/antigravity.png" alt="Antigravity" width="48" height="48" /></a><br/>
+<strong>Antigravity</strong><br/>
+<sub>네이티브 SSOT</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/anomalyco/opencode"><img src="./assets/agents/opencode.png" alt="OpenCode" width="48" height="48" /></a><br/>
+<strong>OpenCode</strong><br/>
+<sub>네이티브 호환</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://ampcode.com"><img src="./assets/agents/amp.png" alt="Amp" width="48" height="48" /></a><br/>
+<strong>Amp</strong><br/>
+<sub>네이티브 호환</sub>
+</td>
+<td align="center" width="20%">
+<a href="https://github.com/features/copilot"><img src="https://github.com/github.png?size=120" alt="GitHub Copilot" width="48" height="48" /></a><br/>
+<strong>GitHub Copilot</strong><br/>
+<sub>심볼릭 링크 스킬</sub>
+</td>
+<td align="center" width="20%">
+<a href="./SUPPORTED_AGENTS.md"><img src="https://img.shields.io/badge/%E2%80%A6-more-555?style=flat-square" alt="More" height="48" /></a><br/>
+<strong>& 더 보기</strong><br/>
+<sub><a href="./SUPPORTED_AGENTS.md">지원 매트릭스 →</a></sub>
+</td>
+</tr>
+</table>
+
 ## 에이전트 팀
 
 | 에이전트 | 하는 일 |
