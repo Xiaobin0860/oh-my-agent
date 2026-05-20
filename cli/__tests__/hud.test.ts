@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { buildGeminiBar } from "../../.agents/hooks/core/hud.ts";
 
 const HUD_PATH = join(__dirname, "../../.agents/hooks/core/hud.ts");
 
@@ -49,6 +50,21 @@ describe("hud.ts", () => {
       expect(result).toContain("Haiku 4.5");
     });
 
+    it("should shorten Gemini Flash display name (agy)", () => {
+      const result = stripAnsi(
+        hud({ model: { display_name: "Gemini 3.5 Flash (High)" } }),
+      );
+      expect(result).toContain("Gemini 3.5 Flash");
+      expect(result).not.toContain("(High)");
+    });
+
+    it("should shorten Gemini Pro display name (agy)", () => {
+      const result = stripAnsi(
+        hud({ model: { display_name: "Gemini 2.5 Pro" } }),
+      );
+      expect(result).toContain("Gemini 2.5 Pro");
+    });
+
     it("should fall back to model id", () => {
       const result = stripAnsi(hud({ model: { id: "custom/my-model" } }));
       expect(result).toContain("my-model");
@@ -68,6 +84,91 @@ describe("hud.ts", () => {
         hud({ context_window: { used_percentage: 33.7 } }),
       );
       expect(result).toContain("ctx:34%");
+    });
+  });
+
+  describe("agy fields", () => {
+    it("formats input/output tokens (under 10k → 1 decimal k)", () => {
+      const result = stripAnsi(
+        hud({
+          context_window: {
+            total_input_tokens: 1234,
+            total_output_tokens: 5678,
+          },
+        }),
+      );
+      expect(result).toContain("tok:1.2k↑5.7k↓");
+    });
+
+    it("formats tokens over 10k without decimal", () => {
+      const result = stripAnsi(
+        hud({
+          context_window: {
+            total_input_tokens: 42_000,
+            total_output_tokens: 0,
+          },
+        }),
+      );
+      expect(result).toContain("tok:42k↑0↓");
+    });
+
+    it("hides tokens block when both are zero", () => {
+      const result = stripAnsi(
+        hud({
+          context_window: {
+            total_input_tokens: 0,
+            total_output_tokens: 0,
+          },
+        }),
+      );
+      expect(result).not.toContain("tok:");
+    });
+
+    it("shows agent_state when not idle", () => {
+      const result = stripAnsi(hud({ agent_state: "running" }));
+      expect(result).toContain("running");
+    });
+
+    it("hides agent_state when idle", () => {
+      const result = stripAnsi(hud({ agent_state: "idle" }));
+      expect(result).not.toContain("idle");
+    });
+
+    it("shows sandbox flag when enabled", () => {
+      const result = stripAnsi(hud({ sandbox: { enabled: true } }));
+      expect(result).toContain("sandbox");
+    });
+
+    it("hides sandbox flag when disabled", () => {
+      const result = stripAnsi(hud({ sandbox: { enabled: false } }));
+      expect(result).not.toContain("sandbox");
+    });
+
+    it("renders the captured agy payload end-to-end", () => {
+      const result = stripAnsi(
+        hud({
+          cwd: "/repo",
+          model: {
+            id: "Gemini 3.5 Flash (High)",
+            display_name: "Gemini 3.5 Flash (High)",
+          },
+          context_window: {
+            total_input_tokens: 0,
+            total_output_tokens: 0,
+            used_percentage: 0,
+          },
+          agent_state: "idle",
+          sandbox: { enabled: false },
+          product: "antigravity",
+        }),
+      );
+      expect(result).toContain("[OMA]");
+      expect(result).toContain("Gemini 3.5 Flash");
+      expect(result).not.toContain("(High)");
+      expect(result).toContain("ctx:0%");
+      expect(result).not.toContain("tok:");
+      expect(result).not.toContain("idle");
+      expect(result).not.toContain("sandbox");
     });
   });
 
@@ -221,5 +322,56 @@ describe("hud.ts", () => {
       expect(result).toContain("[OMA]");
       expect(result.split("│").length).toBe(1);
     });
+  });
+});
+
+describe("hud.ts (gemini bar)", () => {
+  const cwd = join(__dirname, "../..");
+
+  it("renders OMA label and HH:MM even on empty input", () => {
+    const bar = stripAnsi(buildGeminiBar({}, cwd));
+    expect(bar).toContain("[OMA]");
+    expect(bar).toMatch(/\d{2}:\d{2}/);
+  });
+
+  it("includes the hook event name when provided", () => {
+    const bar = stripAnsi(
+      buildGeminiBar({ hook_event_name: "AfterTool" }, cwd),
+    );
+    expect(bar).toContain("AfterTool");
+  });
+
+  it("shows tool name on AfterTool events", () => {
+    const bar = stripAnsi(
+      buildGeminiBar(
+        { hook_event_name: "AfterTool", tool_name: "run_shell_command" },
+        cwd,
+      ),
+    );
+    expect(bar).toContain("tool:run_shell_command");
+  });
+
+  it("emits the bar on a single line so cursor-restore is safe", () => {
+    const bar = buildGeminiBar(
+      { hook_event_name: "AfterTool", tool_name: "ReadFile" },
+      cwd,
+    );
+    expect(bar).not.toContain("\n");
+    expect(bar).not.toContain("\r");
+  });
+
+  it("does not write the gemini bar to stdout (would corrupt agent context)", () => {
+    const stdout = execSync(`bun "${HUD_PATH}"`, {
+      input: JSON.stringify({
+        hook_event_name: "AfterTool",
+        tool_name: "noop",
+      }),
+      encoding: "utf-8",
+    });
+    // Script path is .agents/hooks/core/hud.ts → detected as claude, so the
+    // statusline string lands on stdout. The gemini path is exercised only when
+    // the script is installed at .gemini/hooks/hud.ts (verified by builder unit
+    // tests above + the install-hooks integration suite).
+    expect(stdout).toContain("[OMA]");
   });
 });

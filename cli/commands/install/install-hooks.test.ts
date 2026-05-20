@@ -149,6 +149,64 @@ describe("installHooksFromVariant", () => {
     expect(settings.statusLine.command).toContain("hud.ts");
   });
 
+  it("wires hud.ts into Gemini SessionStart, AfterTool, and AfterAgent events", () => {
+    (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      JSON.stringify({
+        vendor: "gemini",
+        hookDir: ".gemini/hooks",
+        settingsFile: ".gemini/settings.json",
+        projectDirEnv: "GEMINI_PROJECT_DIR",
+        runtime: "bun",
+        events: {
+          SessionStart: {
+            hook: "hud.ts",
+            matcher: "*",
+            timeout: 3000,
+          },
+          AfterTool: {
+            hook: "hud.ts",
+            matcher: "*",
+            timeout: 3000,
+          },
+          AfterAgent: [
+            {
+              hook: "persistent-mode.ts",
+              matcher: "*",
+              timeout: 5000,
+            },
+            {
+              hook: "hud.ts",
+              matcher: "*",
+              timeout: 3000,
+            },
+          ],
+        },
+      }),
+    );
+
+    installVendorAdaptations(mockSourceDir, mockTargetDir, ["gemini"]);
+
+    const writeCall = (
+      fs.writeFileSync as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls.find(
+      (call: string[]) =>
+        typeof call[0] === "string" &&
+        n(call[0]).includes(".gemini/settings.json"),
+    );
+    expect(writeCall).toBeTruthy();
+    const settings = JSON.parse(writeCall?.[1] as string);
+
+    expect(settings.hooks.SessionStart[0].hooks[0].command).toContain("hud.ts");
+    expect(settings.hooks.SessionStart[0].hooks[0].command).toContain(
+      "$GEMINI_PROJECT_DIR",
+    );
+    expect(settings.hooks.AfterTool[0].hooks[0].command).toContain("hud.ts");
+    // AfterAgent stays a single entry whose hooks chain persistent-mode then hud.
+    expect(settings.hooks.AfterAgent[0].hooks).toHaveLength(2);
+    expect(settings.hooks.AfterAgent[0].hooks[0].name).toBe("persistent-mode");
+    expect(settings.hooks.AfterAgent[0].hooks[1].name).toBe("hud");
+  });
+
   it("should not include statusLine for Gemini variant", () => {
     (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
       JSON.stringify({

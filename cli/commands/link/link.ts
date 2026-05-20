@@ -20,6 +20,7 @@ import {
 } from "../../platform/skills-installer.js";
 import type { CliVendor } from "../../types/index.js";
 import { loadSerenaConfig } from "../../utils/config.js";
+import { installAntigravityHud } from "../../vendors/antigravity/hud.js";
 import {
   applyRecommendedClaudeMcp,
   needsClaudeMcpUpdate,
@@ -195,6 +196,20 @@ export function link(vendorFilter?: string[]): void {
     }
   }
 
+  // 2f. Antigravity (agy) HOME wiring — separate from project-scoped variants
+  //     because agy reads only ~/.gemini/antigravity-cli/settings.json and
+  //     supports Claude-style PreToolUse / Stop / StatusLine. Skipped silently
+  //     when agy's config dir doesn't exist yet (user hasn't run agy).
+  let agyInstalled = false;
+  if (configuredVendors.includes("antigravity")) {
+    const agyResult = installAntigravityHud(cwd);
+    if (agyResult.installed) {
+      agyInstalled = true;
+    } else if (agyResult.reason) {
+      console.log(`${pc.yellow("⚠")} agy: ${agyResult.reason}`);
+    }
+  }
+
   // 3. Cursor-specific: MCP config (regular file, serena with --context=ide) + rules
   if (configuredVendors.includes("cursor")) {
     ensureCursorMcpConfig(cwd);
@@ -230,10 +245,14 @@ export function link(vendorFilter?: string[]): void {
   for (const v of hookVendors) {
     parts.push(`${pc.green("✓")} ${v}`);
   }
+  if (agyInstalled) {
+    parts.push(`${pc.green("✓")} antigravity (~/.gemini/antigravity-cli/)`);
+  }
   if (mergedFiles.size > 0) {
     parts.push(`${pc.green("✓")} docs: ${[...mergedFiles].join(", ")}`);
   }
 
   console.log(parts.join("\n"));
-  console.log(`\n${pc.green("✓")} Linked ${hookVendors.length} vendor(s).`);
+  const total = hookVendors.length + (agyInstalled ? 1 : 0);
+  console.log(`\n${pc.green("✓")} Linked ${total} vendor(s).`);
 }
