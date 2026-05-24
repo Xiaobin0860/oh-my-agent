@@ -12,7 +12,12 @@ export function registerUpdate(program: Command): void {
     .option("--ci", "Run in non-interactive CI mode (skip prompts)")
     .action(
       runAction(async (options: { force?: boolean; ci?: boolean }) => {
-        await update(options.force ?? false, options.ci ?? false);
+        const globalFlag = program.opts<{ global?: boolean }>().global;
+        await update({
+          force: options.force,
+          ci: options.ci,
+          global: globalFlag,
+        });
       }),
     );
 }

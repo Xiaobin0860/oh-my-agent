@@ -19,6 +19,8 @@ import { migrateCodexQwenSerena } from "./007-codex-qwen-serena.js";
 import { migrateModelPreset } from "./008-model-preset.js";
 import { migrateSerenaUvTool } from "./009-serena-uv-tool.js";
 import { migrateRenamePresetKeys } from "./010-rename-preset-keys.js";
+import { migrateUnifyWorkflowSkills } from "./011-unify-workflow-skills.js";
+import { migrateVersionInstallMode } from "./012-version-install-mode.js";
 
 const migrations: Migration[] = [
   migrateToAgents,
@@ -31,6 +33,8 @@ const migrations: Migration[] = [
   migrateModelPreset,
   migrateSerenaUvTool,
   migrateRenamePresetKeys,
+  migrateUnifyWorkflowSkills,
+  migrateVersionInstallMode,
 ];
 
 export function runMigrations(cwd: string): string[] {

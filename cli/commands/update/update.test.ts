@@ -469,10 +469,16 @@ describe("persisted needsReconcile flag", () => {
       "language: en\nmodel_preset: claude\n",
       "utf-8",
     );
-    // Simulates: previous reconcile attempt failed mid-download
+    // Simulates: previous reconcile attempt failed mid-download.
+    // Includes mode + schemaVersion=2 so migration 012 (backfill mode) is a no-op.
     writeFileSync(
       join(root, ".agents", "skills", "_version.json"),
-      JSON.stringify({ version: "4.26.1", needsReconcile: true }),
+      JSON.stringify({
+        version: "4.26.1",
+        mode: "project",
+        schemaVersion: 2,
+        needsReconcile: true,
+      }),
       "utf-8",
     );
 
@@ -500,9 +506,14 @@ describe("persisted needsReconcile flag", () => {
       "language: en\nmodel_preset: claude\n",
       "utf-8",
     );
+    // Seed with mode + schemaVersion=2 so migration 012 is a no-op.
     writeFileSync(
       join(root, ".agents", "skills", "_version.json"),
-      JSON.stringify({ version: "4.26.1" }),
+      JSON.stringify({
+        version: "4.26.1",
+        mode: "project",
+        schemaVersion: 2,
+      }),
       "utf-8",
     );
 

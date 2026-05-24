@@ -10,6 +10,7 @@ import { dirname, join } from "node:path";
 import { http, isAxiosError } from "../io/http.js";
 import type { Manifest, ManifestFile } from "../types/index.js";
 import { parseFrontmatter } from "../utils/frontmatter.js";
+import { safeReadJson } from "../utils/safe-json.js";
 import { INSTALLED_SKILLS_DIR, REPO } from "./skills-installer.js";
 
 export function calculateSHA256(content: string): string {
@@ -29,28 +30,41 @@ export async function getLocalVersion(
   targetDir: string,
 ): Promise<string | null> {
   const versionFile = join(targetDir, INSTALLED_SKILLS_DIR, "_version.json");
-  if (!existsSync(versionFile)) return null;
+  const json = safeReadJson<{ version?: string }>(versionFile);
+  return json?.version ?? null;
+}
 
-  try {
-    const content = readFileSync(versionFile, "utf-8");
-    const json = JSON.parse(content);
-    return json.version || null;
-  } catch {
-    return null;
-  }
+/**
+ * Read the install mode ("project" | "global") stamped into `_version.json`.
+ * Returns null if `_version.json` is absent or pre-dates schemaVersion=2
+ * (in which case the install is implicitly project mode — backfilled by
+ * migration 012 on next install/update).
+ */
+export function readVersionInstallMode(
+  targetDir: string,
+): "project" | "global" | null {
+  const versionFile = join(targetDir, INSTALLED_SKILLS_DIR, "_version.json");
+  const json = safeReadJson<{ mode?: unknown }>(versionFile);
+  if (json?.mode === "project" || json?.mode === "global") return json.mode;
+  return null;
+}
+
+/**
+ * Read the schemaVersion of the local `_version.json`. Returns 0 when the
+ * file is missing, 1 when the legacy shape (only `version`) is present,
+ * and 2+ for current installs that include `mode`/`installedAt`.
+ */
+export function readVersionSchemaVersion(targetDir: string): number {
+  const versionFile = join(targetDir, INSTALLED_SKILLS_DIR, "_version.json");
+  const json = safeReadJson<{ schemaVersion?: unknown }>(versionFile);
+  if (!json) return 0;
+  return typeof json.schemaVersion === "number" ? json.schemaVersion : 1;
 }
 
 export function getNeedsReconcile(targetDir: string): boolean {
   const versionFile = join(targetDir, INSTALLED_SKILLS_DIR, "_version.json");
-  if (!existsSync(versionFile)) return false;
-
-  try {
-    const content = readFileSync(versionFile, "utf-8");
-    const json = JSON.parse(content);
-    return json.needsReconcile === true;
-  } catch {
-    return false;
-  }
+  const json = safeReadJson<{ needsReconcile?: unknown }>(versionFile);
+  return json?.needsReconcile === true;
 }
 
 export function setNeedsReconcile(targetDir: string, value: boolean): void {
@@ -84,9 +98,29 @@ export function hasInstalledProject(targetDir: string): boolean {
   return installationMarkers.some((path) => existsSync(path));
 }
 
+export const VERSION_FILE_SCHEMA_VERSION = 2 as const;
+
+export type VersionFile = {
+  schemaVersion: number;
+  version: string;
+  mode?: "project" | "global";
+  installedAt?: string;
+  needsReconcile?: boolean;
+};
+
+/**
+ * Save `_version.json` with the version and (optionally) the install mode +
+ * timestamp. Preserves any unrelated fields already in the file
+ * (e.g., `needsReconcile`).
+ *
+ * @param mode — when supplied, stamps `schemaVersion: 2` + `mode` + `installedAt`.
+ *               When omitted, leaves existing `mode`/`installedAt` intact
+ *               (used by code paths that only know the version, not the mode).
+ */
 export async function saveLocalVersion(
   targetDir: string,
   version: string,
+  mode?: "project" | "global",
 ): Promise<void> {
   const versionFile = join(targetDir, INSTALLED_SKILLS_DIR, "_version.json");
   const versionDir = dirname(versionFile);
@@ -95,7 +129,29 @@ export async function saveLocalVersion(
     mkdirSync(versionDir, { recursive: true });
   }
 
-  writeFileSync(versionFile, JSON.stringify({ version }, null, 2), "utf-8");
+  // Preserve unrelated fields (needsReconcile etc.) if the file already exists
+  let prior: Partial<VersionFile> = {};
+  if (existsSync(versionFile)) {
+    try {
+      prior = JSON.parse(readFileSync(versionFile, "utf-8")) as Partial<
+        Record<string, unknown>
+      > as Partial<VersionFile>;
+    } catch {
+      prior = {};
+    }
+  }
+
+  const next: VersionFile = {
+    ...prior,
+    schemaVersion: VERSION_FILE_SCHEMA_VERSION,
+    version,
+  };
+  if (mode !== undefined) {
+    next.mode = mode;
+    next.installedAt = new Date().toISOString();
+  }
+
+  writeFileSync(versionFile, `${JSON.stringify(next, null, 2)}\n`, "utf-8");
 }
 
 export interface ArtifactSnapshot {
