@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "8.5.3",
-  "releaseDate": "2026-05-24T09:47:53.729Z",
+  "releaseDate": "2026-05-24T10:47:45.482Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -363,6 +363,41 @@
       "path": ".agents/skills/_version.json",
       "sha256": "b7efb6971685164d421e405ee74b1081c2019ed52645b0d8d567c3712aaf979a",
       "size": 24
+    },
+    {
+      "path": ".agents/skills/architecture/SKILL.md",
+      "sha256": "9795033ae2a3015b66fe255aa74e4baaac916e71acc6fa814f5304134b76b30c",
+      "size": 360
+    },
+    {
+      "path": ".agents/skills/brainstorm/SKILL.md",
+      "sha256": "5b702a926716642b1c307631734a5ef0233d8ecead76cb82d89db64194dfcf28",
+      "size": 316
+    },
+    {
+      "path": ".agents/skills/debug/SKILL.md",
+      "sha256": "0c10fad4362dd550b94b63f568408ce1ba26cade34a943beb0df207eb9827c25",
+      "size": 310
+    },
+    {
+      "path": ".agents/skills/deepinit/SKILL.md",
+      "sha256": "95ec81df0a31035a293c2fb73736710e6754a3a07d4b928227c53a39f46f55a5",
+      "size": 286
+    },
+    {
+      "path": ".agents/skills/deepsec/SKILL.md",
+      "sha256": "5d1a91adee4d3cbe1c2890de70b0984d79bcd011089e1a8ba5ee8e7946a5d9ec",
+      "size": 394
+    },
+    {
+      "path": ".agents/skills/design/SKILL.md",
+      "sha256": "1df95ac78b4e3677879173adfe8d6bb8d2c208bc65111b2c107b412110623fe7",
+      "size": 278
+    },
+    {
+      "path": ".agents/skills/docs/SKILL.md",
+      "sha256": "b71d23189e70231903d1b78d0b15ed138d7f911fe362e488b060c7042057d02d",
+      "size": 307
     },
     {
       "path": ".agents/skills/oma-academic-writer/SKILL.md",
@@ -1555,6 +1590,61 @@
       "size": 3452
     },
     {
+      "path": ".agents/skills/orchestrate/SKILL.md",
+      "sha256": "8507584c5c1b697cff5e6139e57e0cce34fd07959e7eae3c53a5c333d9bee675",
+      "size": 315
+    },
+    {
+      "path": ".agents/skills/pdf/SKILL.md",
+      "sha256": "1e64e940a50d68ec23d8e96d5de94847fe77b29f6f7544cf5bd15b9c7c5a6bae",
+      "size": 266
+    },
+    {
+      "path": ".agents/skills/plan/SKILL.md",
+      "sha256": "b364fa20be2c09e2d55046585a0ffa75f244fd92e88f72a28374fe3112bbbb6f",
+      "size": 342
+    },
+    {
+      "path": ".agents/skills/ralph/SKILL.md",
+      "sha256": "95ce245a244d8bb88809ef91bffaf40b4b096e44a3cac945de015e18c8c89529",
+      "size": 256
+    },
+    {
+      "path": ".agents/skills/recap/SKILL.md",
+      "sha256": "fdf549495f2887995375af27a0f66974cfd25cffa0f5639040bcc5383b49d913",
+      "size": 363
+    },
+    {
+      "path": ".agents/skills/review/SKILL.md",
+      "sha256": "b7a8a113f75c3546fedf10114fdf88c5d27ed52d3f38cb546d5bebaa38ee5fde",
+      "size": 294
+    },
+    {
+      "path": ".agents/skills/scm/SKILL.md",
+      "sha256": "4333d8bcb211d4c6fa9b11cf23d5917d03e1db9e0000d9a8922242c7cfa95c5f",
+      "size": 247
+    },
+    {
+      "path": ".agents/skills/stack-set/SKILL.md",
+      "sha256": "55ca4ba8d5fa453b096682b3bc4ed08cfde2b57721342ed7949883f55589252f",
+      "size": 243
+    },
+    {
+      "path": ".agents/skills/tools/SKILL.md",
+      "sha256": "5afef6f4a35eb8a2d69db3db5f9266bab1b6524f7d2272f2af86a79fb873cc29",
+      "size": 246
+    },
+    {
+      "path": ".agents/skills/ultrawork/SKILL.md",
+      "sha256": "2547c543171075a529959f4f5883742c9c6a99011c74b81376c86d81692d9e90",
+      "size": 240
+    },
+    {
+      "path": ".agents/skills/work/SKILL.md",
+      "sha256": "2a11556bcfc63a7545fe947949965f4e9348530e7bb6a690931c2da45b8fdbf9",
+      "size": 265
+    },
+    {
       "path": ".agents/workflows/architecture.md",
       "sha256": "38a4b28d217b801def5c3f9aed579f3e1af38785aef8ae93f0592dde9ed3c8b7",
       "size": 4341
@@ -1664,8 +1754,8 @@
     "algorithm": "sha256"
   },
   "metadata": {
-    "skillCount": 29,
+    "skillCount": 47,
     "workflowCount": 21,
-    "totalFiles": 331
+    "totalFiles": 349
   }
 }
