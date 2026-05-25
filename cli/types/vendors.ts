@@ -10,6 +10,7 @@ export type VendorType = (typeof VENDORS)[number];
 
 /** CLI tools that support skill symlinking. */
 export const CLI_TOOLS = [
+  "antigravity",
   "claude",
   "codex",
   "copilot",

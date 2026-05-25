@@ -192,6 +192,11 @@ describe("link kernel", () => {
       expect(antigravity.installAntigravityHud).toHaveBeenCalledWith(
         expect.stringContaining(projectDir),
       );
+      expect(skills.installVendorAdaptations).toHaveBeenCalledWith(
+        expect.stringContaining(projectDir),
+        expect.stringContaining(projectDir),
+        ["claude"],
+      );
       expect(result.agyInstalled).toBe(true);
     });
 

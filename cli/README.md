@@ -47,18 +47,6 @@ APM ships skills only. For workflows, rules, `oma-config.yaml`, keyword-detectio
 
 </details>
 
-### Global Install
-
-Install oh-my-agent once for your user account and get the same skills, workflows, and rules in every project you open — no per-project setup needed:
-
-```bash
-oma install --global
-```
-
-This places the SSOT at `~/.agents/` and writes vendor configs to `~/.claude/`, `~/.codex/`, `~/.gemini/`, and `~/.qwen/`. Existing per-project installs are not affected. A concurrency lock (`~/.agents/_install.lock`) prevents simultaneous runs. Running under `sudo` is refused; WSL users see a note about Linux HOME vs Windows `%USERPROFILE%`. To remove: `oma uninstall --global [--dry-run]`.
-
-See [docs/global-install.md](https://github.com/first-fluke/oh-my-agent/blob/main/docs/global-install.md) for the full guide including project-vs-global comparison, CI and WSL caveats, and the `OMA_HOME` override for testing.
-
 Pick a preset and you're ready:
 
 | Preset | What You Get |

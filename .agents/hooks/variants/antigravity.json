@@ -1,12 +1,12 @@
 {
   "$schema": "./hook-variant.schema.json",
-  "vendor": "qwen",
-  "hookDir": ".qwen/hooks",
-  "settingsFile": ".qwen/settings.json",
-  "projectDirEnv": "QWEN_PROJECT_DIR",
+  "vendor": "antigravity",
+  "hookDir": ".gemini/antigravity-cli/hooks",
+  "settingsFile": ".gemini/antigravity-cli/settings.json",
+  "projectDirEnv": null,
   "runtime": "bun",
   "events": {
-    "UserPromptSubmit": [
+    "PreInvocation": [
       {
         "hook": "keyword-detector.ts",
         "timeout": 5
@@ -29,5 +29,11 @@
       "hook": "persistent-mode.ts",
       "timeout": 5
     }
+  },
+  "statusLine": {
+    "hook": "hud.ts"
+  },
+  "extra": {
+    "homeOnly": true
   }
 }

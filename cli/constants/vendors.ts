@@ -47,6 +47,11 @@ export interface SkillTargetSpec {
 }
 
 export const CLI_SKILLS_DIR: Record<CliTool, SkillTargetSpec> = {
+  antigravity: {
+    projectPath: ".gemini/antigravity-cli/skills",
+    homePath: ".gemini/antigravity-cli/skills",
+    requiresHomeConsent: true,
+  },
   claude: { projectPath: ".claude/skills", homePath: ".claude/skills" },
   codex: { projectPath: ".codex/skills", homePath: ".codex/skills" },
   copilot: { projectPath: ".github/skills", homePath: ".copilot/skills" },

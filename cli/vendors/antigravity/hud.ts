@@ -1,8 +1,8 @@
 /**
  * Antigravity CLI (agy) wiring. agy maintains HOME-only config at
  * `~/.gemini/antigravity-cli/settings.json` and supports Claude-style
- * hook events (`PreToolUse`, `PostToolUse`, `Stop`) plus a native
- * `StatusLine` field, all verified by `strings` on the v1.0.0 binary.
+ * hook events plus a native `StatusLine` field. `PreInvocation` is the
+ * prompt-entry hook used for OMA workflow/skill/L1 state injection.
  *
  * This installer is parallel to (not part of) the project-scoped
  * `installHooksFromVariant` pipeline because:
@@ -25,6 +25,18 @@ import { join } from "node:path";
 import { clearNonDirectory } from "../../utils/fs-utils.js";
 
 const AGY_HOME_DIR = ".gemini/antigravity-cli";
+const ANTIGRAVITY_VARIANT = ".agents/hooks/variants/antigravity.json";
+
+interface HookRef {
+  hook: string;
+  matcher?: string;
+  timeout: number;
+}
+
+interface AntigravityVariant {
+  events: Record<string, HookRef | HookRef[]>;
+  statusLine?: { hook: string };
+}
 
 interface AgySettings {
   // biome-ignore lint/suspicious/noExplicitAny: settings.json schema is dynamic
@@ -58,6 +70,64 @@ function copyCoreHooks(sourceDir: string, hooksDir: string): void {
   cpSync(src, hooksDir, { recursive: true, force: true, dereference: true });
 }
 
+function readAntigravityVariant(sourceDir: string): AntigravityVariant {
+  const path = join(sourceDir, ANTIGRAVITY_VARIANT);
+  try {
+    return JSON.parse(readFileSync(path, "utf-8")) as AntigravityVariant;
+  } catch {
+    return {
+      events: {
+        PreInvocation: [
+          { hook: "keyword-detector.ts", timeout: 5 },
+          { hook: "state-boundary.ts", timeout: 5 },
+          { hook: "skill-injector.ts", timeout: 3 },
+        ],
+        PreToolUse: { hook: "test-filter.ts", matcher: "Bash", timeout: 5 },
+        Stop: { hook: "persistent-mode.ts", timeout: 5 },
+      },
+      statusLine: { hook: "hud.ts" },
+    };
+  }
+}
+
+function hookName(hook: string): string {
+  return hook.replace(/\.[^.]+$/, "");
+}
+
+function hookHandler(hooksDir: string, ref: HookRef): Record<string, unknown> {
+  return {
+    name: hookName(ref.hook),
+    type: "command",
+    command: `bun "${join(hooksDir, ref.hook)}"`,
+    timeout: ref.timeout,
+  };
+}
+
+function buildAgyHookEntries(
+  hooksDir: string,
+  variant: AntigravityVariant,
+): Record<string, unknown> {
+  const entries: Record<string, unknown> = {};
+  for (const [eventName, rawConfig] of Object.entries(variant.events)) {
+    const configs = Array.isArray(rawConfig) ? rawConfig : [rawConfig];
+    const hooks = configs.map((config) => hookHandler(hooksDir, config));
+
+    if (eventName === "PreInvocation" || eventName === "PostInvocation") {
+      entries[eventName] = hooks;
+      continue;
+    }
+
+    if (eventName === "Stop") {
+      entries[eventName] = hooks;
+      continue;
+    }
+
+    const matcher = configs.find((config) => config.matcher)?.matcher;
+    entries[eventName] = [{ ...(matcher ? { matcher } : {}), hooks }];
+  }
+  return entries;
+}
+
 interface AgyInstallResult {
   installed: boolean;
   reason?: string;
@@ -88,13 +158,12 @@ export function installAntigravityHud(sourceDir: string): AgyInstallResult {
   copyCoreHooks(sourceDir, hooksDir);
 
   const settings = readAgySettings(settingsPath);
-  const hudAbs = join(hooksDir, "hud.ts");
-  const testFilterAbs = join(hooksDir, "test-filter.ts");
-  const persistentModeAbs = join(hooksDir, "persistent-mode.ts");
+  const variant = readAntigravityVariant(sourceDir);
+  const statusLineHook = variant.statusLine?.hook ?? "hud.ts";
 
   settings.statusLine = {
     type: "command",
-    command: `bun "${hudAbs}"`,
+    command: `bun "${join(hooksDir, statusLineHook)}"`,
   };
 
   const existingHooks =
@@ -102,31 +171,7 @@ export function installAntigravityHud(sourceDir: string): AgyInstallResult {
 
   settings.hooks = {
     ...existingHooks,
-    PreToolUse: [
-      {
-        matcher: "Bash",
-        hooks: [
-          {
-            name: "test-filter",
-            type: "command",
-            command: `bun "${testFilterAbs}"`,
-            timeout: 5,
-          },
-        ],
-      },
-    ],
-    Stop: [
-      {
-        hooks: [
-          {
-            name: "persistent-mode",
-            type: "command",
-            command: `bun "${persistentModeAbs}"`,
-            timeout: 5,
-          },
-        ],
-      },
-    ],
+    ...buildAgyHookEntries(hooksDir, variant),
   };
 
   mkdirSync(join(homedir(), AGY_HOME_DIR), { recursive: true });

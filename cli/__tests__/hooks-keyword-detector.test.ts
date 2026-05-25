@@ -1016,6 +1016,12 @@ describe("keyword-detector", () => {
       );
     });
 
+    it("should allow Antigravity PreInvocation events", () => {
+      expect(isGenuineUserPrompt({ hook_event_name: "PreInvocation" })).toBe(
+        true,
+      );
+    });
+
     it("should reject unknown event types (agent-generated responses)", () => {
       expect(isGenuineUserPrompt({ hook_event_name: "AfterAgent" })).toBe(
         false,

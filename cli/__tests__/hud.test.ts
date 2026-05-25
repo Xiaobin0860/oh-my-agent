@@ -1,9 +1,11 @@
 import { execSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildGeminiBar } from "../../.agents/hooks/core/hud.ts";
 
 const HUD_PATH = join(__dirname, "../../.agents/hooks/core/hud.ts");
+const HUD_PROJECT_DIR = join(tmpdir(), "oma-hud-test-empty-project");
 
 // Strip ANSI escape codes for readable assertions
 // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape stripping requires matching \x1b
@@ -15,7 +17,7 @@ function hud(input: Record<string, unknown>): string {
     encoding: "utf-8",
     env: {
       ...process.env,
-      CLAUDE_PROJECT_DIR: join(__dirname, "../.."),
+      CLAUDE_PROJECT_DIR: HUD_PROJECT_DIR,
     },
   });
 }
@@ -92,12 +94,16 @@ describe("hud.ts", () => {
       const result = stripAnsi(
         hud({
           context_window: {
+            used_percentage: 42,
             total_input_tokens: 1234,
             total_output_tokens: 5678,
           },
+          agent_state: "running",
         }),
       );
       expect(result).toContain("tok:1.2k↑5.7k↓");
+      expect(result.endsWith("tok:1.2k↑5.7k↓")).toBe(true);
+      expect(result.indexOf("running")).toBeLessThan(result.indexOf("tok:"));
     });
 
     it("formats tokens over 10k without decimal", () => {

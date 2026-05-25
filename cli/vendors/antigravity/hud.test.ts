@@ -8,6 +8,24 @@ const FAKE_HOME = "/tmp/fake-home";
 const AGY_DIR = join(FAKE_HOME, ".gemini/antigravity-cli");
 const SETTINGS = join(AGY_DIR, "settings.json");
 const HOOKS_DIR = join(AGY_DIR, "hooks");
+const VARIANT = "/repo/.agents/hooks/variants/antigravity.json";
+
+const variantJson = JSON.stringify({
+  events: {
+    PreInvocation: [
+      { hook: "keyword-detector.ts", timeout: 5 },
+      { hook: "state-boundary.ts", timeout: 5 },
+      { hook: "skill-injector.ts", timeout: 3 },
+    ],
+    PreToolUse: {
+      hook: "test-filter.ts",
+      matcher: "Bash",
+      timeout: 5,
+    },
+    Stop: { hook: "persistent-mode.ts", timeout: 5 },
+  },
+  statusLine: { hook: "hud.ts" },
+});
 
 vi.mock("node:os", async () => {
   const actual = await vi.importActual<typeof import("node:os")>("node:os");
@@ -61,11 +79,18 @@ describe("installAntigravityHud", () => {
         const norm = p.replace(/\\/g, "/");
         if (norm.endsWith(".gemini/antigravity-cli")) return true;
         if (norm.includes(".agents/hooks/core")) return true;
+        if (norm.includes(".agents/hooks/variants/antigravity.json"))
+          return true;
         return false; // settings.json missing -> start fresh
       },
     );
-    (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
-      "{}",
+    (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (p: string) => {
+        const norm = p.replace(/\\/g, "/");
+        if (norm.includes(".agents/hooks/variants/antigravity.json"))
+          return variantJson;
+        return "{}";
+      },
     );
 
     const result = installAntigravityHud("/repo");
@@ -89,11 +114,24 @@ describe("installAntigravityHud", () => {
     expect(settings.statusLine.command).toBe(
       `bun "${join(HOOKS_DIR, "hud.ts")}"`,
     );
+    expect(settings.hooks.PreInvocation).toHaveLength(3);
+    expect(settings.hooks.PreInvocation[0]).toMatchObject({
+      name: "keyword-detector",
+      type: "command",
+      command: `bun "${join(HOOKS_DIR, "keyword-detector.ts")}"`,
+      timeout: 5,
+    });
+    expect(settings.hooks.PreInvocation[1].command).toBe(
+      `bun "${join(HOOKS_DIR, "state-boundary.ts")}"`,
+    );
+    expect(settings.hooks.PreInvocation[2].command).toBe(
+      `bun "${join(HOOKS_DIR, "skill-injector.ts")}"`,
+    );
     expect(settings.hooks.PreToolUse[0].matcher).toBe("Bash");
     expect(settings.hooks.PreToolUse[0].hooks[0].command).toBe(
       `bun "${join(HOOKS_DIR, "test-filter.ts")}"`,
     );
-    expect(settings.hooks.Stop[0].hooks[0].command).toBe(
+    expect(settings.hooks.Stop[0].command).toBe(
       `bun "${join(HOOKS_DIR, "persistent-mode.ts")}"`,
     );
   });
@@ -105,16 +143,21 @@ describe("installAntigravityHud", () => {
         if (norm.endsWith(".gemini/antigravity-cli")) return true;
         if (norm === SETTINGS) return true;
         if (norm.includes(".agents/hooks/core")) return true;
+        if (norm.includes(".agents/hooks/variants/antigravity.json"))
+          return true;
         return false;
       },
     );
-    (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
-      JSON.stringify({
-        colorScheme: "tokyo night",
-        enableTelemetry: false,
-        toolPermission: "always-proceed",
-        trustedWorkspaces: ["/repo"],
-      }),
+    (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (p: string) =>
+        p === VARIANT
+          ? variantJson
+          : JSON.stringify({
+              colorScheme: "tokyo night",
+              enableTelemetry: false,
+              toolPermission: "always-proceed",
+              trustedWorkspaces: ["/repo"],
+            }),
     );
 
     installAntigravityHud("/repo");
@@ -142,13 +185,15 @@ describe("installAntigravityHud", () => {
         if (norm.endsWith(".gemini/antigravity-cli")) return true;
         if (norm === SETTINGS) return true;
         if (norm.includes(".agents/hooks/core")) return true;
+        if (norm.includes(".agents/hooks/variants/antigravity.json"))
+          return true;
         return false;
       },
     );
 
     let snapshot = "{}";
     (fs.readFileSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
-      (p: string) => (p === SETTINGS ? snapshot : "{}"),
+      (p: string) => (p === SETTINGS ? snapshot : variantJson),
     );
     (
       fs.writeFileSync as unknown as ReturnType<typeof vi.fn>

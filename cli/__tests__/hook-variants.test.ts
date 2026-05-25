@@ -8,6 +8,7 @@ const SCHEMA_PATH = join(VARIANTS_DIR, "hook-variant.schema.json");
 
 /** All known vendors from CLI VendorType. */
 const KNOWN_VENDORS: VendorType[] = [
+  "antigravity",
   "claude",
   "codex",
   "cursor",
@@ -48,7 +49,7 @@ describe("hook variant files", () => {
     for (const vendor of KNOWN_VENDORS) {
       const v = loadVariant(vendor);
       expect(v.vendor).toBe(vendor);
-      expect(v.hookDir).toMatch(/^\.\w+\/hooks$/);
+      expect(v.hookDir).toMatch(/^\.\w+(?:\/[\w-]+)?\/hooks$/);
       expect(v.settingsFile).toBeTruthy();
       expect(v.runtime).toBeTruthy();
       expect(Object.keys(v.events).length).toBeGreaterThan(0);
