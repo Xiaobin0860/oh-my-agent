@@ -90,6 +90,26 @@ class DeckStage extends HTMLElement {
   /* ── Lifecycle ── */
 
   connectedCallback() {
+    /*
+     * The element may be upgraded BEFORE its children are parsed — this
+     * happens whenever deck-stage.js is loaded in <head> without defer:
+     * customElements.define() runs during parsing and connectedCallback
+     * fires at the <deck-stage> start tag, when .deck-stage / .slide do
+     * not exist yet. Querying then returns null, init bails, and slide 0
+     * never gets .active → blank render (and export PNG/PDF come out blank).
+     *
+     * Detect that case (no .deck-stage yet AND the document is still
+     * parsing) and defer init until DOMContentLoaded, when the full
+     * subtree is guaranteed to exist.
+     */
+    if (!this.querySelector(".deck-stage") && document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", this.#init, { once: true });
+      return;
+    }
+    this.#init();
+  }
+
+  #init = () => {
     this.#stageEl = this.querySelector(".deck-stage");
     if (!this.#stageEl) {
       console.warn("[deck-stage] .deck-stage element not found inside <deck-stage>.");
@@ -111,10 +131,11 @@ class DeckStage extends HTMLElement {
     this.#startResizeObserver();
     this.#scaleStage();
     this.#goTo(0, /* initial */ true);
-  }
+  };
 
   disconnectedCallback() {
     this.#resizeObserver?.disconnect();
+    document.removeEventListener("DOMContentLoaded", this.#init);
     document.removeEventListener("keydown", this.#onKeyDown);
     window.removeEventListener("beforeprint", this.#onBeforePrint);
     window.removeEventListener("afterprint", this.#onAfterPrint);
