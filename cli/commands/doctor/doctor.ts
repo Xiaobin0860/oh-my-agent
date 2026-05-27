@@ -21,7 +21,7 @@ import { auditSkills, type SkillAuditReport } from "../skills/audit.js";
 import { checkDualInstall, type DualInstallReport } from "./dual-install.js";
 
 const OMA_DOCTOR_PROBE_TIMEOUT_MS = Number(
-  process.env.OMA_DOCTOR_PROBE_TIMEOUT_MS ?? 1500,
+  process.env.OMA_DOCTOR_PROBE_TIMEOUT_MS ?? 5000,
 );
 const OMA_DOCTOR_PROBE_SIGKILL_GRACE_MS = 200;
 
