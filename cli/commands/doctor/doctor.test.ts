@@ -204,7 +204,11 @@ async function settleInstalledClis(
 ): Promise<void> {
   for (let i = 0; i < spawnState.lastProcs.length; i++) {
     const proc = spawnState.lastProcs[i];
-    const cmd = spawnState.spawnFn.mock.calls[i]?.[0] as string | undefined;
+    if (!proc) continue;
+    const call = spawnState.spawnFn.mock.calls[i] as
+      | [string, ...unknown[]]
+      | undefined;
+    const cmd = call?.[0];
     if (cmd && installedCommands.includes(cmd)) {
       proc.stdout.emit("data", Buffer.from(`${version}\n`));
       proc._emit("close", 0);
