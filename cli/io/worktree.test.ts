@@ -129,6 +129,7 @@ describe("formatWorktreeSummary", () => {
     expect(summary).toContain("branch: oma/s/a (from main)");
     expect(summary).toContain("git merge oma/s/a");
     expect(summary).toContain("git worktree remove");
+    // verified worktree summary format
     expect(summary).toContain("git branch -D oma/s/a");
   });
 });
