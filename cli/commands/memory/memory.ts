@@ -29,6 +29,7 @@ import type {
   MemoryServiceCommandResult,
   MemoryServiceCommandRunOptions,
   MemoryServiceOptions,
+  MemoryServicePresence,
   MemoryServiceResult,
   MemoryServiceUninstallOptions,
   MemorySetupOptions,
@@ -140,6 +141,44 @@ function servicePathEnvironment(homeDir: string): string {
     "/usr/sbin",
     "/sbin",
   ].join(":");
+}
+
+function agentMemoryServicePath(
+  homeDir: string,
+  platform: NodeJS.Platform,
+): string | undefined {
+  if (platform === "darwin") {
+    return join(
+      homeDir,
+      "Library",
+      "LaunchAgents",
+      "dev.oma.agentmemory.plist",
+    );
+  }
+  if (platform === "linux") {
+    return join(
+      homeDir,
+      ".config",
+      "systemd",
+      "user",
+      "oma-agentmemory.service",
+    );
+  }
+  return undefined;
+}
+
+export function getAgentMemoryServicePresence(
+  args: { homeDir?: string; platform?: NodeJS.Platform } = {},
+): MemoryServicePresence {
+  const homeDir = args.homeDir ?? homedir();
+  const platform = args.platform ?? process.platform;
+  const servicePath = agentMemoryServicePath(homeDir, platform);
+  return {
+    platform,
+    supported: servicePath !== undefined,
+    servicePath,
+    installed: servicePath ? existsSync(servicePath) : false,
+  };
 }
 
 function renderLaunchdService(args: { homeDir: string; port: number }): string {
@@ -583,12 +622,7 @@ export function installAgentMemoryService(
   const homeDir = args.homeDir ?? homedir();
   const platform = args.platform ?? process.platform;
   const port = parsePositivePort(args.port) ?? DEFAULT_AGENTMEMORY_PORT;
-  const servicePath =
-    platform === "darwin"
-      ? join(homeDir, "Library", "LaunchAgents", "dev.oma.agentmemory.plist")
-      : platform === "linux"
-        ? join(homeDir, ".config", "systemd", "user", "oma-agentmemory.service")
-        : undefined;
+  const servicePath = agentMemoryServicePath(homeDir, platform);
   const content =
     platform === "darwin"
       ? renderLaunchdService({ homeDir, port })
@@ -648,12 +682,7 @@ export function uninstallAgentMemoryService(
 ): MemoryServiceResult {
   const homeDir = args.homeDir ?? homedir();
   const platform = args.platform ?? process.platform;
-  const servicePath =
-    platform === "darwin"
-      ? join(homeDir, "Library", "LaunchAgents", "dev.oma.agentmemory.plist")
-      : platform === "linux"
-        ? join(homeDir, ".config", "systemd", "user", "oma-agentmemory.service")
-        : undefined;
+  const servicePath = agentMemoryServicePath(homeDir, platform);
   const commands =
     servicePath === undefined
       ? []

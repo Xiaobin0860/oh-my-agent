@@ -290,3 +290,82 @@ describe("vendor doc OMA block checks", () => {
     expect(agents?.required).toBe(false);
   });
 });
+
+describe("AgentMemory doctor checks", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    spawnState.lastProcs.length = 0;
+    vi.clearAllMocks();
+    vi.mocked(existsSync).mockReturnValue(false);
+    vi.mocked(readFileSync).mockReturnValue("");
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("reports retry queue totals without draining the queue", async () => {
+    const retryLines = [
+      JSON.stringify({
+        sid: "oma-test",
+        kind: "decision.made",
+        eventId: "evt-1",
+        ts: "2026-05-29T00:00:00.000Z",
+      }),
+      "{bad json",
+    ].join("\n");
+
+    vi.mocked(existsSync).mockImplementation((p) =>
+      String(p).endsWith("observe.jsonl"),
+    );
+    vi.mocked(readFileSync).mockImplementation((p) =>
+      String(p).endsWith("observe.jsonl") ? retryLines : "",
+    );
+
+    const reportPromise = collectDoctorReport();
+    await vi.advanceTimersByTimeAsync(0);
+    await settleInstalledClis([]);
+
+    const report = await reportPromise;
+
+    expect(report.agentMemory.retryQueue).toMatchObject({
+      total: 2,
+      invalid: 1,
+    });
+    expect(report.agentMemory.status).toMatchObject({
+      provider: "agentmemory",
+      reachable: false,
+      reason: "endpoint not configured",
+    });
+    expect(report.agentMemory.issues).toContain(
+      "2 queued AgentMemory observe retries",
+    );
+    expect(report.agentMemory.issues).toContain(
+      "1 invalid AgentMemory retry rows",
+    );
+  });
+
+  it("reports missing AgentMemory binary when a service file is installed", async () => {
+    vi.mocked(existsSync).mockImplementation((p) =>
+      String(p).endsWith("dev.oma.agentmemory.plist"),
+    );
+
+    const reportPromise = collectDoctorReport();
+    await vi.advanceTimersByTimeAsync(0);
+    await settleInstalledClis([]);
+
+    const report = await reportPromise;
+
+    expect(report.agentMemory.service).toMatchObject({
+      supported: true,
+      installed: true,
+    });
+    expect(report.agentMemory.binary).toMatchObject({
+      command: "agentmemory",
+      available: false,
+    });
+    expect(report.agentMemory.issues).toContain(
+      "AgentMemory binary not found: agentmemory",
+    );
+  });
+});

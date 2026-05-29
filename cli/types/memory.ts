@@ -212,3 +212,10 @@ export interface MemoryServiceResult {
   content?: string;
   message: string;
 }
+
+export interface MemoryServicePresence {
+  platform: NodeJS.Platform;
+  supported: boolean;
+  servicePath?: string;
+  installed: boolean;
+}
