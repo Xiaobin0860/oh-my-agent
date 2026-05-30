@@ -78,7 +78,7 @@ describe("getModelSpec", () => {
     expect(spec?.cli_model).toBe("claude-opus-4-7");
     expect(spec?.supports.effort).toMatchObject({
       type: "cli-session",
-      auto_default: "xhigh",
+      auto_default: "high",
     });
     expect(spec?.supports.prompt_cache).toBe(true);
     expect(spec?.supports.api_only).toBe(false);

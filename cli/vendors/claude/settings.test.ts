@@ -67,7 +67,7 @@ describe("Claude settings", () => {
       attribution: {},
       effortLevel: "max",
     });
-    expect(settings.effortLevel).toBe("xhigh");
+    expect(settings.effortLevel).toBe("high");
   });
 
   it("upgrades below-recommended effortLevel to the recommended level", () => {
@@ -76,7 +76,7 @@ describe("Claude settings", () => {
       attribution: {},
       effortLevel: "medium",
     });
-    expect(settings.effortLevel).toBe("xhigh");
+    expect(settings.effortLevel).toBe("high");
   });
 
   it("removes DISABLE_PROMPT_CACHING while preserving recommended settings", () => {
@@ -203,7 +203,7 @@ describe("T2.9 rename regression — applyClaudeSettings", () => {
         pr: "Generated with [oh-my-agent](https://github.com/first-fluke/oh-my-agent)",
       },
       skipDangerousModePermissionPrompt: true,
-      effortLevel: "xhigh",
+      effortLevel: "high",
       skillListingBudgetFraction: 0.02,
     } as const;
 

@@ -69,7 +69,7 @@ const RAW_REGISTRY: ReadonlyMap<string, ModelSpec> = new Map([
       cli: "claude",
       cli_model: "claude-opus-4-7",
       supports: {
-        effort: { type: "cli-session", auto_default: "xhigh" },
+        effort: { type: "cli-session", auto_default: "high" },
         apply_patch: false,
         task_budget: true,
         prompt_cache: true,
@@ -88,7 +88,7 @@ const RAW_REGISTRY: ReadonlyMap<string, ModelSpec> = new Map([
       cli: "claude",
       cli_model: "claude-sonnet-4-6",
       supports: {
-        effort: { type: "cli-session", auto_default: "xhigh" },
+        effort: { type: "cli-session", auto_default: "high" },
         apply_patch: false,
         task_budget: true,
         prompt_cache: true,
@@ -105,7 +105,7 @@ const RAW_REGISTRY: ReadonlyMap<string, ModelSpec> = new Map([
       cli: "claude",
       cli_model: "claude-haiku-4-5",
       supports: {
-        effort: { type: "cli-session", auto_default: "xhigh" },
+        effort: { type: "cli-session", auto_default: "high" },
         apply_patch: false,
         task_budget: false,
         prompt_cache: true,
