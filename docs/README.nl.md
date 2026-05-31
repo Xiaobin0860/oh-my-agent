@@ -93,8 +93,8 @@ Kies een preset en je bent klaar:
 <sub>native dispatch</sub>
 </td>
 <td align="center">
-<a href="https://github.com/esengine/DeepSeek-Reasonix"><img src="https://github.com/deepseek-ai.png?size=120" alt="dsnix" width="48" height="48" /></a><br/>
-<strong>dsnix</strong><br/>
+<a href="https://github.com/esengine/DeepSeek-Reasonix"><img src="https://github.com/deepseek-ai.png?size=120" alt="Reasonix" width="48" height="48" /></a><br/>
+<strong>Reasonix</strong><br/>
 <sub>native compatibel</sub>
 </td>
 </tr>

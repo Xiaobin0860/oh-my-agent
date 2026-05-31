@@ -93,8 +93,8 @@ O `oh-my-agent` mantém `.agents/` como única fonte de verdade (SSOT) e o proje
 <sub>dispatch nativo</sub>
 </td>
 <td align="center">
-<a href="https://github.com/esengine/DeepSeek-Reasonix"><img src="https://github.com/deepseek-ai.png?size=120" alt="dsnix" width="48" height="48" /></a><br/>
-<strong>dsnix</strong><br/>
+<a href="https://github.com/esengine/DeepSeek-Reasonix"><img src="https://github.com/deepseek-ai.png?size=120" alt="Reasonix" width="48" height="48" /></a><br/>
+<strong>Reasonix</strong><br/>
 <sub>compatível nativamente</sub>
 </td>
 </tr>
