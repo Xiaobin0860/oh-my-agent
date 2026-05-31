@@ -19,6 +19,7 @@ const EXPECTED_PRESET_KEYS = [
   "gemini",
   "qwen",
   "cursor",
+  "kiro",
   "mixed",
 ] as const;
 

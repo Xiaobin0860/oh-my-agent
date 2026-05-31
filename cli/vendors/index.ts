@@ -4,6 +4,7 @@ import { isCodexAuthenticated } from "./codex/auth.js";
 import { isCursorAuthenticated } from "./cursor/auth.js";
 import { isGeminiAuthenticated } from "./gemini/auth.js";
 import { isGrokAuthenticated } from "./grok/auth.js";
+import { isKiroAuthenticated } from "./kiro/auth.js";
 import { isQwenAuthenticated } from "./qwen/auth.js";
 
 export type VendorId =
@@ -13,7 +14,8 @@ export type VendorId =
   | "cursor"
   | "qwen"
   | "antigravity"
-  | "grok";
+  | "grok"
+  | "kiro";
 
 export interface Vendor {
   id: VendorId;
@@ -37,6 +39,11 @@ export const VENDORS: readonly Vendor[] = [
     label: "Grok",
     isAuthenticated: isGrokAuthenticated,
   },
+  {
+    id: "kiro",
+    label: "Kiro CLI",
+    isAuthenticated: isKiroAuthenticated,
+  },
 ];
 
 export {
@@ -46,5 +53,6 @@ export {
   isCursorAuthenticated,
   isGeminiAuthenticated,
   isGrokAuthenticated,
+  isKiroAuthenticated,
   isQwenAuthenticated,
 };

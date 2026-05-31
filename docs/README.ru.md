@@ -64,22 +64,22 @@ APM поставляет только скилы. Для workflow, правил,
 
 <table>
 <tr>
-<td align="center" width="20%">
+<td align="center" width="16%">
 <a href="https://claude.com/product/claude-code"><img src="https://github.com/anthropics.png?size=120" alt="Claude Code" width="48" height="48" /></a><br/>
 <strong>Claude Code</strong><br/>
 <sub>нативный + адаптер</sub>
 </td>
-<td align="center" width="20%">
+<td align="center" width="16%">
 <a href="https://github.com/openai/codex"><img src="https://github.com/openai.png?size=120" alt="Codex CLI" width="48" height="48" /></a><br/>
 <strong>Codex CLI</strong><br/>
 <sub>нативный + адаптер</sub>
 </td>
-<td align="center" width="20%">
+<td align="center" width="16%">
 <a href="https://github.com/google-gemini/gemini-cli"><img src="https://github.com/google-gemini.png?size=120" alt="Gemini CLI" width="48" height="48" /></a><br/>
 <strong>Gemini CLI</strong><br/>
 <sub>нативный + адаптер</sub>
 </td>
-<td align="center" width="20%">
+<td align="center" width="16%">
 <a href="https://cursor.com"><img src="https://github.com/cursor.png?size=120" alt="Cursor" width="48" height="48" /></a><br/>
 <strong>Cursor</strong><br/>
 <sub>нативный + адаптер</sub>
@@ -92,7 +92,7 @@ APM поставляет только скилы. Для workflow, правил,
 <td align="center" width="16%">
 <a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok" width="48" height="48" /></a><br/>
 <strong>Grok</strong><br/>
-<sub>native hooks + agents</sub>
+<sub>нативные hooks</sub>
 </td>
 </tr>
 <tr>
@@ -117,12 +117,14 @@ APM поставляет только скилы. Для workflow, правил,
 <sub>skills через symlink</sub>
 </td>
 <td align="center" width="20%">
-<a href="./SUPPORTED_AGENTS.md"><img src="https://img.shields.io/badge/%E2%80%A6-more-555?style=flat-square" alt="More" height="48" /></a><br/>
-<strong>& ещё</strong><br/>
-<sub><a href="./SUPPORTED_AGENTS.md">матрица поддержки →</a></sub>
+<a href="https://kiro.dev"><img src="./assets/agents/kiro.png" alt="Kiro CLI" width="48" height="48" /></a><br/>
+<strong>Kiro CLI</strong><br/>
+<sub>нативные hooks + agents</sub>
 </td>
 </tr>
 </table>
+
+<p align="center"><sub><a href="./SUPPORTED_AGENTS.md">& ещё</a></sub></p>
 
 ## Ваша команда агентов
 

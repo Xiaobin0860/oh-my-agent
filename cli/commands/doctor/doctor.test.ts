@@ -79,6 +79,7 @@ vi.mock("../../vendors/index.js", () => ({
   isCodexAuthenticated: vi.fn(() => false),
   isGeminiAuthenticated: vi.fn(() => false),
   isGrokAuthenticated: vi.fn(() => false),
+  isKiroAuthenticated: vi.fn(() => false),
   isQwenAuthenticated: vi.fn(() => false),
 }));
 
@@ -128,14 +129,14 @@ describe("checkCLI via collectDoctorReport", () => {
 
     // Let the Promise constructors run so spawn() is called for all CLIs
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(6);
+    expect(spawnState.lastProcs).toHaveLength(7);
 
     settleProcs(0, "1.2.3\n");
     await vi.advanceTimersByTimeAsync(0);
 
     const report = await reportPromise;
 
-    expect(report.clis).toHaveLength(6);
+    expect(report.clis).toHaveLength(7);
     for (const cli of report.clis) {
       expect(cli.installed).toBe(true);
       expect(cli.version).toBe("1.2.3");
@@ -146,7 +147,7 @@ describe("checkCLI via collectDoctorReport", () => {
     const reportPromise = collectDoctorReport();
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(6);
+    expect(spawnState.lastProcs).toHaveLength(7);
 
     settleProcs(1);
     await vi.advanceTimersByTimeAsync(0);
@@ -162,7 +163,7 @@ describe("checkCLI via collectDoctorReport", () => {
     const reportPromise = collectDoctorReport();
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(6);
+    expect(spawnState.lastProcs).toHaveLength(7);
 
     errorProcs();
     await vi.advanceTimersByTimeAsync(0);
@@ -179,7 +180,7 @@ describe("checkCLI via collectDoctorReport", () => {
     const reportPromise = collectDoctorReport();
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(6);
+    expect(spawnState.lastProcs).toHaveLength(7);
 
     // Advance past the 5000ms probe timeout + 200ms SIGKILL grace
     await vi.advanceTimersByTimeAsync(5200);

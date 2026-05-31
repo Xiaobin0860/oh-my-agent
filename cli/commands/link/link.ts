@@ -49,6 +49,10 @@ import {
   needsGrokTelemetryUpdate,
 } from "../../vendors/grok/settings.js";
 import {
+  applyKiroProjectMcp,
+  needsKiroMcpUpdate,
+} from "../../vendors/kiro/settings.js";
+import {
   applyQwenSettings,
   needsQwenSettingsUpdate,
 } from "../../vendors/qwen/settings.js";
@@ -275,6 +279,11 @@ export function link(opts: LinkOptions = {}): LinkResult {
   // Registers Serena (and potentially others) so Grok can use the same MCPs as other vendors.
   if (configuredVendors.includes("grok") && needsGrokProjectMcpUpdate(cwd)) {
     applyGrokProjectMcp(cwd);
+  }
+
+  // 4f-kiro. Kiro `.kiro/settings/cli.json` — Serena MCP entry.
+  if (configuredVendors.includes("kiro") && needsKiroMcpUpdate(cwd)) {
+    applyKiroProjectMcp(cwd);
   }
 
   // 4f. Claude Code project-level MCP (`.mcp.json` at project root, serena

@@ -18,6 +18,7 @@ vi.mock("../../vendors/index.js", () => ({
   isCodexAuthenticated: vi.fn(() => false),
   isGeminiAuthenticated: vi.fn(() => false),
   isGrokAuthenticated: vi.fn(() => false),
+  isKiroAuthenticated: vi.fn(() => false),
   isQwenAuthenticated: vi.fn(() => false),
 }));
 

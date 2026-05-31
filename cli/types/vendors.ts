@@ -17,6 +17,7 @@ export const CLI_TOOLS = [
   "cursor",
   "gemini",
   "hermes",
+  "kiro",
   "qwen",
 ] as const;
 export type CliTool = (typeof CLI_TOOLS)[number];

@@ -28,6 +28,7 @@ import {
   isCodexAuthenticated,
   isGeminiAuthenticated,
   isGrokAuthenticated,
+  isKiroAuthenticated,
   isQwenAuthenticated,
 } from "../../vendors/index.js";
 import {
@@ -53,6 +54,7 @@ const CLI_DEFINITIONS: Array<[string, string, string]> = [
     "curl -fsSL https://antigravity.google/cli/install.sh | bash",
   ],
   ["grok", "grok", "Follow instructions at https://grok.x.ai"],
+  ["kiro", "kiro-cli", "Follow instructions at https://kiro.dev"],
 ];
 
 export const AUTH_CHECKERS: Record<string, () => boolean> = {
@@ -62,6 +64,7 @@ export const AUTH_CHECKERS: Record<string, () => boolean> = {
   qwen: isQwenAuthenticated,
   antigravity: () => isAntigravityAuthenticated(),
   grok: isGrokAuthenticated,
+  kiro: isKiroAuthenticated,
 };
 
 export interface McpCheck extends CLICheck {

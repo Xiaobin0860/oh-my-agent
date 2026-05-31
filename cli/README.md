@@ -121,12 +121,14 @@ Pick a preset and you're ready:
 <sub>symlinked skills</sub>
 </td>
 <td align="center" width="20%">
-<a href="./docs/SUPPORTED_AGENTS.md"><img src="https://img.shields.io/badge/%E2%80%A6-more-555?style=flat-square" alt="More" height="48" /></a><br/>
-<strong>& more</strong><br/>
-<sub><a href="./docs/SUPPORTED_AGENTS.md">support matrix →</a></sub>
+<a href="https://kiro.dev"><img src="./docs/assets/agents/kiro.png" alt="Kiro CLI" width="48" height="48" /></a><br/>
+<strong>Kiro CLI</strong><br/>
+<sub>native hooks + agents</sub>
 </td>
 </tr>
 </table>
+
+<p align="center"><sub><a href="./docs/SUPPORTED_AGENTS.md">& more</a></sub></p>
 
 ## Your Agent Team
 

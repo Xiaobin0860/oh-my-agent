@@ -35,6 +35,7 @@ export type BuiltInPresetKey =
   | "codex"
   | "gemini"
   | "cursor"
+  | "kiro"
   | "qwen"
   | "mixed";
 

@@ -20,6 +20,7 @@ export const VENDORS = [
   "cursor",
   "gemini",
   "grok",
+  "kiro",
   "qwen",
 ] as const;
 
@@ -63,5 +64,6 @@ export const CLI_SKILLS_DIR: Record<CliTool, SkillTargetSpec> = {
     homePath: ".hermes/skills/oma",
     requiresHomeConsent: true,
   },
+  kiro: { projectPath: ".kiro/skills", homePath: ".kiro/skills" },
   qwen: { projectPath: ".qwen/skills", homePath: ".qwen/skills" },
 };

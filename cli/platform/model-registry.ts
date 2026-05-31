@@ -14,7 +14,8 @@ export type RuntimeId =
   | "gemini"
   | "cursor"
   | "antigravity"
-  | "qwen";
+  | "qwen"
+  | "kiro";
 
 export type EffortLevel = "none" | "low" | "medium" | "high" | "xhigh";
 
@@ -431,6 +432,62 @@ const RAW_REGISTRY: ReadonlyMap<string, ModelSpec> = new Map([
   ],
 
   // -------------------------------------------------------------------------
+  // Kiro CLI — AWS Bedrock models via CodeWhisperer/Q (3)
+  // -------------------------------------------------------------------------
+  [
+    "kiro/claude-sonnet-4-5",
+    {
+      cli: "kiro",
+      cli_model: "anthropic.claude-sonnet-4-5-20251001-v1:0",
+      supports: {
+        effort: null,
+        apply_patch: false,
+        task_budget: false,
+        prompt_cache: false,
+        computer_use: false,
+        native_dispatch_from: ["kiro"],
+        api_only: false,
+      },
+      auth_hint: "Requires AWS Builder ID or IAM Identity Center (Kiro CLI)",
+    } satisfies ModelSpec,
+  ],
+  [
+    "kiro/claude-haiku-3-5",
+    {
+      cli: "kiro",
+      cli_model: "anthropic.claude-haiku-3-5-20241022-v1:0",
+      supports: {
+        effort: null,
+        apply_patch: false,
+        task_budget: false,
+        prompt_cache: false,
+        computer_use: false,
+        native_dispatch_from: ["kiro"],
+        api_only: false,
+      },
+      auth_hint: "Requires AWS Builder ID or IAM Identity Center (Kiro CLI)",
+    } satisfies ModelSpec,
+  ],
+  [
+    "kiro/auto",
+    {
+      cli: "kiro",
+      cli_model: "auto",
+      supports: {
+        effort: null,
+        apply_patch: false,
+        task_budget: false,
+        prompt_cache: false,
+        computer_use: false,
+        native_dispatch_from: ["kiro"],
+        api_only: false,
+      },
+      auth_hint:
+        "Requires AWS Builder ID or IAM Identity Center (Kiro CLI — auto model selection)",
+    } satisfies ModelSpec,
+  ],
+
+  // -------------------------------------------------------------------------
   // Alibaba Qwen (3)
   // -------------------------------------------------------------------------
   [
@@ -514,6 +571,7 @@ const RuntimeIdSchema = z.enum([
   "cursor",
   "antigravity",
   "qwen",
+  "kiro",
 ]);
 
 const EffortLevelSchema = z.enum(["none", "low", "medium", "high", "xhigh"]);

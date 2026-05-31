@@ -108,6 +108,25 @@ export const BUILT_IN_PRESETS: Record<BuiltInPresetKey, ModelPreset> = {
     },
   },
 
+  kiro: {
+    description:
+      "Kiro CLI — AWS Bedrock via CodeWhisperer/Q; sonnet for impl/architecture, haiku for retrieval/orchestration",
+    agent_defaults: {
+      orchestrator: { model: "kiro/claude-haiku-3-5" },
+      architecture: { model: "kiro/claude-sonnet-4-5" },
+      qa: { model: "kiro/claude-sonnet-4-5" },
+      pm: { model: "kiro/claude-haiku-3-5" },
+      backend: { model: "kiro/claude-sonnet-4-5" },
+      frontend: { model: "kiro/claude-sonnet-4-5" },
+      mobile: { model: "kiro/claude-sonnet-4-5" },
+      db: { model: "kiro/claude-sonnet-4-5" },
+      debug: { model: "kiro/claude-sonnet-4-5" },
+      docs: { model: "kiro/claude-haiku-3-5" },
+      "tf-infra": { model: "kiro/claude-sonnet-4-5" },
+      retrieval: { model: "kiro/claude-haiku-3-5" },
+    },
+  },
+
   cursor: {
     description: "Cursor — Cursor Pro / Pro Student",
     agent_defaults: {

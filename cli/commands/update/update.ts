@@ -170,6 +170,7 @@ const VENDOR_ROOTS: Record<CliVendor, string[]> = {
   gemini: [".gemini"],
   grok: [".grok"],
   hermes: [".hermes"],
+  kiro: [".kiro"],
   qwen: [".qwen"],
 };
 

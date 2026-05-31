@@ -46,6 +46,7 @@ describe("readVendorsFromConfig", () => {
       "gemini",
       "grok",
       "hermes",
+      "kiro",
       "qwen",
     ]);
   });
@@ -62,6 +63,7 @@ describe("readVendorsFromConfig", () => {
       "gemini",
       "grok",
       "hermes",
+      "kiro",
       "qwen",
     ]);
   });
