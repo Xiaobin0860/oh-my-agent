@@ -11,8 +11,10 @@ import {
 } from "../../utils/cli-framework.js";
 import {
   activateStateSession,
+  archiveStateSessions,
   collectState,
   purgeStateSessions,
+  renderArchiveResult,
   renderPurgeResult,
   renderSessionView,
   renderStateList,
@@ -26,6 +28,7 @@ export function registerState(program: Command): void {
       .description("Inspect OMA L1 workflow state")
       .option("--activate <sid>", "Set active session id")
       .option("--category <category>", "Active category", "main")
+      .option("--archive", "Move inactive terminal sessions to state archive")
       .option("--purge", "Delete inactive sessions older than --older-than")
       .option("--older-than <duration>", "Purge age threshold", "90d")
       .option("--dry-run", "Preview purge without deleting sessions"),
@@ -35,6 +38,7 @@ export function registerState(program: Command): void {
         const jsonMode = resolveJsonMode(options);
         const activate = options.activate as string | undefined;
         const category = (options.category as string | undefined) ?? "main";
+        const archive = options.archive === true;
         const purge = options.purge === true;
 
         if (activate) {
@@ -56,6 +60,19 @@ export function registerState(program: Command): void {
             console.log(JSON.stringify(result, null, 2));
           } else {
             console.log(renderPurgeResult(result));
+          }
+          return;
+        }
+
+        if (archive) {
+          const result = archiveStateSessions({
+            olderThan: options.olderThan as string,
+            dryRun: options.dryRun === true,
+          });
+          if (jsonMode) {
+            console.log(JSON.stringify(result, null, 2));
+          } else {
+            console.log(renderArchiveResult(result));
           }
           return;
         }

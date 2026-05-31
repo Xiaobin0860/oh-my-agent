@@ -22,6 +22,7 @@ export const AGENTS_STATE_DIR = `${AGENTS_DIR}/state`;
 
 export const AGENTS_STATE_SESSIONS_DIR = `${AGENTS_STATE_DIR}/sessions`;
 export const AGENTS_STATE_RETRY_DIR = `${AGENTS_STATE_DIR}/retry`;
+export const AGENTS_STATE_ARCHIVE_DIR = `${AGENTS_STATE_DIR}/archive`;
 
 /** Antigravity CLI (agy) local project config symlink. */
 export const ANTIGRAVITYCLI_DIR = ".antigravitycli";

@@ -1,8 +1,9 @@
-import { join, posix, win32 } from "node:path";
+import { posix, win32 } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   AGENTS_RESULTS_DIR,
   AGENTS_RESULTS_GITIGNORE,
+  AGENTS_STATE_ARCHIVE_DIR,
   AGENTS_STATE_DIR,
   AGENTS_STATE_GITIGNORE,
   agentsPathFromRoot,
@@ -14,6 +15,7 @@ describe("paths constants", () => {
   it("exposes stable agents runtime dirs", () => {
     expect(AGENTS_RESULTS_DIR).toBe(".agents/results");
     expect(AGENTS_STATE_DIR).toBe(".agents/state");
+    expect(AGENTS_STATE_ARCHIVE_DIR).toBe(".agents/state/archive");
   });
 
   it("builds gitignore directory patterns with a trailing slash", () => {

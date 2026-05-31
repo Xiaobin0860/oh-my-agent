@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  listRequiredDecisionCheckpoints,
   resolveDecisionVerifierSid,
   verifyRequiredDecisions,
 } from "./decision-verifier.js";
@@ -48,6 +49,50 @@ describe("required decision verifier", () => {
 
     expect(result.ok).toBe(true);
     expect(result.missing).toEqual([]);
+  });
+
+  it("lists all D62 workflow decision checkpoints", () => {
+    const table = listRequiredDecisionCheckpoints();
+    expect(table).toMatchObject({
+      ultrawork: {
+        "plan-approved": [{ subject: "ultrawork.plan-approved" }],
+        "impl-plan-locked": [{ subject: "ultrawork.impl-plan-locked" }],
+        "refine-outcome": [{ subject: "ultrawork.refine-outcome" }],
+      },
+      orchestrate: {
+        "fanout-strategy": [{ subject: "orchestrate.fanout-strategy" }],
+        "qa-verdict": [{ subject: "orchestrate.qa-verdict" }],
+      },
+      work: {
+        "remediation-choice": [{ subject: "work.remediation-choice" }],
+      },
+      plan: {
+        "api-contract": [{ subject: "plan.api-contract" }],
+      },
+      brainstorm: {
+        "option-selection": [{ subject: "brainstorm.option-selection" }],
+      },
+      architecture: {
+        "adr-complete": [{ subject: "architecture.adr-complete" }],
+      },
+      debug: {
+        "root-cause": [{ subject: "debug.root-cause" }],
+      },
+      review: {
+        "severity-classification": [
+          { subject: "review.severity-classification" },
+        ],
+      },
+      deepsec: {
+        "triage-outcome": [{ subject: "deepsec.triage-outcome" }],
+      },
+      scm: {
+        "commit-split": [{ subject: "scm.commit-split" }],
+      },
+      docs: {
+        "sync-patch-approval": [{ subject: "docs.sync-patch-approval" }],
+      },
+    });
   });
 
   it("emits decision.missing when a required decision is absent", async () => {

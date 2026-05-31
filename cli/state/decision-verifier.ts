@@ -64,6 +64,78 @@ export const REQUIRED_DECISIONS: RequiredDecisionTable = {
       },
     ],
   },
+  plan: {
+    "api-contract": [
+      {
+        subject: "plan.api-contract",
+        description:
+          "Endpoint and contract shape captured after API contract approval.",
+      },
+    ],
+  },
+  brainstorm: {
+    "option-selection": [
+      {
+        subject: "brainstorm.option-selection",
+        description:
+          "Selected option and considered alternatives captured after user choice.",
+      },
+    ],
+  },
+  architecture: {
+    "adr-complete": [
+      {
+        subject: "architecture.adr-complete",
+        description:
+          "Architecture decision and tradeoffs captured after ADR completion.",
+      },
+    ],
+  },
+  debug: {
+    "root-cause": [
+      {
+        subject: "debug.root-cause",
+        description:
+          "Confirmed root cause and minimal fix scope captured after diagnosis.",
+      },
+    ],
+  },
+  review: {
+    "severity-classification": [
+      {
+        subject: "review.severity-classification",
+        description:
+          "Per-finding severity assignment rationale captured after review classification.",
+      },
+    ],
+  },
+  deepsec: {
+    "triage-outcome": [
+      {
+        subject: "deepsec.triage-outcome",
+        description:
+          "Security finding triage verdict captured as true-positive or false-positive with rationale.",
+      },
+    ],
+  },
+  scm: {
+    "commit-split": [
+      {
+        subject: "scm.commit-split",
+        description:
+          "Commit grouping decision captured after SCM split strategy is chosen.",
+      },
+    ],
+  },
+  docs: {
+    "sync-patch-approval": [
+      {
+        subject: "docs.sync-patch-approval",
+        description:
+          "Documentation sync decision captured for docs auto-applied versus skipped.",
+      },
+    ],
+  },
 };
 
 export interface DecisionVerificationResult {

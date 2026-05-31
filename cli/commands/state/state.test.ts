@@ -10,9 +10,11 @@ import {
 } from "../../state/events.js";
 import {
   activateStateSession,
+  archiveStateSessions,
   collectState,
   parseOlderThan,
   purgeStateSessions,
+  renderArchiveResult,
   renderPurgeResult,
   renderSessionView,
   renderStateList,
@@ -170,5 +172,61 @@ describe("state command helpers", () => {
     expect(result.purged).toEqual(["oma-old"]);
     expect(existsSync(sessionDir(projectDir, "oma-old"))).toBe(true);
     expect(renderPurgeResult(result)).toContain("purge preview");
+  });
+
+  it("archives inactive terminal sessions into monthly buckets", () => {
+    emitEvent(projectDir, "oma-old-done", {
+      eventId: "old-created",
+      ts: "2026-01-01T00:00:00.000Z",
+      kind: "session.created",
+      payload: { workflow: "work", category: "main" },
+    });
+    emitEvent(projectDir, "oma-old-done", {
+      eventId: "old-ended",
+      ts: "2026-01-02T00:00:00.000Z",
+      kind: "session.ended",
+      payload: { status: "completed" },
+    });
+    emitEvent(projectDir, "oma-old-open", {
+      eventId: "open-created",
+      ts: "2026-01-01T00:00:00.000Z",
+      kind: "session.created",
+      payload: { workflow: "debug", category: "main" },
+    });
+    activateWorkflowSession({
+      projectDir,
+      sid: "oma-active-done",
+      workflow: "review",
+    });
+    emitEvent(projectDir, "oma-active-done", {
+      eventId: "active-ended",
+      ts: "2026-01-02T00:00:00.000Z",
+      kind: "session.ended",
+      payload: { status: "completed" },
+    });
+
+    const result = archiveStateSessions({
+      projectDir,
+      olderThan: "90d",
+      now: new Date("2026-05-26T00:00:00.000Z"),
+    });
+
+    expect(result.archived.map((entry) => entry.sid)).toEqual(["oma-old-done"]);
+    expect(result.skippedOpen).toContain("oma-old-open");
+    expect(result.skippedActive).toContain("oma-active-done");
+    expect(existsSync(sessionDir(projectDir, "oma-old-done"))).toBe(false);
+    expect(
+      existsSync(
+        join(
+          projectDir,
+          ".agents",
+          "state",
+          "archive",
+          "2026-01",
+          "oma-old-done",
+        ),
+      ),
+    ).toBe(true);
+    expect(renderArchiveResult(result)).toContain("OMA state archive");
   });
 });

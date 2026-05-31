@@ -1,12 +1,18 @@
 import {
   existsSync,
+  mkdirSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
   statSync,
 } from "node:fs";
 import { join } from "node:path";
 import pc from "picocolors";
+import {
+  AGENTS_STATE_ARCHIVE_DIR,
+  agentsPathFromRoot,
+} from "../../constants/paths.js";
 import {
   atomicWriteJson,
   deriveMeta,
@@ -31,6 +37,15 @@ export interface PurgeResult {
   purged: string[];
   skippedActive: string[];
   skippedRecent: string[];
+}
+
+export interface ArchiveResult {
+  cutoff: string;
+  dryRun: boolean;
+  archived: Array<{ sid: string; to: string }>;
+  skippedActive: string[];
+  skippedRecent: string[];
+  skippedOpen: string[];
 }
 
 function loadSessionMeta(projectDir: string, sid: string): SessionMeta {
@@ -150,6 +165,77 @@ export function purgeStateSessions(args: {
   return result;
 }
 
+function archiveRoot(projectDir: string): string {
+  return agentsPathFromRoot(projectDir, AGENTS_STATE_ARCHIVE_DIR);
+}
+
+function archiveBucket(meta: SessionMeta): string {
+  const basis = meta.createdAt ?? new Date().toISOString();
+  const parsed = new Date(basis);
+  if (Number.isNaN(parsed.getTime())) return "unknown";
+  return parsed.toISOString().slice(0, 7);
+}
+
+export function archiveStateSessions(args: {
+  projectDir?: string;
+  olderThan: string;
+  dryRun?: boolean;
+  now?: Date;
+}): ArchiveResult {
+  const projectDir = args.projectDir ?? process.cwd();
+  const olderThanMs = parseOlderThan(args.olderThan);
+  const cutoffMs = (args.now ?? new Date()).getTime() - olderThanMs;
+  const view = collectState(projectDir);
+  const activeSids = new Set(Object.values(view.index.active));
+  const result: ArchiveResult = {
+    cutoff: new Date(cutoffMs).toISOString(),
+    dryRun: args.dryRun === true,
+    archived: [],
+    skippedActive: [],
+    skippedRecent: [],
+    skippedOpen: [],
+  };
+
+  for (const session of view.sessions) {
+    if (activeSids.has(session.sid)) {
+      result.skippedActive.push(session.sid);
+      continue;
+    }
+    if (session.status === "active") {
+      result.skippedOpen.push(session.sid);
+      continue;
+    }
+    if (sessionTimestampMs(projectDir, session.sid, session) > cutoffMs) {
+      result.skippedRecent.push(session.sid);
+      continue;
+    }
+
+    const to = join(
+      archiveRoot(projectDir),
+      archiveBucket(session),
+      session.sid,
+    );
+    result.archived.push({ sid: session.sid, to });
+    if (!result.dryRun) {
+      mkdirSync(archiveRoot(projectDir), { recursive: true });
+      mkdirSync(join(archiveRoot(projectDir), archiveBucket(session)), {
+        recursive: true,
+      });
+      renameSync(join(sessionsDir(projectDir), session.sid), to);
+    }
+  }
+
+  if (!result.dryRun && result.archived.length > 0) {
+    const archived = new Set(result.archived.map((entry) => entry.sid));
+    for (const [category, sid] of Object.entries(view.index.active)) {
+      if (archived.has(sid)) delete view.index.active[category];
+    }
+    atomicWriteJson(indexPath(projectDir), view.index);
+  }
+
+  return result;
+}
+
 function payloadText(
   event: OmaEvent,
   key: string,
@@ -196,6 +282,25 @@ export function renderPurgeResult(result: PurgeResult): string {
   if (result.skippedActive.length > 0) {
     lines.push(`skipped active: ${result.skippedActive.length}`);
     for (const sid of result.skippedActive) lines.push(`  ${sid}`);
+  }
+  return lines.join("\n");
+}
+
+export function renderArchiveResult(result: ArchiveResult): string {
+  const lines = [
+    pc.bold(result.dryRun ? "OMA state archive preview" : "OMA state archive"),
+    `cutoff: ${result.cutoff}`,
+    `archived: ${result.archived.length}`,
+  ];
+  for (const entry of result.archived)
+    lines.push(`  ${entry.sid} -> ${entry.to}`);
+  if (result.skippedActive.length > 0) {
+    lines.push(`skipped active: ${result.skippedActive.length}`);
+    for (const sid of result.skippedActive) lines.push(`  ${sid}`);
+  }
+  if (result.skippedOpen.length > 0) {
+    lines.push(`skipped open: ${result.skippedOpen.length}`);
+    for (const sid of result.skippedOpen) lines.push(`  ${sid}`);
   }
   return lines.join("\n");
 }
