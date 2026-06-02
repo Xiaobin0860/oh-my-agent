@@ -168,46 +168,133 @@ function hasSqlite3Cli(): boolean {
   return result.status === 0;
 }
 
-function readStoreViaSqlite3Cli(dbPath: string): CursorStoreSnapshot | null {
-  const metaResult = spawnSync(
-    "sqlite3",
-    [dbPath, "SELECT value FROM meta WHERE key = '0';"],
-    { encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] },
-  );
-  if (metaResult.status !== 0 || !metaResult.stdout.trim()) return null;
+const SQLITE_BUSY_TIMEOUT_MS = 5000;
 
-  const meta = decodeMetaValue(metaResult.stdout);
-  if (!meta) return null;
-
-  const blobResult = spawnSync(
-    "sqlite3",
-    ["-json", dbPath, "SELECT hex(data) AS data_hex FROM blobs;"],
-    { encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] },
+function isLockError(stderr: string): boolean {
+  return /database is locked|database is busy|is locked|SQLITE_BUSY|SQLITE_LOCKED/i.test(
+    stderr,
   );
-  if (blobResult.status !== 0) {
+}
+
+// D68: open Cursor's store.db read-only with a busy timeout so a running Cursor
+// never blocks or corrupts the read, and a held lock is surfaced (not silently
+// treated as empty).
+function runSqliteReadonly(
+  dbPath: string,
+  sql: string,
+  json = false,
+): { ok: boolean; stdout: string; locked: boolean } {
+  const args = [
+    ...(json ? ["-json"] : []),
+    "-readonly",
+    "-cmd",
+    `.timeout ${SQLITE_BUSY_TIMEOUT_MS}`,
+    dbPath,
+    sql,
+  ];
+  const result = spawnSync("sqlite3", args, {
+    encoding: "utf-8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const stderr = typeof result.stderr === "string" ? result.stderr : "";
+  return {
+    ok: result.status === 0,
+    stdout: result.stdout ?? "",
+    locked: isLockError(stderr),
+  };
+}
+
+type CursorStoreReadResult =
+  | { status: "ok"; store: CursorStoreSnapshot }
+  | { status: "locked" }
+  | { status: "error" };
+
+function readStore(dbPath: string): CursorStoreReadResult {
+  const metaRun = runSqliteReadonly(
+    dbPath,
+    "SELECT value FROM meta WHERE key = '0';",
+  );
+  if (metaRun.locked) return { status: "locked" };
+  if (!metaRun.ok || !metaRun.stdout.trim()) return { status: "error" };
+
+  const meta = decodeMetaValue(metaRun.stdout);
+  if (!meta) return { status: "error" };
+
+  const blobRun = runSqliteReadonly(
+    dbPath,
+    "SELECT hex(data) AS data_hex FROM blobs;",
+    true,
+  );
+  if (blobRun.locked) return { status: "locked" };
+  if (!blobRun.ok) {
     return {
-      meta,
-      messages: [],
-      chatHash: chatHashFromDbPath(dbPath),
+      status: "ok",
+      store: { meta, messages: [], chatHash: chatHashFromDbPath(dbPath) },
     };
   }
 
-  const rows = blobResult.stdout.trim()
-    ? (JSON.parse(blobResult.stdout) as Array<{ data_hex?: string }>)
+  const rows = blobRun.stdout.trim()
+    ? (JSON.parse(blobRun.stdout) as Array<{ data_hex?: string }>)
     : [];
 
   return {
-    meta,
-    messages: messagesFromBlobRows(rows),
-    workspacePath: workspacePathFromBlobRows(rows) ?? undefined,
-    chatHash: chatHashFromDbPath(dbPath),
+    status: "ok",
+    store: {
+      meta,
+      messages: messagesFromBlobRows(rows),
+      workspacePath: workspacePathFromBlobRows(rows) ?? undefined,
+      chatHash: chatHashFromDbPath(dbPath),
+    },
   };
+}
+
+function readStoreViaSqlite3Cli(dbPath: string): CursorStoreSnapshot | null {
+  const result = readStore(dbPath);
+  return result.status === "ok" ? result.store : null;
+}
+
+export interface CursorStoreReadSummary {
+  stores: CursorStoreSnapshot[];
+  total: number;
+  locked: number;
+}
+
+function readCursorStores(): CursorStoreReadSummary {
+  const dbs = findStoreDBs();
+  const stores: CursorStoreSnapshot[] = [];
+  let locked = 0;
+  if (dbs.length === 0 || !hasSqlite3Cli()) {
+    return { stores, total: dbs.length, locked };
+  }
+  for (const dbPath of dbs) {
+    const result = readStore(dbPath);
+    if (result.status === "ok") stores.push(result.store);
+    else if (result.status === "locked") locked += 1;
+  }
+  return { stores, total: dbs.length, locked };
+}
+
+// Cheap lock probe for the raw-import path (only the meta query is run).
+function probeCursorStoreLocks(): { total: number; locked: number } {
+  const dbs = findStoreDBs();
+  if (dbs.length === 0 || !hasSqlite3Cli()) {
+    return { total: dbs.length, locked: 0 };
+  }
+  let locked = 0;
+  for (const dbPath of dbs) {
+    const run = runSqliteReadonly(
+      dbPath,
+      "SELECT value FROM meta WHERE key = '0';",
+    );
+    if (run.locked) locked += 1;
+  }
+  return { total: dbs.length, locked };
 }
 
 function canReadCursorStores(): boolean {
   const [firstDb] = findStoreDBs();
   if (!firstDb || !hasSqlite3Cli()) return false;
-  return readStoreViaSqlite3Cli(firstDb) !== null;
+  return readStore(firstDb).status === "ok";
 }
 
 type AgentTranscriptFile = {
@@ -519,15 +606,11 @@ registerParser({
       }
     }
 
-    if (hasSqlite3Cli()) {
-      for (const dbPath of findStoreDBs()) {
-        try {
-          const store = readStoreViaSqlite3Cli(dbPath);
-          if (!store) continue;
-          entries.push(...entriesFromStore(store, start, end, hashProjectMap));
-        } catch {
-          // skip unreadable databases
-        }
+    for (const store of readCursorStores().stores) {
+      try {
+        entries.push(...entriesFromStore(store, start, end, hashProjectMap));
+      } catch {
+        // skip stores that fail to map to entries
       }
     }
 
@@ -559,10 +642,15 @@ registerParser({
       );
     }
 
-    const stores = findStoreDBs();
-    if (stores.length > 0) {
+    const { total, locked } = probeCursorStoreLocks();
+    if (locked > 0) {
       warnings.push(
-        `cursor store.db raw import skipped for ${stores.length} stores because per-message timestamps are unavailable`,
+        `cursor: ${locked}/${total} store.db file(s) are locked (Cursor running?); coverage is partial — close Cursor and rerun, or pass --force-partial`,
+      );
+    }
+    if (total > 0) {
+      warnings.push(
+        `cursor store.db raw import skipped for ${total} stores because per-message timestamps are unavailable`,
       );
     }
 

@@ -266,3 +266,72 @@ describe("cursor raw parser", async () => {
     rmSync(join(tempHome, ".cursor"), { recursive: true, force: true });
   });
 });
+
+describe("cursor store locking (D68)", () => {
+  const dbPath = "/Users/test/.cursor/chats/hash1/sess1/store.db";
+
+  it("opens the store read-only with a busy timeout", () => {
+    const seenArgs: string[][] = [];
+    vi.mocked(spawnSync).mockImplementation((command, args) => {
+      seenArgs.push(Array.isArray(args) ? args.map(String) : []);
+      if (command !== "sqlite3") return mockSpawnResult({ status: 1, pid: 0 });
+      const sql = Array.isArray(args) ? String(args.at(-1) ?? "") : "";
+      if (sql.includes("FROM meta")) {
+        return mockSpawnResult({
+          stdout: `${Buffer.from(JSON.stringify({ name: "X", createdAt: 1 })).toString("hex")}\n`,
+        });
+      }
+      if (sql.includes("FROM blobs")) return mockSpawnResult({ stdout: "[]" });
+      return mockSpawnResult({ status: 1, pid: 0 });
+    });
+
+    readStoreViaSqlite3Cli(dbPath);
+
+    expect(seenArgs.some((args) => args.includes("-readonly"))).toBe(true);
+    expect(
+      seenArgs.some((args) => args.some((arg) => arg.includes(".timeout"))),
+    ).toBe(true);
+  });
+
+  it("returns null on a locked store instead of misreading it as empty", () => {
+    vi.mocked(spawnSync).mockImplementation((command) => {
+      if (command !== "sqlite3") return mockSpawnResult({ status: 1, pid: 0 });
+      return mockSpawnResult({
+        status: 1,
+        stderr: "Error: database is locked",
+      });
+    });
+
+    expect(readStoreViaSqlite3Cli(dbPath)).toBeNull();
+  });
+
+  it("reports partial coverage from parseRaw when a store is locked", async () => {
+    const { getParsers } = await import("../registry.js");
+    await import("./cursor.js");
+    const parser = getParsers().find((p) => p.name === "cursor");
+
+    rmSync(join(tempHome, ".cursor"), { recursive: true, force: true });
+    const storeDir = join(tempHome, ".cursor", "chats", "hash1", "sess1");
+    mkdirSync(storeDir, { recursive: true });
+    writeFileSync(join(storeDir, "store.db"), "sqlite-bytes", "utf-8");
+
+    vi.mocked(spawnSync).mockImplementation((command, args) => {
+      if (command !== "sqlite3") return mockSpawnResult({ status: 1, pid: 0 });
+      const argv = Array.isArray(args) ? args.map(String) : [];
+      if (argv.includes("-version")) return mockSpawnResult({ status: 0 });
+      // Every query against the store reports a lock.
+      return mockSpawnResult({
+        status: 1,
+        stderr: "Error: database is locked",
+      });
+    });
+
+    const result = await parser?.parseRaw?.(0, Date.now() + 10_000);
+    const warnings = Array.isArray(result) ? [] : (result?.warnings ?? []);
+    const lockWarning = warnings.find((w) => w.includes("locked"));
+    expect(lockWarning).toBeTruthy();
+    expect(lockWarning).toContain("--force-partial");
+
+    rmSync(join(tempHome, ".cursor"), { recursive: true, force: true });
+  });
+});
