@@ -1,0 +1,343 @@
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+import type {
+  MemoryCommandStatus,
+  MemoryServiceCommand,
+  MemoryServiceCommandPlanOptions,
+  MemoryServiceCommandResult,
+  MemoryServiceCommandRunOptions,
+  MemoryServiceOptions,
+  MemoryServicePresence,
+  MemoryServiceResult,
+  MemoryServiceUninstallOptions,
+} from "../types/memory.js";
+
+/**
+ * AgentMemory daemon service generator (D43).
+ *
+ * Owns the launchd plist / systemd user unit rendering, service-file path
+ * resolution, and the activation commands run on install/uninstall. Extracted
+ * from `commands/memory/memory.ts` so the platform concern lives in one place
+ * (design doc 013, "Files to Create: cli/platform/agentmemory-service.ts").
+ */
+
+export const DEFAULT_AGENTMEMORY_PORT = 3111;
+export const LAUNCHD_AGENTMEMORY_LABEL = "dev.oma.agentmemory";
+
+export function parsePositivePort(
+  value: number | string | undefined,
+): number | null {
+  if (value === undefined) return null;
+  const port = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`invalid AgentMemory port: ${value}`);
+  }
+  return port;
+}
+
+export function defaultServiceCommandRunner(
+  command: MemoryServiceCommand,
+): MemoryCommandStatus {
+  const result = spawnSync(command.bin, command.args, {
+    encoding: "utf-8",
+    stdio: "pipe",
+    timeout: 10000,
+  });
+  return {
+    status: result.status,
+    error: result.error?.message ?? result.stderr?.trim() ?? undefined,
+  };
+}
+
+function servicePathEnvironment(homeDir: string): string {
+  return [
+    join(homeDir, ".bun", "bin"),
+    join(homeDir, ".local", "bin"),
+    "/opt/homebrew/bin",
+    "/usr/local/bin",
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+  ].join(":");
+}
+
+function agentMemoryServicePath(
+  homeDir: string,
+  platform: NodeJS.Platform,
+): string | undefined {
+  if (platform === "darwin") {
+    return join(
+      homeDir,
+      "Library",
+      "LaunchAgents",
+      "dev.oma.agentmemory.plist",
+    );
+  }
+  if (platform === "linux") {
+    return join(
+      homeDir,
+      ".config",
+      "systemd",
+      "user",
+      "oma-agentmemory.service",
+    );
+  }
+  return undefined;
+}
+
+export function getAgentMemoryServicePresence(
+  args: { homeDir?: string; platform?: NodeJS.Platform } = {},
+): MemoryServicePresence {
+  const homeDir = args.homeDir ?? homedir();
+  const platform = args.platform ?? process.platform;
+  const servicePath = agentMemoryServicePath(homeDir, platform);
+  return {
+    platform,
+    supported: servicePath !== undefined,
+    servicePath,
+    installed: servicePath ? existsSync(servicePath) : false,
+  };
+}
+
+function renderLaunchdService(args: { homeDir: string; port: number }): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>${LAUNCHD_AGENTMEMORY_LABEL}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string>
+    <string>agentmemory</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>${servicePathEnvironment(args.homeDir)}</string>
+    <key>III_REST_PORT</key>
+    <string>${args.port}</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/tmp/oma-agentmemory.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/oma-agentmemory.err.log</string>
+</dict>
+</plist>
+`;
+}
+
+function renderSystemdService(args: { homeDir: string; port: number }): string {
+  return `[Unit]
+Description=OMA AgentMemory daemon
+After=network.target
+
+[Service]
+Type=simple
+Environment=PATH=${servicePathEnvironment(args.homeDir)}
+Environment=III_REST_PORT=${args.port}
+ExecStart=/usr/bin/env agentmemory
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+`;
+}
+
+function serviceDomain(): string {
+  const uid = typeof process.getuid === "function" ? process.getuid() : 0;
+  return `gui/${uid}`;
+}
+
+function serviceCommands(
+  args: MemoryServiceCommandPlanOptions,
+): MemoryServiceCommand[] {
+  if (args.platform === "darwin") {
+    const domain = serviceDomain();
+    const serviceId = `${domain}/${LAUNCHD_AGENTMEMORY_LABEL}`;
+    return args.action === "install"
+      ? [
+          {
+            bin: "launchctl",
+            args: ["bootout", domain, args.servicePath],
+            optional: true,
+          },
+          { bin: "launchctl", args: ["bootstrap", domain, args.servicePath] },
+          { bin: "launchctl", args: ["enable", serviceId] },
+          { bin: "launchctl", args: ["kickstart", "-k", serviceId] },
+        ]
+      : [
+          { bin: "launchctl", args: ["disable", serviceId], optional: true },
+          {
+            bin: "launchctl",
+            args: ["bootout", domain, args.servicePath],
+            optional: true,
+          },
+        ];
+  }
+
+  if (args.platform === "linux") {
+    return args.action === "install"
+      ? [
+          { bin: "systemctl", args: ["--user", "daemon-reload"] },
+          {
+            bin: "systemctl",
+            args: ["--user", "enable", "--now", "oma-agentmemory.service"],
+          },
+        ]
+      : [
+          {
+            bin: "systemctl",
+            args: ["--user", "disable", "--now", "oma-agentmemory.service"],
+            optional: true,
+          },
+          { bin: "systemctl", args: ["--user", "daemon-reload"] },
+        ];
+  }
+
+  return [];
+}
+
+function formatServiceCommand(command: MemoryServiceCommand): string {
+  return [command.bin, ...command.args].join(" ");
+}
+
+function runServiceCommands(
+  args: MemoryServiceCommandRunOptions,
+): MemoryServiceCommandResult {
+  for (const command of args.commands) {
+    const result = args.runner(command);
+    if (result.status === 0 || command.optional) continue;
+    return {
+      activated: false,
+      commandExitCode: result.status,
+      commandError: result.error,
+    };
+  }
+
+  return { activated: true };
+}
+
+export function installAgentMemoryService(
+  args: MemoryServiceOptions = {},
+): MemoryServiceResult {
+  const homeDir = args.homeDir ?? homedir();
+  const platform = args.platform ?? process.platform;
+  const port = parsePositivePort(args.port) ?? DEFAULT_AGENTMEMORY_PORT;
+  const servicePath = agentMemoryServicePath(homeDir, platform);
+  const content =
+    platform === "darwin"
+      ? renderLaunchdService({ homeDir, port })
+      : platform === "linux"
+        ? renderSystemdService({ homeDir, port })
+        : undefined;
+  const commands =
+    servicePath === undefined
+      ? []
+      : serviceCommands({ action: "install", platform, servicePath });
+  const commandLines = commands.map(formatServiceCommand);
+
+  let wroteFile = false;
+  let activated = false;
+  let commandExitCode: number | null | undefined;
+  let commandError: string | undefined;
+  if (servicePath && content && !args.dryRun) {
+    mkdirSync(dirname(servicePath), { recursive: true, mode: 0o700 });
+    writeFileSync(servicePath, content, { encoding: "utf-8", mode: 0o600 });
+    wroteFile = true;
+
+    const commandResult = runServiceCommands({
+      commands,
+      runner: args.runner ?? defaultServiceCommandRunner,
+    });
+    activated = commandResult.activated;
+    commandExitCode = commandResult.commandExitCode;
+    commandError = commandResult.commandError;
+  }
+
+  return {
+    action: "install",
+    platform,
+    supported: servicePath !== undefined,
+    dryRun: args.dryRun === true,
+    servicePath,
+    wroteFile,
+    removedFile: false,
+    activated,
+    commands: commandLines,
+    commandExitCode,
+    commandError,
+    content: args.dryRun ? content : undefined,
+    message:
+      servicePath === undefined
+        ? `AgentMemory service install is not supported on ${platform}`
+        : args.dryRun
+          ? "AgentMemory service file would be written and activated"
+          : activated
+            ? "AgentMemory service installed and activated"
+            : "AgentMemory service file installed but activation failed",
+  };
+}
+
+export function uninstallAgentMemoryService(
+  args: MemoryServiceUninstallOptions = {},
+): MemoryServiceResult {
+  const homeDir = args.homeDir ?? homedir();
+  const platform = args.platform ?? process.platform;
+  const servicePath = agentMemoryServicePath(homeDir, platform);
+  const commands =
+    servicePath === undefined
+      ? []
+      : serviceCommands({ action: "uninstall", platform, servicePath });
+  const commandLines = commands.map(formatServiceCommand);
+
+  let removedFile = false;
+  let activated = false;
+  let commandExitCode: number | null | undefined;
+  let commandError: string | undefined;
+
+  if (servicePath && !args.dryRun) {
+    const commandResult = runServiceCommands({
+      commands,
+      runner: args.runner ?? defaultServiceCommandRunner,
+    });
+    activated = commandResult.activated;
+    commandExitCode = commandResult.commandExitCode;
+    commandError = commandResult.commandError;
+
+    if (existsSync(servicePath)) {
+      rmSync(servicePath, { force: true });
+      removedFile = true;
+    }
+  }
+
+  return {
+    action: "uninstall",
+    platform,
+    supported: servicePath !== undefined,
+    dryRun: args.dryRun === true,
+    servicePath,
+    wroteFile: false,
+    removedFile,
+    activated,
+    commands: commandLines,
+    commandExitCode,
+    commandError,
+    message:
+      servicePath === undefined
+        ? `AgentMemory service uninstall is not supported on ${platform}`
+        : args.dryRun
+          ? "AgentMemory service would be disabled and removed"
+          : commandError
+            ? "AgentMemory service file removed but disable failed"
+            : "AgentMemory service disabled and removed",
+  };
+}
