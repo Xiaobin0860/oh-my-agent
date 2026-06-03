@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "8.31.0",
-  "releaseDate": "2026-06-03T15:45:39.228Z",
+  "releaseDate": "2026-06-03T15:48:09.017Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -146,8 +146,8 @@
     },
     {
       "path": ".agents/hooks/core/skill-injector.ts",
-      "sha256": "186b4b71f8aeb4b5fa76399a1b1dd8ec3bc2bcd45603bec58c2e384b9121bd1b",
-      "size": 17536
+      "sha256": "94c6c021fd5c936f7eade7d1b03b3ce0dbf50121a6e7d4e2e11977cdccc2c884",
+      "size": 18240
     },
     {
       "path": ".agents/hooks/core/state-boundary.ts",
