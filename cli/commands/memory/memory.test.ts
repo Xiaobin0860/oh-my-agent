@@ -460,7 +460,16 @@ describe("memory commands", () => {
 
   it("restarts the existing AgentMemory installation when upgrade fails", async () => {
     const fakeAgentMemory = join(projectDir, "fake-agentmemory");
-    writeFileSync(fakeAgentMemory, "#!/bin/sh\nsleep 2\n", "utf-8");
+    writeFileSync(
+      fakeAgentMemory,
+      `#!/bin/sh
+if [ "$1" = "stop" ]; then
+  exit 0
+fi
+sleep 0.5
+`,
+      "utf-8",
+    );
     chmodSync(fakeAgentMemory, 0o755);
     let upgradeCount = 0;
     const result = await upgradeAgentMemory({
