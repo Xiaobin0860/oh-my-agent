@@ -29,7 +29,6 @@ import {
 } from "./agy-input.ts";
 import { VENDORS } from "./constants.ts";
 import { resolveGitRoot } from "./fs-utils.ts";
-import { clearGrokContext } from "./grok-context.ts";
 import { makePromptOutput } from "./hook-output.ts";
 import type { ModeState, Vendor } from "./types.ts";
 
@@ -274,6 +273,9 @@ function inferVendorFromScriptPath(): Vendor | null {
   if (path.includes(`${join(".codex", "hooks")}`)) return "codex";
   if (path.includes(`${join(".grok", "hooks")}`)) return "grok";
   if (path.includes(`${join(".kiro", "hooks")}`)) return "kiro";
+  // pi auto-loads the bridge from `.pi/extensions/oma/`; the core scripts are
+  // copied alongside it and spawned as subprocesses from there.
+  if (path.includes(`${join(".pi", "extensions")}`)) return "pi";
   return null;
 }
 
@@ -780,8 +782,6 @@ async function main() {
   // Check for deactivation request before workflow detection
   if (isDeactivationRequest(prompt, lang)) {
     deactivateAllPersistentModes(projectDir, sessionId);
-    // Grok's resume context lives in a session-start file, not L1 stdout — clear it.
-    if (vendor === "grok") clearGrokContext(projectDir);
     process.exit(0);
   }
   const infoPatterns = buildInformationalPatterns(config, lang);
