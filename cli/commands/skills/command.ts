@@ -53,6 +53,10 @@ export function registerSkillsCommand(program: Command): void {
       .option(
         "--require-coverage",
         "Exit non-zero when task coverage is insufficient",
+      )
+      .option(
+        "--neg-transfer",
+        "Sample same-domain neighbor tasks to detect negative transfer (off by default)",
       ),
     "Output as JSON for CI/CD",
   ).action(
@@ -69,6 +73,7 @@ export function registerSkillsCommand(program: Command): void {
           taskDir?: string;
           maxTasks?: number;
           requireCoverage?: boolean;
+          negTransfer?: boolean;
         };
         await runSkillsEval(resolveJsonMode(opts), {
           skill: opts.skill,
@@ -79,6 +84,7 @@ export function registerSkillsCommand(program: Command): void {
           taskDir: opts.taskDir,
           maxTasks: opts.maxTasks,
           requireCoverage: opts.requireCoverage,
+          negTransfer: opts.negTransfer,
         });
       },
       { supportsJsonOutput: true },

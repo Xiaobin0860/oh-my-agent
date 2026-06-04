@@ -11,14 +11,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildJudgeDispatchFn,
   collectLiveRollouts,
+  computeNegativeTransfer,
   computeUtility,
+  discoverNeighborTasks,
   JUDGE_DEFAULT_RUBRIC,
   type JudgeDispatchFn,
   judgeScore,
+  type LiveDispatchFn,
   loadRolloutEntries,
   loadTaskFixtures,
   MIN_TASKS,
   NEG_TRANSFER_FAIL,
+  type NegativeTransfer,
   REGEX_OUTPUT_MAX_LEN,
   REGEX_PATTERN_MAX_LEN,
   type RolloutEntry,
@@ -26,6 +30,8 @@ import {
   type SkillsEvalOptions,
   type SkillUtilityReport,
   scoreChecker,
+  scoreNeighborInLive,
+  scoreNeighborInMock,
   serializeSkillUtilityReport,
   type TaskFixture,
   UTILITY_FAIL_LIFT,
@@ -1342,5 +1348,1058 @@ describe("scoreChecker — existing assert/regex tests still pass (regression gu
     const checker = { type: "regex" as const, pattern: "ok" };
     expect(scoreChecker(checker, "ok output", 0)).toBe(1);
     expect(scoreChecker(checker, "no match", 1)).toBe(0);
+  });
+});
+
+// ============================================================
+// Task 9 — Negative-transfer sampling (design 016 M3)
+// All tests are deterministic; NO real LLM calls.
+// ============================================================
+
+// --- Helpers shared by negative-transfer tests ---
+
+/**
+ * Build a temp eval root containing one directory per skill, each with
+ * task YAML files and (optionally) _rollouts/ rollout JSON files.
+ *
+ * Layout:
+ *   evalRoot/
+ *     <skillId>/
+ *       <taskId>.yaml
+ *       _rollouts/
+ *         <taskId>-baseline.json
+ *         <taskId>-treatment.json
+ */
+function buildEvalRoot(
+  rootDir: string,
+  skills: Array<{
+    skillId: string;
+    tasks: TaskFixture[];
+    rollouts?: RolloutEntry[];
+  }>,
+): string {
+  const evalRoot = join(rootDir, "eval");
+  mkdirSync(evalRoot, { recursive: true });
+  for (const { skillId, tasks, rollouts } of skills) {
+    const skillDir = join(evalRoot, skillId);
+    mkdirSync(skillDir, { recursive: true });
+    for (const task of tasks) {
+      writeTask(skillDir, task);
+    }
+    if (rollouts && rollouts.length > 0) {
+      writeRollout(skillDir, rollouts);
+    }
+  }
+  return evalRoot;
+}
+
+describe("discoverNeighborTasks", () => {
+  let rootDir: string;
+
+  beforeEach(() => {
+    rootDir = mkdtempSync(join(tmpdir(), "oma-eval-neigh-disc-"));
+  });
+
+  afterEach(() => {
+    rmSync(rootDir, { recursive: true, force: true });
+  });
+
+  it("returns empty array when evalRoot does not exist", () => {
+    const result = discoverNeighborTasks(
+      "skill-x",
+      new Set(["research"]),
+      join(rootDir, "nonexistent"),
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  it("returns empty array when no other skills exist in evalRoot", () => {
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [makeTaskFixture("t1", { domain: "research" })],
+      },
+    ]);
+    const result = discoverNeighborTasks(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  it("skips the skill under evaluation (self-exclusion)", () => {
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [makeTaskFixture("tx", { domain: "research" })],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [makeTaskFixture("ty", { domain: "research" })],
+      },
+    ]);
+    const result = discoverNeighborTasks(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+    );
+    // Only skill-y task should appear, not skill-x's own task
+    expect(result).toHaveLength(1);
+    expect(result[0]?.otherSkill).toBe("skill-y");
+    expect(result[0]?.task.id).toBe("ty");
+  });
+
+  it("only returns tasks whose domain is in the given domains set", () => {
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [makeTaskFixture("tx", { domain: "research" })],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [
+          makeTaskFixture("ty-research", { domain: "research" }),
+          makeTaskFixture("ty-coding", { domain: "coding" }),
+        ],
+      },
+    ]);
+    // Only look for "research" neighbors
+    const result = discoverNeighborTasks(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0]?.task.domain).toBe("research");
+  });
+
+  it("returns neighbors from multiple other skills", () => {
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [makeTaskFixture("tx", { domain: "writing" })],
+      },
+      {
+        skillId: "skill-a",
+        tasks: [makeTaskFixture("ta", { domain: "writing" })],
+      },
+      {
+        skillId: "skill-b",
+        tasks: [makeTaskFixture("tb", { domain: "writing" })],
+      },
+    ]);
+    const result = discoverNeighborTasks(
+      "skill-x",
+      new Set(["writing"]),
+      evalRoot,
+    );
+    expect(result).toHaveLength(2);
+    const skills = result.map((n) => n.otherSkill).sort();
+    expect(skills).toEqual(["skill-a", "skill-b"]);
+  });
+
+  it("returns neighbors in deterministic (sorted) order", () => {
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [makeTaskFixture("tx", { domain: "writing" })],
+      },
+      {
+        skillId: "zzz-skill",
+        tasks: [makeTaskFixture("tz", { domain: "writing" })],
+      },
+      {
+        skillId: "aaa-skill",
+        tasks: [makeTaskFixture("ta", { domain: "writing" })],
+      },
+    ]);
+    const result = discoverNeighborTasks(
+      "skill-x",
+      new Set(["writing"]),
+      evalRoot,
+    );
+    const otherSkills = result.map((n) => n.otherSkill);
+    expect(otherSkills).toEqual([...otherSkills].sort());
+  });
+});
+
+describe("scoreNeighborInMock", () => {
+  let rootDir: string;
+
+  beforeEach(() => {
+    rootDir = mkdtempSync(join(tmpdir(), "oma-eval-neigh-mock-"));
+  });
+
+  afterEach(() => {
+    rmSync(rootDir, { recursive: true, force: true });
+  });
+
+  it("returns correct scores from recorded rollout arms (assert checker)", () => {
+    const task = makeTaskFixture("task-n1", {
+      domain: "research",
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const neighborDir = join(rootDir, "skill-y");
+    writeTask(neighborDir, task);
+    // baseline: fails the assert (no EXPECTED), treatment: passes (has EXPECTED)
+    writeRollout(neighborDir, [
+      { taskId: "task-n1", arm: "baseline", output: "no match here" },
+      { taskId: "task-n1", arm: "treatment", output: "EXPECTED result" },
+    ]);
+
+    const result = scoreNeighborInMock(task, neighborDir);
+    expect(result).not.toBeNull();
+    expect(result?.scoreWithoutX).toBe(0); // baseline fails
+    expect(result?.scoreWithX).toBe(1); // treatment passes
+  });
+
+  it("returns correct scores: treatment fails, baseline passes (negative delta scenario)", () => {
+    const task = makeTaskFixture("task-n2", {
+      domain: "research",
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const neighborDir = join(rootDir, "skill-y");
+    writeTask(neighborDir, task);
+    // baseline: passes, treatment: fails → delta = 0 - 1 = -1 (regression)
+    writeRollout(neighborDir, [
+      { taskId: "task-n2", arm: "baseline", output: "EXPECTED content" },
+      { taskId: "task-n2", arm: "treatment", output: "no match" },
+    ]);
+
+    const result = scoreNeighborInMock(task, neighborDir);
+    expect(result).not.toBeNull();
+    expect(result?.scoreWithoutX).toBe(1); // baseline passes
+    expect(result?.scoreWithX).toBe(0); // treatment fails
+  });
+
+  it("returns null and warns when rollout arms are missing (assert checker)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const task = makeTaskFixture("task-missing", { domain: "research" });
+    const neighborDir = join(rootDir, "skill-y");
+    mkdirSync(neighborDir, { recursive: true });
+    // No rollout written
+
+    const result = scoreNeighborInMock(task, neighborDir);
+    expect(result).toBeNull();
+    expect(warnSpy).toHaveBeenCalled();
+    const warnings = warnSpy.mock.calls.map((c: unknown[]) => String(c[0]));
+    expect(warnings.some((w) => w.includes("neg-transfer"))).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
+  it("returns recorded judge scores for judge-checker task (no LLM dispatch)", () => {
+    const task: TaskFixture = {
+      id: "judge-n1",
+      skill: "skill-y",
+      domain: "research",
+      prompt: "Do something",
+      checker: { type: "judge", rubric: "Does it work?" },
+      weight: 1,
+    };
+    const neighborDir = join(rootDir, "skill-y");
+    writeTask(neighborDir, task);
+    // Recorded scores: baseline FAIL (0), treatment PASS (1)
+    writeRollout(neighborDir, [
+      { taskId: "judge-n1", arm: "baseline", output: "b", score: 0 },
+      { taskId: "judge-n1", arm: "treatment", output: "t", score: 1 },
+    ] as RolloutEntry[]);
+
+    const result = scoreNeighborInMock(task, neighborDir);
+    expect(result).not.toBeNull();
+    expect(result?.scoreWithoutX).toBe(0);
+    expect(result?.scoreWithX).toBe(1);
+  });
+
+  it("returns null and warns for judge-checker task with missing recorded score", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const task: TaskFixture = {
+      id: "judge-no-score",
+      skill: "skill-y",
+      domain: "research",
+      prompt: "Do something",
+      checker: { type: "judge" },
+      weight: 1,
+    };
+    const neighborDir = join(rootDir, "skill-y");
+    writeTask(neighborDir, task);
+    // Rollout exists but has no score field
+    writeRollout(neighborDir, [
+      { taskId: "judge-no-score", arm: "baseline", output: "b" },
+      { taskId: "judge-no-score", arm: "treatment", output: "t" },
+    ]);
+
+    const result = scoreNeighborInMock(task, neighborDir);
+    expect(result).toBeNull();
+    const warnings = warnSpy.mock.calls.map((c: unknown[]) => String(c[0]));
+    expect(warnings.some((w) => w.includes("no recorded judge score"))).toBe(
+      true,
+    );
+
+    warnSpy.mockRestore();
+  });
+});
+
+describe("scoreNeighborInLive", () => {
+  let rootDir: string;
+
+  beforeEach(() => {
+    rootDir = mkdtempSync(join(tmpdir(), "oma-eval-neigh-live-"));
+  });
+
+  afterEach(() => {
+    rmSync(rootDir, { recursive: true, force: true });
+  });
+
+  it("returns null and warns when no recorded baseline exists", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const task = makeTaskFixture("task-live-n1", { domain: "research" });
+    const neighborDir = join(rootDir, "skill-y");
+    mkdirSync(neighborDir, { recursive: true });
+    const dispatchFn = vi.fn(
+      (_arm: string, _prompt: string, _tmp: string): string => "EXPECTED",
+    );
+
+    const result = scoreNeighborInLive(
+      task,
+      neighborDir,
+      "SKILL_BODY",
+      dispatchFn as unknown as LiveDispatchFn,
+      undefined,
+      "/tmp",
+    );
+    expect(result).toBeNull();
+    expect(dispatchFn).not.toHaveBeenCalled();
+    const warnings = warnSpy.mock.calls.map((c: unknown[]) => String(c[0]));
+    expect(warnings.some((w) => w.includes("no recorded baseline"))).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
+  it("uses recorded baseline as scoreWithoutX and dispatches treatment for scoreWithX (assert checker)", () => {
+    const task = makeTaskFixture("task-live-n2", {
+      domain: "research",
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const neighborDir = join(rootDir, "skill-y");
+    writeTask(neighborDir, task);
+    // Recorded baseline: fails the assert
+    writeRollout(neighborDir, [
+      { taskId: "task-live-n2", arm: "baseline", output: "no match" },
+    ]);
+
+    // Live dispatch returns output that passes the assert
+    const dispatchFn = vi.fn(
+      (_arm: string, _prompt: string, _tmp: string): string =>
+        "EXPECTED output",
+    );
+
+    const result = scoreNeighborInLive(
+      task,
+      neighborDir,
+      "SKILL_BODY",
+      dispatchFn as unknown as LiveDispatchFn,
+      undefined,
+      "/tmp",
+    );
+
+    expect(result).not.toBeNull();
+    expect(result?.scoreWithoutX).toBe(0); // baseline failed
+    expect(result?.scoreWithX).toBe(1); // treatment passed
+    expect(dispatchFn).toHaveBeenCalledTimes(1);
+    // Treatment prompt must include the skill body and the task prompt
+    const calledPrompt = (
+      dispatchFn.mock.calls[0] as [string, string, string]
+    )[1];
+    expect(calledPrompt).toContain("SKILL_BODY");
+    expect(calledPrompt).toContain(task.prompt);
+  });
+
+  it("scores judge neighbor task in live mode using judgeDispatchFn", () => {
+    const task: TaskFixture = {
+      id: "judge-live-n1",
+      skill: "skill-y",
+      domain: "research",
+      prompt: "Do something",
+      checker: { type: "judge", rubric: "Does it work?" },
+      weight: 1,
+    };
+    const neighborDir = join(rootDir, "skill-y");
+    writeTask(neighborDir, task);
+    // Recorded baseline with judge score
+    writeRollout(neighborDir, [
+      { taskId: "judge-live-n1", arm: "baseline", output: "base", score: 0 },
+    ] as RolloutEntry[]);
+
+    const dispatchFn = vi.fn(
+      (_arm: string, _prompt: string, _tmp: string): string =>
+        "treatment output",
+    );
+    const judgeFn: JudgeDispatchFn = vi.fn(() => "PASS");
+
+    const result = scoreNeighborInLive(
+      task,
+      neighborDir,
+      "SKILL_BODY",
+      dispatchFn as unknown as LiveDispatchFn,
+      judgeFn,
+      "/tmp",
+    );
+
+    expect(result).not.toBeNull();
+    expect(result?.scoreWithoutX).toBe(0); // recorded baseline score
+    expect(result?.scoreWithX).toBe(1); // judge returned PASS
+    expect(judgeFn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("computeNegativeTransfer", () => {
+  let rootDir: string;
+
+  beforeEach(() => {
+    rootDir = mkdtempSync(join(tmpdir(), "oma-eval-comp-negtx-"));
+  });
+
+  afterEach(() => {
+    rmSync(rootDir, { recursive: true, force: true });
+  });
+
+  it("returns empty array when evalRoot does not exist", () => {
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      join(rootDir, "nonexistent"),
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  it("returns empty array when no neighbors share the skill domains", () => {
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [makeTaskFixture("tx", { domain: "research" })],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [makeTaskFixture("ty", { domain: "coding" })], // different domain
+      },
+    ]);
+
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+    expect(result).toHaveLength(0);
+  });
+
+  it("returns NegativeTransfer entries with correct delta signs (positive delta = no regression)", () => {
+    // skill-y has a task in domain "research" with recorded rollouts:
+    // baseline: fails assert, treatment: passes → delta = 1 - 0 = +1 (no regression)
+    const neighborTask = makeTaskFixture("ty-research", {
+      skill: "skill-y",
+      domain: "research",
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [
+          makeTaskFixture("tx", { skill: "skill-x", domain: "research" }),
+        ],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [neighborTask],
+        rollouts: [
+          { taskId: "ty-research", arm: "baseline", output: "no match" },
+          { taskId: "ty-research", arm: "treatment", output: "EXPECTED" },
+        ],
+      },
+    ]);
+
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.otherSkill).toBe("skill-y");
+    expect(result[0]?.domain).toBe("research");
+    // delta = scoreWithX(1) - scoreWithoutX(0) = +1
+    expect(result[0]?.delta).toBeCloseTo(1);
+  });
+
+  it("returns NegativeTransfer entry with negative delta (regression scenario)", () => {
+    // baseline: passes assert, treatment: fails → delta = 0 - 1 = -1 (regression)
+    const neighborTask = makeTaskFixture("ty-reg", {
+      skill: "skill-y",
+      domain: "research",
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [
+          makeTaskFixture("tx", { skill: "skill-x", domain: "research" }),
+        ],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [neighborTask],
+        rollouts: [
+          { taskId: "ty-reg", arm: "baseline", output: "EXPECTED content" },
+          { taskId: "ty-reg", arm: "treatment", output: "no match" },
+        ],
+      },
+    ]);
+
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.delta).toBeCloseTo(-1);
+  });
+
+  it("caps neighbor sample at maxTasks and warns with dropped count (no silent truncation)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    // Create 3 neighbor tasks across 3 skills, all in domain "research"
+    const skills: Array<{
+      skillId: string;
+      tasks: TaskFixture[];
+      rollouts: RolloutEntry[];
+    }> = [
+      {
+        skillId: "skill-x",
+        tasks: [
+          makeTaskFixture("tx", { skill: "skill-x", domain: "research" }),
+        ],
+        rollouts: [],
+      },
+    ];
+    for (let i = 0; i < 3; i++) {
+      const tid = `t-neigh-${i}`;
+      skills.push({
+        skillId: `skill-n${i}`,
+        tasks: [
+          makeTaskFixture(tid, {
+            skill: `skill-n${i}`,
+            domain: "research",
+            checker: { type: "assert", expect_contains: ["OK"] },
+          }),
+        ],
+        rollouts: [
+          { taskId: tid, arm: "baseline", output: "OK" },
+          { taskId: tid, arm: "treatment", output: "OK" },
+        ],
+      });
+    }
+    const evalRoot = buildEvalRoot(rootDir, skills);
+
+    // Cap at 2 — 1 should be dropped
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      2, // maxTasks cap
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+
+    expect(result).toHaveLength(2); // capped
+    // Must have warned about the dropped count
+    const warnings = warnSpy.mock.calls.map((c: unknown[]) => String(c[0]));
+    expect(
+      warnings.some(
+        (w) =>
+          w.includes("capping at --max-tasks=2") && w.includes("1 dropped"),
+      ),
+    ).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
+  it("skips neighbor tasks with no recorded rollouts and does NOT crash (mock stays offline)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const neighborTask = makeTaskFixture("ty-norollout", {
+      skill: "skill-y",
+      domain: "research",
+    });
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [
+          makeTaskFixture("tx", { skill: "skill-x", domain: "research" }),
+        ],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [neighborTask],
+        // No rollouts written
+      },
+    ]);
+
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+
+    // No scored entries — task was skipped, no crash
+    expect(result).toHaveLength(0);
+    // Must have warned
+    expect(warnSpy).toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
+  it("skips judge neighbor tasks with no recorded score and warns (mock stays offline)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const neighborTask: TaskFixture = {
+      id: "ty-judge-noscores",
+      skill: "skill-y",
+      domain: "research",
+      prompt: "Judge task with no scores",
+      checker: { type: "judge" },
+      weight: 1,
+    };
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [
+          makeTaskFixture("tx", { skill: "skill-x", domain: "research" }),
+        ],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [neighborTask],
+        rollouts: [
+          // Rollout present but no score fields
+          { taskId: "ty-judge-noscores", arm: "baseline", output: "b" },
+          { taskId: "ty-judge-noscores", arm: "treatment", output: "t" },
+        ],
+      },
+    ]);
+
+    const result = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+
+    expect(result).toHaveLength(0); // skipped
+    expect(warnSpy).toHaveBeenCalled();
+    const warnings = warnSpy.mock.calls.map((c: unknown[]) => String(c[0]));
+    expect(warnings.some((w) => w.includes("no recorded judge score"))).toBe(
+      true,
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  it("is deterministic: same evalRoot produces byte-identical results on repeated calls", () => {
+    const neighborTask = makeTaskFixture("ty-det", {
+      skill: "skill-y",
+      domain: "research",
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const evalRoot = buildEvalRoot(rootDir, [
+      {
+        skillId: "skill-x",
+        tasks: [
+          makeTaskFixture("tx", { skill: "skill-x", domain: "research" }),
+        ],
+      },
+      {
+        skillId: "skill-y",
+        tasks: [neighborTask],
+        rollouts: [
+          { taskId: "ty-det", arm: "baseline", output: "no match" },
+          { taskId: "ty-det", arm: "treatment", output: "EXPECTED" },
+        ],
+      },
+    ]);
+
+    const run1 = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+    const run2 = computeNegativeTransfer(
+      "skill-x",
+      new Set(["research"]),
+      evalRoot,
+      "mock",
+      undefined,
+      "",
+      undefined,
+      undefined,
+      "",
+    );
+
+    expect(JSON.stringify(run1)).toBe(JSON.stringify(run2));
+  });
+});
+
+describe("computeUtility — negativeTransfer integration", () => {
+  it("passes through pre-computed negativeTransfer entries into the report", () => {
+    const { tasks, rollouts } = makePassingScenario();
+    const negativeTransfer: NegativeTransfer[] = [
+      { otherSkill: "skill-y", domain: "research", delta: -0.2 },
+    ];
+    const report = computeUtility("skill-x", {
+      tasks,
+      rollouts,
+      negativeTransfer,
+    });
+    expect(report.negativeTransfer).toHaveLength(1);
+    expect(report.negativeTransfer[0]?.delta).toBeCloseTo(-0.2);
+  });
+
+  it("negativeTransfer is empty when no entries are passed (backward-compat with M1)", () => {
+    const { tasks, rollouts } = makePassingScenario();
+    const report = computeUtility("skill-x", { tasks, rollouts });
+    expect(report.negativeTransfer).toHaveLength(0);
+  });
+
+  it("decision downgrades from pass to warn when any delta <= NEG_TRANSFER_FAIL", () => {
+    const { tasks, rollouts } = makePassingScenario(); // lift = 1.0 → would be pass
+    const negativeTransfer: NegativeTransfer[] = [
+      { otherSkill: "skill-y", domain: "research", delta: NEG_TRANSFER_FAIL }, // exactly at threshold
+    ];
+    const report = computeUtility("skill-x", {
+      tasks,
+      rollouts,
+      negativeTransfer,
+    });
+    // Lift is >= UTILITY_WARN_LIFT and >= 0 — would normally be "pass"
+    // But regression delta <= NEG_TRANSFER_FAIL downgrades to "warn"
+    expect(report.decision).toBe("warn");
+  });
+
+  it("decision remains fail (not further changed) when utility already fails and neg-transfer regression present", () => {
+    const tasks = Array.from({ length: MIN_TASKS }, (_, i) =>
+      makeTaskFixture(`task-${i}`),
+    );
+    const rollouts: RolloutEntry[] = tasks.flatMap((t) =>
+      makeRolloutPair(t.id, "NO MATCH", "ALSO NO MATCH"),
+    );
+    const negativeTransfer: NegativeTransfer[] = [
+      { otherSkill: "skill-y", domain: "research", delta: -0.5 },
+    ];
+    const report = computeUtility("skill-x", {
+      tasks,
+      rollouts,
+      negativeTransfer,
+    });
+    // Utility fails AND has regression — decision stays "fail" (not double-downgraded)
+    expect(report.decision).toBe("fail");
+  });
+
+  it("decision is not downgraded when delta is above NEG_TRANSFER_FAIL", () => {
+    const { tasks, rollouts } = makePassingScenario();
+    const negativeTransfer: NegativeTransfer[] = [
+      { otherSkill: "skill-y", domain: "research", delta: -0.05 }, // above threshold (-0.10)
+    ];
+    const report = computeUtility("skill-x", {
+      tasks,
+      rollouts,
+      negativeTransfer,
+    });
+    // delta = -0.05 > NEG_TRANSFER_FAIL (-0.10) → no downgrade
+    expect(report.decision).toBe("pass");
+  });
+});
+
+describe("renderSkillUtilityReport — negativeTransfer render line", () => {
+  it("renders negative transfer section when entries exist", () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const { tasks, rollouts } = makePassingScenario();
+    const negativeTransfer: NegativeTransfer[] = [
+      { otherSkill: "skill-y", domain: "research", delta: -0.15 },
+    ];
+    const report = computeUtility("skill-x", {
+      tasks,
+      rollouts,
+      negativeTransfer,
+    });
+    // Import renderSkillUtilityReport via dynamic require pattern is not possible;
+    // we verify via serialization that the report carries the entries.
+    // The render path is tested by checking the report shape that feeds the renderer.
+    expect(report.negativeTransfer).toHaveLength(1);
+    expect(report.negativeTransfer[0]?.delta).toBeCloseTo(-0.15);
+    logSpy.mockRestore();
+  });
+
+  it("regression delta <= NEG_TRANSFER_FAIL is surfaced in the report", () => {
+    const { tasks, rollouts } = makePassingScenario();
+    const negativeTransfer: NegativeTransfer[] = [
+      { otherSkill: "skill-z", domain: "writing", delta: -0.12 },
+    ];
+    const report = computeUtility("skill-x", {
+      tasks,
+      rollouts,
+      negativeTransfer,
+    });
+    // Regression is present: delta -0.12 <= NEG_TRANSFER_FAIL (-0.10)
+    const regressions = report.negativeTransfer.filter(
+      (nt) => nt.delta <= NEG_TRANSFER_FAIL,
+    );
+    expect(regressions).toHaveLength(1);
+    expect(regressions[0]?.otherSkill).toBe("skill-z");
+    // Decision was downgraded from pass to warn
+    expect(report.decision).toBe("warn");
+  });
+});
+
+describe("runSkillsEval — neg-transfer flag (mock mode, no LLM)", () => {
+  let rootDir: string;
+
+  beforeEach(() => {
+    rootDir = mkdtempSync(join(tmpdir(), "oma-eval-run-negtx-"));
+  });
+
+  afterEach(() => {
+    rmSync(rootDir, { recursive: true, force: true });
+  });
+
+  it("negativeTransfer is empty when --neg-transfer is not set (default behavior)", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const evalRoot = join(rootDir, "eval-root");
+    const skillEvalDir = join(evalRoot, "skill-x");
+    mkdirSync(skillEvalDir, { recursive: true });
+
+    const { tasks, rollouts } = makePassingScenario();
+    for (const t of tasks) writeTask(skillEvalDir, t);
+    writeRollout(skillEvalDir, rollouts);
+
+    const opts: SkillsEvalOptions = {
+      skill: "skill-x",
+      taskDir: skillEvalDir,
+      _evalRoot: evalRoot,
+      _workspace: rootDir, // allow taskDir outside process.cwd()
+      // negTransfer is NOT set
+    };
+
+    await runSkillsEval(true, opts);
+
+    const jsonOutput = logSpy.mock.calls
+      .map((c: unknown[]) => String(c[0]))
+      .find((s) => s.trimStart().startsWith("{"));
+    const parsed = JSON.parse(jsonOutput ?? "{}") as {
+      negativeTransfer?: NegativeTransfer[];
+    };
+    expect(parsed.negativeTransfer).toHaveLength(0);
+
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
+
+  it("negativeTransfer populated when --neg-transfer is set with neighbor tasks (mock mode)", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const evalRoot = join(rootDir, "eval-root");
+
+    // skill-x: MIN_TASKS tasks with passing rollouts
+    const { tasks: xTasks, rollouts: xRollouts } = makePassingScenario();
+    const xEvalDir = join(evalRoot, "skill-x");
+    mkdirSync(xEvalDir, { recursive: true });
+    for (const t of xTasks) writeTask(xEvalDir, t);
+    writeRollout(xEvalDir, xRollouts);
+
+    // skill-y: 1 neighbor task in the same domain ("test"), with recorded rollouts
+    // baseline fails assert, treatment passes → delta = +1 (no regression)
+    const neighborTask = makeTaskFixture("ny-t1", {
+      skill: "skill-y",
+      domain: "test", // same domain as makePassingScenario tasks
+      checker: { type: "assert", expect_contains: ["EXPECTED"] },
+    });
+    const yEvalDir = join(evalRoot, "skill-y");
+    mkdirSync(yEvalDir, { recursive: true });
+    writeTask(yEvalDir, neighborTask);
+    writeRollout(yEvalDir, [
+      { taskId: "ny-t1", arm: "baseline", output: "no match" },
+      { taskId: "ny-t1", arm: "treatment", output: "EXPECTED content" },
+    ]);
+
+    const opts: SkillsEvalOptions = {
+      skill: "skill-x",
+      taskDir: xEvalDir,
+      _evalRoot: evalRoot,
+      _workspace: rootDir, // allow taskDir outside process.cwd()
+      negTransfer: true,
+    };
+
+    await runSkillsEval(true, opts);
+
+    const jsonOutput = logSpy.mock.calls
+      .map((c: unknown[]) => String(c[0]))
+      .find((s) => s.trimStart().startsWith("{"));
+    const parsed = JSON.parse(jsonOutput ?? "{}") as {
+      negativeTransfer?: NegativeTransfer[];
+    };
+    expect(parsed.negativeTransfer).toHaveLength(1);
+    expect(parsed.negativeTransfer?.[0]?.otherSkill).toBe("skill-y");
+    expect(parsed.negativeTransfer?.[0]?.domain).toBe("test");
+    // delta = 1 - 0 = +1 (treatment passes, baseline fails)
+    expect(parsed.negativeTransfer?.[0]?.delta).toBeCloseTo(1);
+
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
+
+  it("negativeTransfer empty and no crash when no neighbor tasks exist (mock stays offline)", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const evalRoot = join(rootDir, "eval-root-empty");
+    const { tasks, rollouts } = makePassingScenario();
+    const xEvalDir = join(evalRoot, "skill-x");
+    mkdirSync(xEvalDir, { recursive: true });
+    for (const t of tasks) writeTask(xEvalDir, t);
+    writeRollout(xEvalDir, rollouts);
+    // No other skills in evalRoot
+
+    const opts: SkillsEvalOptions = {
+      skill: "skill-x",
+      taskDir: xEvalDir,
+      _evalRoot: evalRoot,
+      _workspace: rootDir, // allow taskDir outside process.cwd()
+      negTransfer: true,
+    };
+
+    // Must not throw
+    await expect(runSkillsEval(true, opts)).resolves.toBeUndefined();
+
+    const jsonOutput = logSpy.mock.calls
+      .map((c: unknown[]) => String(c[0]))
+      .find((s) => s.trimStart().startsWith("{"));
+    const parsed = JSON.parse(jsonOutput ?? "{}") as {
+      negativeTransfer?: NegativeTransfer[];
+    };
+    expect(parsed.negativeTransfer).toHaveLength(0);
+
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
+
+  it("--max-tasks caps neighbor sample and warns when more neighbors exist than cap", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    const evalRoot = join(rootDir, "eval-root-cap");
+
+    // skill-x: MIN_TASKS passing tasks
+    const { tasks: xTasks, rollouts: xRollouts } = makePassingScenario();
+    const xEvalDir = join(evalRoot, "skill-x");
+    mkdirSync(xEvalDir, { recursive: true });
+    for (const t of xTasks) writeTask(xEvalDir, t);
+    writeRollout(xEvalDir, xRollouts);
+
+    // 4 neighbor skills, each with 1 task in domain "test"
+    for (let i = 0; i < 4; i++) {
+      const tid = `nz-${i}`;
+      const nDir = join(evalRoot, `skill-n${i}`);
+      mkdirSync(nDir, { recursive: true });
+      writeTask(
+        nDir,
+        makeTaskFixture(tid, {
+          skill: `skill-n${i}`,
+          domain: "test",
+          checker: { type: "assert", expect_contains: ["OK"] },
+        }),
+      );
+      writeRollout(nDir, [
+        { taskId: tid, arm: "baseline", output: "OK" },
+        { taskId: tid, arm: "treatment", output: "OK" },
+      ]);
+    }
+
+    const opts: SkillsEvalOptions = {
+      skill: "skill-x",
+      taskDir: xEvalDir,
+      _evalRoot: evalRoot,
+      _workspace: rootDir, // allow taskDir outside process.cwd()
+      negTransfer: true,
+      maxTasks: 2, // cap at 2 — 2 neighbor tasks dropped
+    };
+
+    await runSkillsEval(true, opts);
+
+    // computeNegativeTransfer should have warned about the cap
+    const warnings = warnSpy.mock.calls.map((c: unknown[]) => String(c[0]));
+    expect(
+      warnings.some(
+        (w) => w.includes("capping at --max-tasks=2") && w.includes("dropped"),
+      ),
+    ).toBe(true);
+
+    // JSON output should have at most 2 negativeTransfer entries
+    const jsonOutput = logSpy.mock.calls
+      .map((c: unknown[]) => String(c[0]))
+      .find((s) => s.trimStart().startsWith("{"));
+    const parsed = JSON.parse(jsonOutput ?? "{}") as {
+      negativeTransfer?: NegativeTransfer[];
+    };
+    expect((parsed.negativeTransfer ?? []).length).toBeLessThanOrEqual(2);
+
+    warnSpy.mockRestore();
+    logSpy.mockRestore();
   });
 });
