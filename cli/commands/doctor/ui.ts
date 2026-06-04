@@ -232,6 +232,19 @@ function renderDualInstall(report: DoctorReport): void {
   p.note(lines.join("\n"), "Install Presence");
 }
 
+function evalCoverageLine(report: DoctorReport): string {
+  const { skillsWithEval, totalSkills } = report.skillEval;
+  if (totalSkills === 0) return "";
+  if (skillsWithEval === 0) {
+    return pc.dim(
+      `eval coverage: 0/${totalSkills} skills have eval fixtures — run: oma skills eval`,
+    );
+  }
+  return pc.dim(
+    `eval coverage: ${skillsWithEval}/${totalSkills} skills have eval fixtures (oma skills eval)`,
+  );
+}
+
 function skillScalingLines(report: DoctorReport): string[] {
   const audit = report.skillAudit;
   const lines: string[] = [];
@@ -265,6 +278,7 @@ function renderSkillBoundaries(report: DoctorReport): void {
   const audit = report.skillAudit;
   if (audit.skillCount < 2) return;
   const scalingLines = skillScalingLines(report);
+  const coverageLine = evalCoverageLine(report);
   if (audit.findings.length === 0) {
     const worst = audit.worstPair;
     const worstLine = worst
@@ -278,6 +292,7 @@ function renderSkillBoundaries(report: DoctorReport): void {
             ...scalingLines,
           ]
         : [`${pc.green("✅")} No skill description collisions${worstLine}`];
+    if (coverageLine) body.push(coverageLine);
     p.note(body.join("\n"), "Skill Boundaries");
     return;
   }
@@ -295,6 +310,7 @@ function renderSkillBoundaries(report: DoctorReport): void {
         "Rewrite frontmatter `description:` to differentiate triggers, domains, or boundaries.",
       ),
       pc.dim("Run: oma skills audit --json"),
+      ...(coverageLine ? [coverageLine] : []),
     ].join("\n"),
     "Skill Boundaries",
   );
