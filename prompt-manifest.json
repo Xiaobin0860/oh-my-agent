@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "8.36.0",
-  "releaseDate": "2026-06-04T06:31:12.610Z",
+  "releaseDate": "2026-06-04T06:57:04.451Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -131,8 +131,8 @@
     },
     {
       "path": ".agents/hooks/core/hud.ts",
-      "sha256": "e4c86a3beed9eeef9476c7329dc647891be6d7ce80d9570ca1664f207b5099d9",
-      "size": 13344
+      "sha256": "79e2887a6c6488814353717f64d3fa8ed4e6c499fde87f9779d1320cf0eca559",
+      "size": 13747
     },
     {
       "path": ".agents/hooks/core/inject-log.ts",
@@ -221,8 +221,8 @@
     },
     {
       "path": ".agents/hooks/variants/hook-variant.schema.json",
-      "sha256": "1440a67fc94e779e6ccafe1a94da78a0e09c7d0d1d5b5814afdb1ca3f2837936",
-      "size": 4095
+      "sha256": "6aa1ec708fe6fa456666b6e74278f5ea30d19a0be7084dca9e6cec9d5879e739",
+      "size": 4389
     },
     {
       "path": ".agents/hooks/variants/kiro.json",
@@ -241,8 +241,8 @@
     },
     {
       "path": ".agents/hooks/variants/qwen.json",
-      "sha256": "4ae0b7145f4c554a482187546f7ac57c3a63fd579c2b3e2c747bb743b20bf58d",
-      "size": 650
+      "sha256": "32386120663e157472eec8debc99af3187b614d5d061b672189e5c1e1591bea8",
+      "size": 719
     },
     {
       "path": ".agents/mcp.json",
