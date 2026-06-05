@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "8.41.0",
-  "releaseDate": "2026-06-05T01:28:37.108Z",
+  "releaseDate": "2026-06-05T04:16:57.226Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1671,8 +1671,8 @@
     },
     {
       "path": ".agents/skills/oma-slide/resources/assets/viewport-base.css",
-      "sha256": "dfc41c953a9726beac65535cfd3cc37761042c0f11873d4726e9acfd6ea8c3f5",
-      "size": 8775
+      "sha256": "13c079761a9be43c3ab176d95e3c347fb657aad075121f6d43a20240be0eac6f",
+      "size": 9019
     },
     {
       "path": ".agents/skills/oma-slide/resources/canva-integration.md",
@@ -1791,8 +1791,8 @@
     },
     {
       "path": ".agents/skills/oma-video/resources/playwright/record.mjs",
-      "sha256": "d70560b0d28acd4149073bb94a60554cb62d8638e1b65fc1343064e7280bb200",
-      "size": 17681
+      "sha256": "86fd50c93aa7f08648fe606751204e296e6bd05a5e5e71356ffbc3ac1029ed51",
+      "size": 17728
     },
     {
       "path": ".agents/skills/oma-video/resources/prompt-tips.md",
