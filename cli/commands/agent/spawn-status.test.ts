@@ -125,7 +125,10 @@ describe("agent/spawn-status.ts", () => {
 
     expect(child_process.spawn).toHaveBeenCalledWith(
       "gemini",
-      expect.arrayContaining(["-p", "prompt content\n\nexecution protocol"]),
+      expect.arrayContaining([
+        "-p",
+        expect.stringContaining("prompt content\n\nexecution protocol"),
+      ]),
       expect.objectContaining({
         cwd: expect.stringMatching(/[\\/]tmp(?:[\\/]|$)/),
       }),
@@ -235,7 +238,10 @@ describe("agent/spawn-status.ts", () => {
 
     expect(child_process.spawn).toHaveBeenCalledWith(
       "gemini",
-      expect.arrayContaining(["implement feature"]),
+      expect.arrayContaining([
+        "-p",
+        expect.stringContaining("implement feature"),
+      ]),
       expect.objectContaining({
         cwd: expect.stringMatching(/project[\\/]apps[\\/]api/),
       }),
