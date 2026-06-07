@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "8.43.0",
-  "releaseDate": "2026-06-07T04:22:15.297Z",
+  "releaseDate": "2026-06-07T10:32:08.060Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -131,8 +131,8 @@
     },
     {
       "path": ".agents/hooks/core/agentmemory-client.ts",
-      "sha256": "216e4ff6eafcd029008c2d8e899329c4245a9616566d6fc6cd67bcf92bac1db3",
-      "size": 5086
+      "sha256": "170b409033fa96141cd3ccb5dfe037b5484c79df0c3602caf6cecf5f27bdd4a9",
+      "size": 7585
     },
     {
       "path": ".agents/hooks/core/agy-input.ts",
@@ -191,8 +191,8 @@
     },
     {
       "path": ".agents/hooks/core/state-boundary.ts",
-      "sha256": "b6edbfa6c553a746af8bca86a4620631ecfe28c52f84ea8644d01effa6e0400c",
-      "size": 7583
+      "sha256": "91ea831f68888abbfc05230c381bc31f256f9643786b4333391120385aa73b4e",
+      "size": 9800
     },
     {
       "path": ".agents/hooks/core/state-emit.ts",
