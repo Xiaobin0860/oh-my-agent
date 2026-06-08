@@ -405,22 +405,22 @@ export async function install(options: InstallOptions = {}): Promise<void> {
     }[] = [
       {
         value: "claude",
-        label: "Claude Code only",
+        label: "Claude Code",
         hint: "Claude Max subscription holders",
       },
       {
         value: "codex",
-        label: "Codex CLI only",
+        label: "Codex",
         hint: "ChatGPT Plus/Pro subscription holders",
       },
       {
-        value: "gemini",
-        label: "Gemini CLI only",
-        hint: "Google AI Pro subscription holders",
+        value: "cursor",
+        label: "Cursor Agent",
+        hint: "Cursor editor with built-in agent",
       },
       {
         value: "qwen",
-        label: "Qwen Code only",
+        label: "Qwen Code",
         hint: "Qwen Code subscription holders",
       },
       {
@@ -455,6 +455,114 @@ export async function install(options: InstallOptions = {}): Promise<void> {
       p.cancel("Cancelled.");
       process.exit(0);
     }
+
+    // CLI tools selection — placed immediately after preset so the preset
+    // can seed the initial vendor selection.
+    // Auto-exclude HOME-write vendors on Windows / CI where symlink and
+    // HOME semantics are unreliable.
+    const allowHomeWriteVendors =
+      process.platform !== "win32" && !process.env.CI;
+
+    const vendorOptions: {
+      value: CliVendor | ExtensionVendor;
+      label: string;
+      hint: string;
+    }[] = [
+      {
+        value: "claude",
+        label: "Claude Code",
+        hint: "hooks + settings + CLAUDE.md",
+      },
+      { value: "codex", label: "Codex", hint: "hooks + plugin" },
+      {
+        value: "commandcode",
+        label: "Command Code",
+        hint: "hooks + skills + .commandcode/agents/",
+      },
+      {
+        value: "copilot",
+        label: "GitHub Copilot",
+        hint: "skill symlinks + .github/prompts/ wrappers",
+      },
+      {
+        value: "cursor",
+        label: "Cursor",
+        hint: ".cursor/rules/ export + prompt hooks",
+      },
+      {
+        value: "grok",
+        label: "Grok",
+        hint: "hooks + project MCP + .grok/agents/",
+      },
+      {
+        value: "kiro",
+        label: "Kiro CLI",
+        hint: "hooks + Serena MCP + .kiro/agents/",
+      },
+      {
+        value: "pi",
+        label: "pi (Earendil)",
+        hint: "in-process extension bridge — .pi/extensions/oma/",
+      },
+      ...(allowHomeWriteVendors
+        ? [
+            {
+              value: "antigravity" as const,
+              label: "Antigravity CLI (agy)",
+              hint: "hooks + HUD + Serena MCP — HOME-shared (~/.gemini/antigravity-cli/)",
+            },
+            {
+              value: "hermes" as const,
+              label: "Hermes Agent",
+              hint: "skills only — workflows N/A, HOME-shared (no per-project isolation)",
+            },
+          ]
+        : []),
+      { value: "qwen", label: "Qwen Code", hint: "hooks + settings" },
+    ];
+
+    // Infer default vendor selection from the chosen preset. Single-vendor
+    // presets pre-select only that vendor; mixed falls back to the full
+    // default list (all non-opt-in, non-home-consent, non-extension vendors).
+    const PRESET_TO_VENDOR: Partial<Record<string, CliVendor>> = {
+      claude: "claude",
+      codex: "codex",
+      cursor: "cursor",
+      qwen: "qwen",
+      antigravity: "antigravity",
+    };
+    const fullDefaultVendors = vendorOptions
+      .filter((opt) => {
+        if (isExtensionVendor(opt.value)) return false;
+        const spec = (CLI_SKILLS_DIR as Record<string, SkillTargetSpec>)[
+          opt.value
+        ];
+        if (spec?.optIn) return false;
+        if (spec?.requiresHomeConsent && !allowHomeWriteVendors) return false;
+        return true;
+      })
+      .map((v) => v.value);
+    const presetVendor = PRESET_TO_VENDOR[modelPreset as string];
+    const defaultVendorValues =
+      presetVendor && vendorOptions.some((o) => o.value === presetVendor)
+        ? [presetVendor]
+        : fullDefaultVendors;
+
+    const selectedVendors = nonInteractive
+      ? defaultVendorValues
+      : await p.multiselect({
+          message: "CLI tools to configure:",
+          options: vendorOptions,
+          initialValues: defaultVendorValues,
+          required: true,
+        });
+
+    if (p.isCancel(selectedVendors)) {
+      p.cancel("Cancelled.");
+      process.exit(0);
+    }
+
+    const vendors = selectedVendors as CliVendor[];
 
     const projectType = nonInteractive
       ? "all"
@@ -568,93 +676,6 @@ export async function install(options: InstallOptions = {}): Promise<void> {
       }
     }
 
-    // CLI tools selection — default All for project-base vendors,
-    // opt-in only for HOME-base vendors (e.g., hermes).
-    // Auto-exclude HOME-write vendors on Windows / CI where symlink and
-    // HOME semantics are unreliable.
-    const allowHomeWriteVendors =
-      process.platform !== "win32" && !process.env.CI;
-
-    const vendorOptions: {
-      value: CliVendor | ExtensionVendor;
-      label: string;
-      hint: string;
-    }[] = [
-      {
-        value: "claude",
-        label: "Claude Code",
-        hint: "hooks + settings + CLAUDE.md",
-      },
-      { value: "codex", label: "Codex CLI", hint: "hooks + plugin" },
-      {
-        value: "copilot",
-        label: "GitHub Copilot",
-        hint: "skill symlinks + .github/prompts/ wrappers",
-      },
-      {
-        value: "cursor",
-        label: "Cursor",
-        hint: ".cursor/rules/ export + prompt hooks",
-      },
-      {
-        value: "grok",
-        label: "Grok",
-        hint: "hooks + project MCP + .grok/agents/",
-      },
-      {
-        value: "kiro",
-        label: "Kiro CLI",
-        hint: "hooks + Serena MCP + .kiro/agents/",
-      },
-      {
-        value: "pi",
-        label: "pi (Earendil)",
-        hint: "in-process extension bridge — .pi/extensions/oma/",
-      },
-      ...(allowHomeWriteVendors
-        ? [
-            {
-              value: "antigravity" as const,
-              label: "Antigravity CLI (agy)",
-              hint: "hooks + HUD + Serena MCP — HOME-shared (~/.gemini/antigravity-cli/)",
-            },
-            {
-              value: "hermes" as const,
-              label: "Hermes Agent",
-              hint: "skills only — workflows N/A, HOME-shared (no per-project isolation)",
-            },
-          ]
-        : []),
-      { value: "qwen", label: "Qwen Code", hint: "hooks + settings" },
-    ];
-
-    const defaultVendorValues = vendorOptions
-      .filter((opt) => {
-        // Extension-model vendors (pi) are opt-in — shown but unchecked.
-        if (isExtensionVendor(opt.value)) return false;
-        const spec = (CLI_SKILLS_DIR as Record<string, SkillTargetSpec>)[
-          opt.value
-        ];
-        return !spec?.requiresHomeConsent;
-      })
-      .map((v) => v.value);
-
-    const selectedVendors = nonInteractive
-      ? defaultVendorValues
-      : await p.multiselect({
-          message: "CLI tools to configure:",
-          options: vendorOptions,
-          // HOME-write vendors (hermes) are opt-in only — default off.
-          initialValues: defaultVendorValues,
-          required: true,
-        });
-
-    if (p.isCancel(selectedVendors)) {
-      p.cancel("Cancelled.");
-      process.exit(0);
-    }
-
-    const vendors = selectedVendors as CliVendor[];
 
     // Build selectedClis from CLI_SKILLS_DIR (data-driven). Vendors with
     // requiresHomeConsent require explicit consent; other vendors are added directly.
