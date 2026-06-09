@@ -533,9 +533,29 @@ const QUESTION_PATTERNS: RegExp[] = [
   /^.*\bcompare\b/i,
 ];
 
+/**
+ * Content-agnostic interrogative test. A first line that BOTH leads with an
+ * interrogative word AND ends with '?' is a question *about* something, not a
+ * command — regardless of the topic. This generalises to any subject
+ * (including workflow names) without enumerating topic words, unlike
+ * QUESTION_PATTERNS which match specific phrasings.
+ */
+// The '?' terminator is the strong gate, so the interrogative word can be a
+// loose contains — suppressing a question that merely contains a workflow name
+// is exactly the desired behaviour.
+const INTERROGATIVE_WORD =
+  /(?:왜|어째서|어떻게|무슨|무엇|뭐|뭔|뭣|어디|언제|누가|누구|어느|\bwhy\b|\bwhats?\b|\bhow\b|\bwhen\b|\bwhere\b|\bwhich\b|\bwhose\b)/i;
+
+function isInterrogativeSentence(line: string): boolean {
+  return /\?\s*$/.test(line) && INTERROGATIVE_WORD.test(line);
+}
+
 export function isAnalyticalQuestion(prompt: string): boolean {
   const firstLine = (prompt.split("\n")[0] ?? "").trim();
-  return QUESTION_PATTERNS.some((p) => p.test(firstLine));
+  return (
+    isInterrogativeSentence(firstLine) ||
+    QUESTION_PATTERNS.some((p) => p.test(firstLine))
+  );
 }
 
 export function stripCodeBlocks(text: string): string {
@@ -822,7 +842,17 @@ export async function run(
       const match = pattern.exec(cleaned);
       if (!match) continue;
       if (isInformationalContext(cleaned, match.index, infoPatterns)) continue;
-      if (isPastedContent(match.index, def.persistent, cleaned.length))
+      // Position guard must reflect the user's ACTUAL prompt, not the
+      // content-stripped text. stripCodeBlocks/stripSystemEchoes remove quoted
+      // and code spans, which shrinks the text and pulls keywords toward the
+      // front — defeating the "deep in a long prompt = not an instruction"
+      // heuristic (a keyword genuinely at char 245 of a discussion can appear
+      // at char 179 after stripping, slipping under PERSISTENT_MATCH_LIMIT).
+      // Re-locate the matched keyword in the original prompt for the check.
+      const origPrompt = normalizeForMatching(prompt);
+      const origIndex = origPrompt.indexOf(match[0]);
+      const posIndex = origIndex >= 0 ? origIndex : match.index;
+      if (isPastedContent(posIndex, def.persistent, origPrompt.length))
         continue;
       if (isReinforcementSuppressed(kwState, workflow)) continue;
 

@@ -17,6 +17,7 @@ const {
   buildRawPatterns,
   isInformationalContext,
   isAnalyticalQuestion,
+  isPastedContent,
   stripCodeBlocks,
   stripSystemEchoes,
   startsWithSlashCommand,
@@ -697,6 +698,101 @@ describe("keyword-detector", () => {
               POST_FIX_KO_INFORMATIONAL,
             ),
           ).toBe(false);
+        }
+      }
+    });
+  });
+
+  describe("meta-discussion false-positive regression (ultrawork/ralph)", () => {
+    // Live incident: a multi-turn discussion ABOUT the ultrawork/ralph
+    // workflows repeatedly activated those persistent workflows. Root cause:
+    // a workflow-name keyword is matched as a bare substring, with no
+    // distinction between "run ultrawork" and "why is ultrawork designed
+    // this way". Two ROOT-CAUSE fixes (no per-incident word lists):
+    //   RC1 — grammatical interrogative detection (isAnalyticalQuestion):
+    //         a first line that leads with an interrogative AND ends with '?'
+    //         is a question about a topic, not a command.
+    //   RC2 — the position guard (isPastedContent) is computed on the
+    //         ORIGINAL prompt, not the content-stripped text, which
+    //         stripCodeBlocks shrinks (pulling deep keywords under the limit).
+
+    // RC1 — grammatical interrogative: questions naming a workflow are
+    // suppressed regardless of topic words.
+    const questionDiscussions = [
+      "그리고 max_iterations = 5 (ralph 안전장치). 이걸 왜 지멋대로 설계하는거지?",
+      "왜 ralph 가 자꾸 트리거되는거야?",
+      "ralph랑 ultrawork 차이가 뭐야?",
+      "why is ultrawork triggering here?",
+      "what's wrong with the ralph workflow?",
+    ];
+    for (const prompt of questionDiscussions) {
+      it(`RC1 suppresses interrogative discussion: ${prompt.slice(0, 26)}…`, () => {
+        expect(isAnalyticalQuestion(prompt), prompt).toBe(true);
+      });
+    }
+
+    it("RC1 does NOT fire on commands that merely contain '?' mid-prompt", () => {
+      // A leading question followed by a real command must still activate:
+      // the first line does not END with '?'.
+      expect(
+        isAnalyticalQuestion("왜 안 고쳐져? ultrawork로 끝까지 고쳐줘"),
+      ).toBe(false);
+    });
+
+    it("RC2 suppresses a long declarative discussion via ORIGINAL position", () => {
+      // Faithful long meta-discussion: the keyword sits genuinely deep
+      // (>200 chars) in the user's prompt, but quoted/code spans before it
+      // get stripped, shrinking the text and pulling the keyword forward.
+      const longDiscussion =
+        '핵심부터: **prose로 쓰인 워크플로우는 본질적으로 "권고"라 에이전트가 ' +
+        "합리화로 우회할 수 있습니다.** 그래서 방어는 ① 행동 규칙으로 우회를 " +
+        '"막고", ② 기계적/검증가능 장치로 우회를 "탐지·차단"하는 두 축으로 ' +
+        '가야 합니다.\n## 1. 가장 강력 — "이탈 전 강제 질문" 룰\n이번 실패의 ' +
+        '본질은 *"환경이 불안정하다 → 내가 워크플로우를 축약한다"* 였습니다. ' +
+        "이걸 봉쇄하는 룰을 `CLAUDE.md` 또는 ralph/ultrawork 문서 최상단에 명시.";
+
+      const origIdx = normalizeForMatching(longDiscussion).indexOf("ralph");
+      const cleanedIdx = normalizeForMatching(
+        stripSystemEchoes(stripCodeBlocks(longDiscussion)),
+      ).indexOf("ralph");
+
+      // The bug: stripping pulls the keyword forward, past the 200 limit.
+      expect(origIdx).toBeGreaterThan(200);
+      expect(cleanedIdx).toBeLessThan(origIdx);
+      expect(cleanedIdx).toBeLessThan(200); // would have leaked pre-fix
+
+      // Post-fix run() evaluates the ORIGINAL position → suppressed.
+      const orig = normalizeForMatching(longDiscussion);
+      expect(isPastedContent(origIdx, true, orig.length)).toBe(true);
+      // Pre-fix behaviour (cleaned index) would NOT have suppressed it.
+      expect(isPastedContent(cleanedIdx, true, cleanedIdx + 50)).toBe(false);
+    });
+
+    it("still allows genuine persistent-workflow requests", () => {
+      // Real run requests put the workflow keyword near the START (command
+      // position) and are not interrogative — neither RC1 nor RC2 fires.
+      const genuine = [
+        "랄프로 끝까지 해줘",
+        "ralph this task",
+        "ultrawork로 로그인 기능 구현해줘",
+        "ulw 이 버그 끝까지 고쳐줘",
+        "왜 안 고쳐져? ultrawork로 끝까지 고쳐줘",
+        "정리해서 ultrawork로 리팩토링 해줘",
+        "ralph 돌려서 테스트 다 통과시켜",
+        "ultrawork 시작",
+        "이거 ralph로 끝까지 해줘",
+      ];
+      for (const prompt of genuine) {
+        expect(isAnalyticalQuestion(prompt), prompt).toBe(false);
+        const orig = normalizeForMatching(prompt);
+        for (const kw of ["ultrawork", "ralph", "ulw", "랄프"]) {
+          const idx = orig.indexOf(kw);
+          if (idx >= 0) {
+            expect(
+              isPastedContent(idx, true, orig.length),
+              `${prompt} :: ${kw}`,
+            ).toBe(false);
+          }
         }
       }
     });
