@@ -1986,8 +1986,8 @@
     },
     {
       "path": ".agents/workflows/ralph.md",
-      "sha256": "03804e60f15f195e2dca983061376735eb8e8fd9ab8ef8b1e86bcd70ac8e2547",
-      "size": 17802
+      "sha256": "eefba6d3b708f971782fc8e998f7fb637dc8f534353831db274ff1d142f0a07e",
+      "size": 18757
     },
     {
       "path": ".agents/workflows/recap.md",

@@ -107,7 +107,16 @@ Delegate to the ultrawork workflow:
 
 **Prose instructions ("run ultrawork in full") are advisory and can be rationalized away. This gate verifies the work mechanically — by its artifacts, not by your own narration.** Ultrawork's 5 phases each leave a durable trace; a single-agent shortcut cannot produce them without actually doing the work.
 
-Check, using memory read / file existence tools, that the just-completed iteration produced ALL of the following. Resolve `{memBase}` from `memoryConfig.basePath` (default `.serena/memories`):
+Run the deterministic verifier from the repo root:
+
+```bash
+oma ralph:verify --json --session {sessionId} --newer-than {iteration_start_iso}
+```
+
+- `--session` scopes the plan artifact to this iteration's session id; `--newer-than` (this iteration's EXEC start time, ISO-8601) excludes stale artifacts from earlier iterations. Omit either when unknown.
+- The command checks the artifact table below, prints a structured result (`ok`, `checks`, `missing`, `remediation`), and exits non-zero on failure. On failure it also appends a `gate.failed` L1 event automatically.
+- **The JSON verdict IS the gate result.** Do NOT substitute your own narration for it, and do NOT proceed on a non-zero exit.
+- **Manual fallback** (only when the `oma` CLI is unavailable): check, using memory read / file existence tools, that the just-completed iteration produced ALL of the artifacts below. Resolve `{memBase}` from `memoryConfig.basePath` (default `.serena/memories`).
 
 | # | Artifact | Proves phase ran |
 |---|----------|------------------|
@@ -118,8 +127,8 @@ Check, using memory read / file existence tools, that the just-completed iterati
 
 **Decision:**
 
-- **All present** → ultrawork ran in full. Proceed to Step 1.4.
-- **A3 or A4 missing** → treat EXEC as **NOT performed** (the iteration was abridged to implementation-only, regardless of what the EXEC narration claims). Do NOT advance to JUDGE as if work completed. Instead:
+- **`ok: true` (exit 0)** → ultrawork ran in full. Proceed to Step 1.4.
+- **`ok: false` (exit 1, `missing` non-empty)** → treat EXEC as **NOT performed** (the iteration was abridged to implementation-only, regardless of what the EXEC narration claims). Do NOT advance to JUDGE as if work completed. Instead:
   1. Record the violation in `session-ralph-{sessionId}.md`: `exec-circumvention detected at iteration {N}: missing {artifact}`.
   2. Emit the audit event:
      ```bash
@@ -127,7 +136,7 @@ Check, using memory read / file existence tools, that the just-completed iterati
      ```
   3. STOP and report to the user that ultrawork was not executed in full, citing the missing artifact. Ask whether to re-run the iteration in full or to explicitly authorize a reduced-scope run. Do NOT silently retry with the same abridged approach.
 
-> **REFINE skip exception**: ultrawork permits skipping REFINE for trivial tasks (< 50 lines, see ultrawork `REFINE_GATE` skip conditions). If REFINE was legitimately skipped, A4 may be absent — but `session-ultrawork.md` MUST record the documented skip reason. "No A4 and no recorded skip reason" is a circumvention, not a skip.
+> **REFINE skip exception**: ultrawork permits skipping REFINE for trivial tasks (< 50 lines, see ultrawork `REFINE_GATE` skip conditions). If REFINE was legitimately skipped, A4 may be absent — but `session-ultrawork.md` MUST record the documented skip reason. "No A4 and no recorded skip reason" is a circumvention, not a skip. `oma ralph:verify` implements this rule: a recorded skip reason reports A4 as `skip-recorded` (passing), an unrecorded absence reports `missing` (failing).
 
 ### Step 1.4: Record EXEC Completion
 
