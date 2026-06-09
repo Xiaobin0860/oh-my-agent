@@ -33,6 +33,7 @@ The detected vendor determines how ultrawork spawns agents internally.
 1. Read `.agents/skills/_shared/core/context-loading.md` for resource loading strategy.
 2. Read `.agents/skills/_shared/runtime/memory-protocol.md` for memory protocol.
 3. Read `.agents/workflows/ralph/resources/judge-protocol.md` for JUDGE rules.
+4. Read `.agents/skills/_shared/runtime/event-spec.md` for the L1 event protocol and the `oma_emit` helper (used by the EXEC checkpoint in Step 1.2).
 
 ### Step 0.2: Define Completion Criteria
 
@@ -82,14 +83,48 @@ Compose the ultrawork input based on current iteration:
 
 ### Step 1.2: Execute Ultrawork
 
+**EXEC-entry checkpoint (MANDATORY — emit before delegating).** This records, in the auditable L1 event log, that this iteration delegates to the full ultrawork workflow. A run without this event is a non-compliant run.
+
+```bash
+oma_emit "decision.made" '{"subject":"ralph.exec-delegated","decision":"Delegate this iteration to the full ultrawork 5-phase workflow.","rationale":"Ralph EXEC must run ultrawork in full; abridging, substituting, or skipping phases for cost/stability/time reasons is forbidden without explicit user approval."}'
+oma state:verify --workflow ralph --checkpoint exec-delegated
+```
+
 Delegate to the ultrawork workflow:
 
 1. Read and follow `.agents/workflows/ultrawork.md` step by step.
 2. Pass the prepared input as the task description.
 3. Ultrawork handles all vendor-specific agent spawning internally.
 4. Wait for ultrawork to complete all 5 phases (PLAN, IMPL, VERIFY, REFINE, SHIP).
+5. **Do NOT abridge ultrawork.** If you believe the environment (subagent instability, cost, time) warrants reducing fan-out or collapsing phases, STOP and ask the user first. Single-judgment substitution of ultrawork's structure is forbidden — see the Anti-Circumvention gate in Step 1.3.
 
-### Step 1.3: Record EXEC Completion
+### Step 1.3: Verify EXEC Artifacts (Anti-Circumvention Gate)
+
+**Prose instructions ("run ultrawork in full") are advisory and can be rationalized away. This gate verifies the work mechanically — by its artifacts, not by your own narration.** Ultrawork's 5 phases each leave a durable trace; a single-agent shortcut cannot produce them without actually doing the work.
+
+Check, using memory read / file existence tools, that the just-completed iteration produced ALL of the following. Resolve `{memBase}` from `memoryConfig.basePath` (default `.serena/memories`):
+
+| # | Artifact | Proves phase ran |
+|---|----------|------------------|
+| A1 | `{memBase}/session-ultrawork.md` with this iteration's phase-completion records | PLAN + gate progression |
+| A2 | `.agents/results/plan-{sessionId}.json` | PLAN produced a real task breakdown |
+| A3 | `{memBase}/result-qa-agent*.md` (VERIFY) | **a distinct QA agent ran** — absent if IMPL was the only spawn |
+| A4 | `{memBase}/result-debug-agent*.md` (REFINE) | **a distinct Debug agent ran** — same |
+
+**Decision:**
+
+- **All present** → ultrawork ran in full. Proceed to Step 1.4.
+- **A3 or A4 missing** → treat EXEC as **NOT performed** (the iteration was abridged to implementation-only, regardless of what the EXEC narration claims). Do NOT advance to JUDGE as if work completed. Instead:
+  1. Record the violation in `session-ralph.md`: `exec-circumvention detected at iteration {N}: missing {artifact}`.
+  2. Emit the audit event:
+     ```bash
+     oma_emit "decision.made" '{"subject":"ralph.exec-circumvention","decision":"EXEC artifacts incomplete — ultrawork did not run in full.","rationale":"Required VERIFY/REFINE agent result files are absent; the iteration was abridged."}'
+     ```
+  3. STOP and report to the user that ultrawork was not executed in full, citing the missing artifact. Ask whether to re-run the iteration in full or to explicitly authorize a reduced-scope run. Do NOT silently retry with the same abridged approach.
+
+> **REFINE skip exception**: ultrawork permits skipping REFINE for trivial tasks (< 50 lines, see ultrawork `REFINE_GATE` skip conditions). If REFINE was legitimately skipped, A4 may be absent — but `session-ultrawork.md` MUST record the documented skip reason. "No A4 and no recorded skip reason" is a circumvention, not a skip.
+
+### Step 1.4: Record EXEC Completion
 
 1. Increment `current_iteration`
 2. Use memory edit tool to record iteration start in `session-ralph.md`

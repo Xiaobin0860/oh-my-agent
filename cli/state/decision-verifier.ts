@@ -39,6 +39,15 @@ export const REQUIRED_DECISIONS: RequiredDecisionTable = {
       },
     ],
   },
+  ralph: {
+    "exec-delegated": [
+      {
+        subject: "ralph.exec-delegated",
+        description:
+          "EXEC iteration delegated to the full ultrawork 5-phase workflow before any agent is spawned; abridging or substituting ultrawork without user approval is forbidden.",
+      },
+    ],
+  },
   orchestrate: {
     "fanout-strategy": [
       {
