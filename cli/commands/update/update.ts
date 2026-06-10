@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import {
   cpSync,
   existsSync,
@@ -580,9 +580,11 @@ export async function update(options: UpdateOptions = {}): Promise<void> {
         // serena MCP still works on the previously installed version.
         if (loadSerenaConfig(cwd).autoUpdate) {
           try {
-            execSync("uv tool upgrade serena-agent --prerelease=allow", {
-              stdio: "ignore",
-            });
+            execFileSync(
+              "uv",
+              ["tool", "upgrade", "serena-agent", "--prerelease=allow"],
+              { stdio: "ignore" },
+            );
             ui.note(
               "Upgraded serena-agent to the latest prerelease.",
               "Serena",
@@ -702,9 +704,11 @@ export async function update(options: UpdateOptions = {}): Promise<void> {
 
           if (!p.isCancel(shouldStar) && shouldStar) {
             try {
-              execSync(`gh api -X PUT /user/starred/${REPO}`, {
-                stdio: "ignore",
-              });
+              execFileSync(
+                "gh",
+                ["api", "-X", "PUT", `/user/starred/${REPO}`],
+                { stdio: "ignore" },
+              );
               p.log.success(`Starred ${pc.cyan(REPO)}! Thank you! 🌟`);
             } catch {
               p.log.warn(

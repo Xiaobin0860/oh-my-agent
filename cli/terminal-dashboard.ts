@@ -371,13 +371,13 @@ export async function startTerminalDashboard(): Promise<void> {
   watcher.on("all", () => renderDashboard(memoriesDir));
 
   return new Promise((resolve) => {
-    process.on("SIGINT", () => {
+    process.once("SIGINT", () => {
       console.log("\n");
       watcher.close();
       resolve();
       process.exit(0);
     });
 
-    process.on("SIGTERM", () => process.emit("SIGINT"));
+    process.once("SIGTERM", () => process.emit("SIGINT"));
   });
 }

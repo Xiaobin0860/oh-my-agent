@@ -3,7 +3,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import http, { type IncomingMessage } from "node:http";
 import https from "node:https";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 const DEFAULT_MCP_URL = "http://localhost:12341/mcp";
 const STARTUP_CHECK_INTERVAL_MS = 1000;
@@ -60,7 +60,16 @@ export function validateSerenaConfigs(): void {
       line.replace(/^\s*-\s*/, "").trim(),
     );
 
-    for (const projectPath of projects) {
+    for (const rawProjectPath of projects) {
+      const projectPath = resolve(rawProjectPath);
+
+      if (!existsSync(projectPath)) {
+        console.error(
+          `[Bridge] Skipping non-existent project path: ${projectPath}`,
+        );
+        continue;
+      }
+
       const projectConfigPath = join(projectPath, ".serena", "project.yml");
 
       if (!existsSync(projectConfigPath)) {
@@ -95,6 +104,11 @@ export async function bridge(mcpUrlArg?: string) {
   const MCP_URL = mcpUrlArg || DEFAULT_MCP_URL;
 
   const url = new URL(MCP_URL);
+  if (!url.hostname) {
+    throw new Error(
+      "MCP URL must include a non-empty hostname (e.g. http://localhost:12341/mcp)",
+    );
+  }
   const isHttps = url.protocol === "https:";
   const httpModule = isHttps ? https : http;
 
@@ -138,7 +152,12 @@ export async function bridge(mcpUrlArg?: string) {
 
   async function startServer(): Promise<void> {
     const port = url.port || "12341";
-    const host = url.hostname || "0.0.0.0";
+    const host = url.hostname;
+    if (!host) {
+      throw new Error(
+        "MCP URL must include a non-empty hostname (e.g. http://localhost:12341/mcp)",
+      );
+    }
 
     console.error(`Starting Serena server on ${host}:${port}...`);
 

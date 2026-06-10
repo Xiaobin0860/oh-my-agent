@@ -149,6 +149,7 @@ export function collectState(projectDir = process.cwd()): StateView {
   if (existsSync(root)) {
     for (const entry of readdirSync(root, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
+      if (!isValidSid(entry.name)) continue;
       sessions.push(loadSessionMeta(projectDir, entry.name));
     }
   }
@@ -288,6 +289,20 @@ export function renderInjectLogView(view: InjectLogView): string {
   return lines.join("\n");
 }
 
+/**
+ * Validate that a session directory name is safe to use as a path component.
+ * Accepts the formats actually used by oma (e.g. "oma-main", "sid-1").
+ * Rejects anything containing ".." or characters outside [A-Za-z0-9._-].
+ */
+export function isValidSid(name: string): boolean {
+  return (
+    name.length > 0 &&
+    name.length <= 128 &&
+    !name.includes("..") &&
+    /^[A-Za-z0-9._-]+$/.test(name)
+  );
+}
+
 export function parseOlderThan(value: string): number {
   const match = value.trim().match(/^(\d+)([dhm]?)$/i);
   if (!match) {
@@ -389,7 +404,7 @@ export function repairStateSessions(
   const root = sessionsDir(projectDir);
   const sessionIds = existsSync(root)
     ? readdirSync(root, { withFileTypes: true })
-        .filter((entry) => entry.isDirectory())
+        .filter((entry) => entry.isDirectory() && isValidSid(entry.name))
         .map((entry) => entry.name)
     : [];
 

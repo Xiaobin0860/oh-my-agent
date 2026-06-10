@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import {
   type Dirent,
   existsSync,
@@ -41,7 +41,9 @@ import {
   getInstalledWorkflowNames,
   getVendorDisplayPath,
   INSTALLED_SKILLS_DIR,
+  installAgents,
   installConfigs,
+  installHooks,
   installRules,
   installShared,
   installSkill,
@@ -731,6 +733,8 @@ export async function install(options: InstallOptions = {}): Promise<void> {
         }
 
         installShared(repoDir, installRoot);
+        installHooks(repoDir, installRoot);
+        installAgents(repoDir, installRoot);
         installWorkflows(repoDir, installRoot);
         installRules(repoDir, installRoot);
         installConfigs(repoDir, installRoot, false);
@@ -935,7 +939,7 @@ export async function install(options: InstallOptions = {}): Promise<void> {
 
         if (!p.isCancel(shouldStar) && shouldStar) {
           try {
-            execSync(`gh api -X PUT /user/starred/${REPO}`, {
+            execFileSync("gh", ["api", "-X", "PUT", `/user/starred/${REPO}`], {
               stdio: "ignore",
             });
             p.log.success(`Starred ${pc.cyan(REPO)}! Thank you! 🌟`);
