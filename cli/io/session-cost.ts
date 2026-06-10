@@ -17,6 +17,7 @@
 import fs, { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
+import { findFileUpwards } from "../utils/fs-utils.js";
 import {
   createMarkdownRecordStore,
   MEMORIES_BASE,
@@ -93,17 +94,6 @@ type RawConfigFile = {
   session?: RawSessionConfig;
 };
 
-function findFileUp(startDir: string, relativePath: string): string | null {
-  let current = path.resolve(startDir);
-  const root = path.parse(current).root;
-  while (current !== root) {
-    const candidate = path.join(current, relativePath);
-    if (fs.existsSync(candidate)) return candidate;
-    current = path.dirname(current);
-  }
-  return null;
-}
-
 function loadRawConfig(filePath: string): RawConfigFile {
   try {
     const content = fs.readFileSync(filePath, "utf-8");
@@ -138,8 +128,8 @@ function normalizeQuotaCap(raw: RawQuotaCap): QuotaCap {
  */
 export function loadQuotaCap(cwd: string = process.cwd()): QuotaCap | null {
   const candidates = [
-    findFileUp(cwd, path.join(".agents", "oma-config.yaml")),
-    findFileUp(cwd, path.join(".agents", "config", "defaults.yaml")),
+    findFileUpwards(cwd, path.join(".agents", "oma-config.yaml")),
+    findFileUpwards(cwd, path.join(".agents", "config", "defaults.yaml")),
   ];
 
   for (const candidate of candidates) {

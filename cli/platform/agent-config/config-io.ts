@@ -75,20 +75,9 @@ function parseCliConfig(content: string, filePath?: string): CliConfig {
   };
 }
 
-export function findConfigFileUp(
-  startDir: string,
-  relativePath: string,
-): string | null {
-  let current = path.resolve(startDir);
-  const root = path.parse(current).root;
+import { findFileUpwards } from "../../utils/fs-utils.js";
 
-  while (current !== root) {
-    const configPath = path.join(current, relativePath);
-    if (fs.existsSync(configPath)) return configPath;
-    current = path.dirname(current);
-  }
-  return null;
-}
+export const findConfigFileUp = findFileUpwards;
 
 export function readCliConfig(cwd: string): CliConfig | null {
   const configPath = findConfigFileUp(
