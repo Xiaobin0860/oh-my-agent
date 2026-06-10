@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import color from "picocolors";
-import { findChromeExecutable } from "../search/strategies/browser.js";
+import { findChromeExecutable } from "../../io/chrome.js";
 import { FRAME_H_PX, FRAME_W_PX } from "./validate/constants.js";
 import { pxToPt } from "./validate/geometry.js";
 import { loadPuppeteer } from "./validate/puppeteer.js";

@@ -59,9 +59,7 @@ export async function loadPuppeteer(): Promise<PuppeteerModule | null> {
 
 export async function findChrome(): Promise<string | null> {
   try {
-    const { findChromeExecutable } = await import(
-      "../../../search/strategies/browser.js"
-    );
+    const { findChromeExecutable } = await import("../../../../io/chrome.js");
     return findChromeExecutable();
   } catch {
     return null;
