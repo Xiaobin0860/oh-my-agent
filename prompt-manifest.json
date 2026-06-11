@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "8.52.9",
-  "releaseDate": "2026-06-11T11:04:30.518Z",
+  "releaseDate": "2026-06-11T22:41:48.751Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1520,6 +1520,26 @@
       "size": 2332
     },
     {
+      "path": ".agents/skills/oma-refactor/SKILL.md",
+      "sha256": "c16c9e0a91d57d50aedd1762f5a7291aeb58c7ba1621d13ba18ca0a5dce192f1",
+      "size": 12173
+    },
+    {
+      "path": ".agents/skills/oma-refactor/resources/definition.md",
+      "sha256": "ee27f3fd9aca053e3a55d0f48d5c866b5d0fda440690e837be9f0e9d499dba35",
+      "size": 10547
+    },
+    {
+      "path": ".agents/skills/oma-refactor/resources/governance.md",
+      "sha256": "59e27deab21af04dbd82deb7c38f01ae13e72e21bcf34b345e477af852876435",
+      "size": 4478
+    },
+    {
+      "path": ".agents/skills/oma-refactor/resources/measurement.md",
+      "sha256": "064af36e85aeba339ef7b291c0e7a82a8b1b805bd450176e170be06dfed4beb9",
+      "size": 4375
+    },
+    {
       "path": ".agents/skills/oma-scholar/SKILL.md",
       "sha256": "ec8322f012e2a889ae375668833c9f28e31914d62d755cb0eff3345bd53f0f9f",
       "size": 13544
@@ -2024,8 +2044,8 @@
     "algorithm": "sha256"
   },
   "metadata": {
-    "skillCount": 31,
+    "skillCount": 32,
     "workflowCount": 22,
-    "totalFiles": 403
+    "totalFiles": 407
   }
 }
