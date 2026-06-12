@@ -18,6 +18,7 @@ import * as skills from "../../platform/skills-installer.js";
 import { runMigrations } from "../migrations/index.js";
 import {
   classifyUpdateTarget,
+  collectAgentRequiredSkills,
   resolveUpdateVendors,
   selectSkillsToPrune,
 } from "../update/update.js";
@@ -72,6 +73,36 @@ describe("whitelist-based skill filtering", () => {
   });
 });
 
+describe("collectAgentRequiredSkills", () => {
+  it("collects skills from agent frontmatter and dedupes", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "oma-update-agents-"));
+    const agentsDir = join(cwd, ".agents", "agents");
+    mkdirSync(agentsDir, { recursive: true });
+    writeFileSync(
+      join(agentsDir, "refactor-engineer.md"),
+      "---\nname: refactor-engineer\nskills:\n  - oma-refactor\n---\nbody\n",
+    );
+    writeFileSync(
+      join(agentsDir, "research-explorer.md"),
+      "---\nname: research-explorer\nskills:\n  - oma-search\n  - oma-refactor\n---\nbody\n",
+    );
+    writeFileSync(
+      join(agentsDir, "no-skills.md"),
+      "---\nname: bare\n---\nbody\n",
+    );
+
+    expect(collectAgentRequiredSkills(cwd)).toEqual([
+      "oma-refactor",
+      "oma-search",
+    ]);
+  });
+
+  it("returns empty when the agents dir is missing", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "oma-update-noagents-"));
+    expect(collectAgentRequiredSkills(cwd)).toEqual([]);
+  });
+});
+
 describe("selectSkillsToPrune (preserve skill selection on update)", () => {
   const before = ["oma-backend", "oma-frontend"];
   // After the bulk copy the project contains every skill the release ships.
@@ -104,6 +135,21 @@ describe("selectSkillsToPrune (preserve skill selection on update)", () => {
     for (const kept of before) {
       expect(pruned).not.toContain(kept);
     }
+  });
+
+  it("never prunes a new skill that a shipped agent requires", () => {
+    const pruned = selectSkillsToPrune(before, after, false, ["oma-market"]);
+    expect(pruned).not.toContain("oma-market");
+    expect(pruned).toEqual(["oma-video", "oma-voice"]);
+  });
+
+  it("agent-required skills do not resurrect unrelated pruning", () => {
+    // required set only protects; everything else behaves as before
+    const pruned = selectSkillsToPrune(before, after, false, [
+      "oma-backend", // already installed — no-op
+      "oma-nonexistent", // not shipped — no-op
+    ]);
+    expect(pruned).toEqual(["oma-market", "oma-video", "oma-voice"]);
   });
 
   it("ignores non-skill directories (e.g. _version.json, .DS_Store)", () => {

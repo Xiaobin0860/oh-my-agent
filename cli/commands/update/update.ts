@@ -60,6 +60,7 @@ import {
 import { maybePromptGitHubStar } from "./update/github-star.js";
 import {
   classifyUpdateTarget,
+  collectAgentRequiredSkills,
   selectSkillsToPrune,
 } from "./update/install-state.js";
 import { noteArtifactDiff, noteNewSkills } from "./update/notes.js";
@@ -70,6 +71,7 @@ import { resolveUpdateVendors, toCliTools } from "./update/vendors.js";
 export { resolveAutoUpdateCli } from "./update/auto-update-config.js";
 export {
   classifyUpdateTarget,
+  collectAgentRequiredSkills,
   selectSkillsToPrune,
 } from "./update/install-state.js";
 export type { UpdateOptions } from "./update/types.js";
@@ -244,6 +246,7 @@ export async function update(options: UpdateOptions = {}): Promise<void> {
           beforeArtifacts.skills,
           getInstalledSkillNames(cwd),
           withNewSkills,
+          collectAgentRequiredSkills(cwd),
         );
         const newSkillNotes = prunedSkills.map((name) => ({
           name,

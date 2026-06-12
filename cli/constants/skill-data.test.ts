@@ -71,4 +71,24 @@ describe("skill registry drift guard", () => {
       `READMEs missing a skill row:\n${failures.join("\n")}`,
     ).toEqual([]);
   });
+
+  it("every agent's skills frontmatter references an existing skill", () => {
+    const agentsDir = join(repoRoot, ".agents", "agents");
+    const failures: string[] = [];
+    for (const f of readdirSync(agentsDir).filter((n) => n.endsWith(".md"))) {
+      const content = readFileSync(join(agentsDir, f), "utf-8");
+      const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+      if (!fmMatch?.[1]) continue;
+      const refs = [...fmMatch[1].matchAll(/^ {2}- (oma-[\w-]+)$/gm)].map(
+        (m) => m[1],
+      );
+      for (const ref of refs) {
+        if (!dirs.includes(ref ?? "")) failures.push(`${f}: ${ref}`);
+      }
+    }
+    expect(
+      failures,
+      `Agents referencing missing skills (dangling agents):\n${failures.join("\n")}`,
+    ).toEqual([]);
+  });
 });
