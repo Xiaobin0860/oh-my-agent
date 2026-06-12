@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "9.0.2",
-  "releaseDate": "2026-06-12T03:04:03.671Z",
+  "releaseDate": "2026-06-12T13:44:29.511Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -196,8 +196,8 @@
     },
     {
       "path": ".agents/hooks/core/triggers.json",
-      "sha256": "1b745c59afefff3cb0166d22c8e2370244fef2a4433535a29dc3344b194af08a",
-      "size": 83477
+      "sha256": "5f2d42a50612d08a754cc179e414846649fb5bdb7ea6c949114756b0212f63ac",
+      "size": 84684
     },
     {
       "path": ".agents/hooks/core/types.ts",
@@ -1531,8 +1531,8 @@
     },
     {
       "path": ".agents/skills/oma-refactor/SKILL.md",
-      "sha256": "c16c9e0a91d57d50aedd1762f5a7291aeb58c7ba1621d13ba18ca0a5dce192f1",
-      "size": 12173
+      "sha256": "f8a2024b1fefdca1326b9db7d8279c865d8c21786f11369cb73b875d963f10aa",
+      "size": 12266
     },
     {
       "path": ".agents/skills/oma-refactor/resources/definition.md",
@@ -1546,8 +1546,8 @@
     },
     {
       "path": ".agents/skills/oma-refactor/resources/measurement.md",
-      "sha256": "064af36e85aeba339ef7b291c0e7a82a8b1b805bd450176e170be06dfed4beb9",
-      "size": 4375
+      "sha256": "8567897e8ba2efc31602f03e747ca05815fbb92c1c118882f748f98ee2f78c90",
+      "size": 4457
     },
     {
       "path": ".agents/skills/oma-scholar/SKILL.md",
