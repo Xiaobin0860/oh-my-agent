@@ -57,6 +57,7 @@ import {
   captureBackendStackBeforeCopy,
   restoreBackendStackAfterCopy,
 } from "./update/backend-stack.js";
+import { appendMissingConfigKeys } from "./update/config-merge.js";
 import { maybePromptGitHubStar } from "./update/github-star.js";
 import {
   classifyUpdateTarget,
@@ -235,6 +236,30 @@ export async function update(options: UpdateOptions = {}): Promise<void> {
             postCopyMigrations.map((m) => `${pc.green("✓")} ${m}`).join("\n"),
             "Migration",
           );
+        }
+
+        // Append template config keys the user's file is missing. User-set
+        // keys are preserved verbatim; only new keys from the shipped
+        // template are added (with template defaults).
+        if (savedUserPrefs) {
+          const templateConfigPath = join(
+            repoDir,
+            ".agents",
+            "oma-config.yaml",
+          );
+          if (existsSync(templateConfigPath)) {
+            const merged = appendMissingConfigKeys(
+              readFileSync(userPrefsPath, "utf-8"),
+              readFileSync(templateConfigPath, "utf-8"),
+            );
+            if (merged.addedKeys.length > 0) {
+              writeFileSync(userPrefsPath, merged.content);
+              ui.note(
+                merged.addedKeys.map((k) => `${pc.green("+")} ${k}`).join("\n"),
+                "oma-config.yaml — new keys added",
+              );
+            }
+          }
         }
 
         // Preserve the user's skill selection. The bulk copy above drops in
