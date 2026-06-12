@@ -58,7 +58,7 @@ const AgentsMapSchema = z
     db: AgentSpecSchema.optional(),
     debug: AgentSpecSchema.optional(),
     "tf-infra": AgentSpecSchema.optional(),
-    retrieval: AgentSpecSchema.optional(),
+    explore: AgentSpecSchema.optional(),
   })
   .strict();
 

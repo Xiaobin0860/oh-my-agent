@@ -22,6 +22,7 @@ import { migrateRenamePresetKeys } from "./010-rename-preset-keys.js";
 import { migrateUnifyWorkflowSkills } from "./011-unify-workflow-skills.js";
 import { migrateVersionInstallMode } from "./012-version-install-mode.js";
 import { migrateWorkflowDirectSymlinks } from "./013-workflow-direct-symlinks.js";
+import { migrateRenameAgentExplore } from "./014-rename-agent-explore.js";
 
 const migrations: Migration[] = [
   migrateToAgents,
@@ -37,6 +38,7 @@ const migrations: Migration[] = [
   migrateUnifyWorkflowSkills,
   migrateVersionInstallMode,
   migrateWorkflowDirectSymlinks,
+  migrateRenameAgentExplore,
 ];
 
 export function runMigrations(cwd: string): string[] {

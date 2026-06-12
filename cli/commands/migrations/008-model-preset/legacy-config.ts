@@ -7,7 +7,6 @@ import type {
   AgentSpec,
   BuiltInPresetKey,
 } from "../../../platform/agent-config.js";
-import { lookupAgentEntry } from "../../../platform/agent-config.js";
 import { BUILT_IN_PRESETS } from "../../../platform/built-in-presets.js";
 
 // ---------------------------------------------------------------------------
@@ -75,6 +74,32 @@ export function modelSlugToPresetKey(slug: string): BuiltInPresetKey | null {
 // Bundled defaults comparison — detect user customizations
 // ---------------------------------------------------------------------------
 
+/**
+ * Migration-local knowledge: agent ids renamed after the legacy era.
+ * Runtime code knows only canonical ids; legacy spellings live here.
+ */
+export const LEGACY_AGENT_ID_RENAMES: Record<string, AgentId> = {
+  retrieval: "explore",
+};
+
+/** Canonicalize a legacy agent id (e.g. "retrieval" -> "explore"). */
+export function canonLegacyAgentId(raw: string): AgentId {
+  return LEGACY_AGENT_ID_RENAMES[raw] ?? (raw as AgentId);
+}
+
+/** Look up a per-agent record tolerating legacy key spellings. */
+function legacyAgentEntry<T>(
+  map: Record<string, T> | undefined,
+  agentId: AgentId,
+): T | undefined {
+  if (!map) return undefined;
+  if (map[agentId] !== undefined) return map[agentId];
+  for (const [legacy, canonical] of Object.entries(LEGACY_AGENT_ID_RENAMES)) {
+    if (canonical === agentId && map[legacy] !== undefined) return map[legacy];
+  }
+  return undefined;
+}
+
 /** Canonical agent IDs in deterministic order */
 export const ALL_AGENT_IDS: AgentId[] = [
   "orchestrator",
@@ -109,7 +134,7 @@ export function isDefaultsCustomized(
     if (!userProfile) continue; // Not customized if missing
 
     for (const agentId of ALL_AGENT_IDS) {
-      const userEntry = lookupAgentEntry(userProfile.agent_defaults, agentId);
+      const userEntry = legacyAgentEntry(userProfile.agent_defaults, agentId);
       const builtInEntry = builtIn.agent_defaults[agentId];
       if (!userEntry || !builtInEntry) continue;
 
@@ -129,7 +154,7 @@ export function isDefaultsCustomized(
   const topLevel = userDefaults.agent_defaults ?? {};
   const baseline = BUILT_IN_PRESETS.mixed.agent_defaults;
   for (const agentId of ALL_AGENT_IDS) {
-    const userEntry = lookupAgentEntry(topLevel, agentId);
+    const userEntry = legacyAgentEntry(topLevel, agentId);
     const builtInEntry = baseline[agentId];
     if (!userEntry || !builtInEntry) continue;
     if (

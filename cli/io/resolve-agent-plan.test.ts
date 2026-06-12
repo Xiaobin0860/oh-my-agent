@@ -124,21 +124,6 @@ describe("resolveAgentPlanFromConfig — Case 2: thinking flag from override", (
     expect(plan.thinking).toBe(true);
     expect(plan.cliModel).toBe("gemini-3-flash");
   });
-
-  it("legacy `retrieval` config key and agent id resolve via the explore alias", () => {
-    const config = {
-      ...GEMINI_ONLY_CONFIG,
-      agents: {
-        retrieval: {
-          model: "google/gemini-3-flash",
-          thinking: true as const,
-        },
-      },
-    } as unknown as Parameters<typeof resolveAgentPlanFromConfig>[1];
-    const plan = resolveAgentPlanFromConfig("retrieval", config);
-    expect(plan.cli).toBe("gemini");
-    expect(plan.thinking).toBe(true);
-  });
 });
 
 // ---------------------------------------------------------------------------

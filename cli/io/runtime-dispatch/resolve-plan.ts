@@ -2,7 +2,6 @@ import {
   type AgentId,
   type AgentSpec,
   type BuiltInPresetKey,
-  lookupAgentEntry,
   type ModelPreset,
   normalizeAgentId,
   type OmaConfig,
@@ -140,8 +139,7 @@ export function resolveAgentPlanFromConfig(
   // using subagent file names still resolve to the correct preset entry.
   const typedAgentId = (normalizeAgentId(agentId) ?? agentId) as AgentId;
   const presetSpec =
-    lookupAgentEntry(preset.agent_defaults, typedAgentId) ??
-    preset.agent_defaults.orchestrator;
+    preset.agent_defaults[typedAgentId] ?? preset.agent_defaults.orchestrator;
 
   if (!presetSpec) {
     throw new ConfigError(
@@ -150,7 +148,7 @@ export function resolveAgentPlanFromConfig(
     );
   }
 
-  const override = lookupAgentEntry(config.agents, typedAgentId);
+  const override = config.agents?.[typedAgentId];
   const spec: AgentSpec = override
     ? { ...presetSpec, ...override }
     : presetSpec;

@@ -1,10 +1,7 @@
 // Module entry point for agent configuration. Implementation lives in
 // ./agent-config/ — this file re-exports the public API.
 
-export {
-  lookupAgentEntry,
-  normalizeAgentId,
-} from "./agent-config/agent-ids.js";
+export { normalizeAgentId } from "./agent-config/agent-ids.js";
 export { parseOmaConfig } from "./agent-config/config-io.js";
 export {
   loadAgentPersona,
