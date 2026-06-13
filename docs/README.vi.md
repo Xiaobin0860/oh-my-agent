@@ -189,6 +189,7 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 
 | Bước | Lệnh | Chức năng |
 |------|------|----------|
+| 0 | `/deepinit` | Khởi tạo một codebase hiện có (AGENTS.md, ARCHITECTURE.md, `docs/`) |
 | 1 | `/brainstorm` | Phát triển ý tưởng tự do |
 | 2 | `/architecture` | Rà soát kiến trúc, trade-off, phân tích kiểu ADR/ATAM/CBAM |
 | 2 | `/design` | Workflow hệ thống thiết kế 7 giai đoạn |
@@ -196,6 +197,7 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 | 3 | `/work` | Thực thi multi-agent từng bước |
 | 3 | `/orchestrate` | Tự động spawn agent song song |
 | 3 | `/ultrawork` | Workflow chất lượng 5 giai đoạn với 11 cổng đánh giá |
+| 3 | `/ralph` | Bọc `/ultrawork` trong vòng lặp kiểm chứng độc lập cho đến khi đạt tiêu chí |
 | 4 | `/review` | Kiểm tra bảo mật + hiệu suất + accessibility |
 | 4 | `/deepsec` | Quét bảo mật chuyên sâu bằng agent |
 | 5 | `/debug` | Debug có cấu trúc tìm nguyên nhân gốc |

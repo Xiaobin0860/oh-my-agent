@@ -189,6 +189,7 @@ Of gebruik slash commands voor gestructureerde workflows:
 
 | Stap | Commando | Wat het doet |
 |------|----------|-------------|
+| 0 | `/deepinit` | Initialiseert een bestaande codebase (AGENTS.md, ARCHITECTURE.md, `docs/`) |
 | 1 | `/brainstorm` | Vrije brainstorm |
 | 2 | `/architecture` | Software-architectuurreview, trade-offs, ADR/ATAM/CBAM-stijl analyse |
 | 2 | `/design` | 7-fasen design system workflow |
@@ -196,6 +197,7 @@ Of gebruik slash commands voor gestructureerde workflows:
 | 3 | `/work` | Stapsgewijze multi-agent uitvoering |
 | 3 | `/orchestrate` | Automatische parallelle agent-spawning |
 | 3 | `/ultrawork` | 5-fasen kwaliteitsworkflow met 11 review gates |
+| 3 | `/ralph` | Wikkelt `/ultrawork` in een onafhankelijke verificatielus tot de criteria slagen |
 | 4 | `/review` | Beveiligings- + performance- + toegankelijkheidsaudit |
 | 4 | `/deepsec` | Diepe agent-gedreven security scan |
 | 5 | `/debug` | Gestructureerde root cause-debugging |

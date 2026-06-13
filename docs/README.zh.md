@@ -189,6 +189,7 @@ You: "做一个带用户认证的 TODO 应用"
 
 | 步骤 | 命令 | 说明 |
 |------|------|------|
+| 0 | `/deepinit` | 引导现有代码库 (AGENTS.md、ARCHITECTURE.md、`docs/`) |
 | 1 | `/brainstorm` | 自由发散想法 |
 | 2 | `/architecture` | 软件架构评审、权衡、ADR/ATAM/CBAM 式分析 |
 | 2 | `/design` | 7 阶段设计系统工作流 |
@@ -196,6 +197,7 @@ You: "做一个带用户认证的 TODO 应用"
 | 3 | `/work` | 逐步执行多 agent 协作 |
 | 3 | `/orchestrate` | 自动并行 agent 调度 |
 | 3 | `/ultrawork` | 含 11 个审查门禁的 5 阶段质量工作流 |
+| 3 | `/ralph` | 用独立验证循环包裹 `/ultrawork`，直到所有标准通过 |
 | 4 | `/review` | 安全 + 性能 + 无障碍审计 |
 | 4 | `/deepsec` | 智能体驱动的深度安全扫描 |
 | 5 | `/debug` | 结构化根因调试 |

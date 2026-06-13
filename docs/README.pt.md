@@ -189,6 +189,7 @@ Ou use slash commands para workflows estruturados:
 
 | Etapa | Comando | O Que Faz |
 |-------|---------|-------------|
+| 0 | `/deepinit` | Inicializa uma base de codigo existente (AGENTS.md, ARCHITECTURE.md, `docs/`) |
 | 1 | `/brainstorm` | Ideacao livre |
 | 2 | `/architecture` | Revisao de arquitetura, trade-offs, analise estilo ADR/ATAM/CBAM |
 | 2 | `/design` | Workflow de design system em 7 fases |
@@ -196,6 +197,7 @@ Ou use slash commands para workflows estruturados:
 | 3 | `/work` | Execucao multi-agente passo a passo |
 | 3 | `/orchestrate` | Spawn automatico e paralelo de agentes |
 | 3 | `/ultrawork` | Workflow de qualidade em 5 fases com 11 gates de revisao |
+| 3 | `/ralph` | Envolve `/ultrawork` num loop de verificacao independente ate os criterios passarem |
 | 4 | `/review` | Auditoria de seguranca + performance + acessibilidade |
 | 4 | `/deepsec` | Varredura de seguranca profunda por agente |
 | 5 | `/debug` | Debugging estruturado de causa raiz |

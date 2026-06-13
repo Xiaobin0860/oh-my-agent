@@ -189,6 +189,7 @@ O usa slash commands para flujos estructurados:
 
 | Paso | Comando | Qué Hace |
 |------|---------|-------------|
+| 0 | `/deepinit` | Inicializa una base de código existente (AGENTS.md, ARCHITECTURE.md, `docs/`) |
 | 1 | `/brainstorm` | Ideación libre |
 | 2 | `/architecture` | Revisión de arquitectura, trade-offs, análisis estilo ADR/ATAM/CBAM |
 | 2 | `/design` | Flujo de sistema de diseño en 7 fases |
@@ -196,6 +197,7 @@ O usa slash commands para flujos estructurados:
 | 3 | `/work` | Ejecución multi-agente paso a paso |
 | 3 | `/orchestrate` | Lanzamiento automatizado de agentes en paralelo |
 | 3 | `/ultrawork` | Flujo de calidad en 5 fases con 11 puertas de revisión |
+| 3 | `/ralph` | Envuelve `/ultrawork` en un bucle de verificación independiente hasta que se cumplen los criterios |
 | 4 | `/review` | Auditoría de seguridad + rendimiento + accesibilidad |
 | 4 | `/deepsec` | Escaneo de seguridad profundo por agente |
 | 5 | `/debug` | Debugging estructurado de causa raíz |
