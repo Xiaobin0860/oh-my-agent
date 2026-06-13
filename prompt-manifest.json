@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "9.1.1",
-  "releaseDate": "2026-06-12T14:45:44.762Z",
+  "releaseDate": "2026-06-13T03:05:18.553Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -111,8 +111,8 @@
     },
     {
       "path": ".agents/hooks/core/agentmemory-client.ts",
-      "sha256": "170b409033fa96141cd3ccb5dfe037b5484c79df0c3602caf6cecf5f27bdd4a9",
-      "size": 7585
+      "sha256": "d19dc983dd81256c61e999a2a1ac0f87eaa42a3be40669aea475dc7c065f2f7d",
+      "size": 9571
     },
     {
       "path": ".agents/hooks/core/agy-input.ts",
@@ -216,7 +216,7 @@
     },
     {
       "path": ".agents/hooks/variants/claude.json",
-      "sha256": "cb07afdf1e087284ef84e498f930b7de1f18e09b6b0e1b3e5ec3f95e5f00562c",
+      "sha256": "3876046592b28565fb832b299536e7d631859c45376b505b20970ca9f18eb89a",
       "size": 953
     },
     {
@@ -320,9 +320,14 @@
       "size": 5648
     },
     {
+      "path": ".agents/rules/i18n-arb.md",
+      "sha256": "a853caa614f658b5b4c972a42c85302fa4cfaba350120c8649c8dca5ae40ae9f",
+      "size": 1418
+    },
+    {
       "path": ".agents/rules/i18n-guide.md",
-      "sha256": "6f3ee72cad7758d054a25e48d0a4bb12203300b7726d716f4115697564f1fca8",
-      "size": 4424
+      "sha256": "580f0f1b16a942371d518631fcb2dc184dc0edd84a6030d7073283bb5251a9b3",
+      "size": 3702
     },
     {
       "path": ".agents/rules/infrastructure.md",
@@ -2056,6 +2061,6 @@
   "metadata": {
     "skillCount": 32,
     "workflowCount": 22,
-    "totalFiles": 409
+    "totalFiles": 410
   }
 }
