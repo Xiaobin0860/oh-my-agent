@@ -31,20 +31,25 @@ export function readRules(baseDir: string): ParsedRule[] {
   const rulesDir = join(baseDir, RULES_DIR);
   if (!existsSync(rulesDir)) return [];
 
-  return readdirSync(rulesDir)
-    .filter((f) => f.endsWith(".md"))
-    .map((file) => {
-      const content = readFileSync(join(rulesDir, file), "utf-8");
-      const { frontmatter, body } = parseFrontmatter(content);
-      return {
-        name: file.replace(".md", ""),
-        description:
-          (frontmatter.description as string) || file.replace(".md", ""),
-        globs: (frontmatter.globs as string) || "",
-        alwaysApply: (frontmatter.alwaysApply as boolean) || false,
-        body: body.trim(),
-      };
-    });
+  return (
+    readdirSync(rulesDir)
+      .filter((f) => f.endsWith(".md"))
+      // Sort for deterministic output — readdirSync order varies by filesystem,
+      // which would otherwise shuffle the generated rule index across machines.
+      .sort()
+      .map((file) => {
+        const content = readFileSync(join(rulesDir, file), "utf-8");
+        const { frontmatter, body } = parseFrontmatter(content);
+        return {
+          name: file.replace(".md", ""),
+          description:
+            (frontmatter.description as string) || file.replace(".md", ""),
+          globs: (frontmatter.globs as string) || "",
+          alwaysApply: (frontmatter.alwaysApply as boolean) || false,
+          body: body.trim(),
+        };
+      })
+  );
 }
 
 // =============================================================================
