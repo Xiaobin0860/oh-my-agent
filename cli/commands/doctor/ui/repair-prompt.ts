@@ -1,7 +1,7 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { getAllSkills } from "../../../platform/skills-installer.js";
-import { installSkillsFromRemote } from "../doctor.js";
+import { installSkillsFromRemote } from "../report.js";
 import type { DoctorReport } from "../types.js";
 
 export async function promptRepair(report: DoctorReport): Promise<void> {

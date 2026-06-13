@@ -4,8 +4,8 @@ import { registerUpdate } from "./command.js";
 
 const updateMock = vi.hoisted(() => vi.fn(async () => {}));
 
-vi.mock("./update.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("./update.js")>();
+vi.mock("./run.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./run.js")>();
   return { ...actual, update: updateMock };
 });
 

@@ -4,7 +4,7 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { runIntelSuggest } from "./intel.js";
+import { runIntelSuggest } from "./suggest.js";
 
 type SuggestOptions = {
   config?: string;

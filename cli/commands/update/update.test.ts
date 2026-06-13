@@ -21,7 +21,7 @@ import {
   collectAgentRequiredSkills,
   resolveUpdateVendors,
   selectSkillsToPrune,
-} from "../update/update.js";
+} from "../update/run.js";
 
 describe("whitelist-based skill filtering", () => {
   it("getAllSkills should return only registered skills", () => {

@@ -171,7 +171,7 @@ vi.mock("../../utils/install-lock.js", () => ({
   acquireLock: miscState.acquireLock,
   bindInstallLockRelease: miscState.bindInstallLockRelease,
 }));
-vi.mock("../link/link.js", () => ({
+vi.mock("../link/run.js", () => ({
   link: vi.fn(() => ({
     symlinksCreated: [],
     mergedDocs: [],
@@ -184,7 +184,7 @@ import {
   _resetInstallContext,
   setInstallContext,
 } from "../../platform/install-context.js";
-import { install } from "../install/install.js";
+import { install } from "../install/run.js";
 
 describe("install --global: _install.json schema and meta", () => {
   let tmpDir: string;

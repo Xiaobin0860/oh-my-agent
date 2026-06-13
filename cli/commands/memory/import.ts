@@ -16,7 +16,7 @@ import type {
 import { loadTimezone } from "../../utils/config.js";
 import { resolveWindowBounds } from "../../utils/time-window.js";
 import { filterParsers } from "../recap/internal/registry.js";
-import { drainMemoryRetryQueue } from "./memory.js";
+import { drainMemoryRetryQueue } from "./retry-drain.js";
 
 const VENDOR_IMPORT_SOURCES = [
   "claude",

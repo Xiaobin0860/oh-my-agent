@@ -109,7 +109,7 @@ vi.mock("../../platform/skills-installer.js", () => ({
 import * as manifest from "../../platform/manifest.js";
 import * as rules from "../../platform/rules.js";
 import * as skills from "../../platform/skills-installer.js";
-import { update } from "../update/update.js";
+import { update } from "../update/run.js";
 
 describe("update cursor vendor adaptations", () => {
   const tempRoots: string[] = [];

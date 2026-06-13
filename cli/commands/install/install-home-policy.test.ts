@@ -165,7 +165,7 @@ import {
   _resetInstallContext,
   setInstallContext,
 } from "../../platform/install-context.js";
-import { install } from "../install/install.js";
+import { install } from "../install/run.js";
 
 describe("install home policy", () => {
   const originalHome = process.env.HOME;

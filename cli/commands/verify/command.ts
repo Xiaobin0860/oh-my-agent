@@ -5,8 +5,8 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
+import { collectVerifyReport, isValidAgent, VALID_AGENTS } from "./report.js";
 import { printVerifyError, renderVerifyReport } from "./ui.js";
-import { collectVerifyReport, isValidAgent, VALID_AGENTS } from "./verify.js";
 
 export async function verify(
   agentType: string,

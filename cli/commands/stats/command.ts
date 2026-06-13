@@ -4,7 +4,7 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { stats } from "./stats.js";
+import { stats } from "./run.js";
 
 export function registerStats(program: Command): void {
   addOutputOptions(

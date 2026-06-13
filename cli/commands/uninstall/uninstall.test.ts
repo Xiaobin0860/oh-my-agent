@@ -6,7 +6,7 @@ import {
   _resetInstallContext,
   setInstallContext,
 } from "../../platform/install-context.js";
-import { buildRemovalPlan, uninstall } from "./uninstall.js";
+import { buildRemovalPlan, uninstall } from "./run.js";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

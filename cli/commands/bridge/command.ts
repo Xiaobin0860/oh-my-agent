@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { bridge } from "./bridge.js";
+import { bridge } from "./run.js";
 
 export function registerBridge(program: Command): void {
   program

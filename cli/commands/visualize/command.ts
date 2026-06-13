@@ -4,7 +4,7 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { visualize } from "./visualize.js";
+import { visualize } from "./view.js";
 
 export function registerVisualize(program: Command): void {
   addOutputOptions(

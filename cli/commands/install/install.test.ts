@@ -14,7 +14,7 @@ import {
   isExplicitYes,
   isNonInteractive,
   scanLanguages,
-} from "../install/install.js";
+} from "../install/run.js";
 
 describe("scanLanguages", () => {
   const tempRoots: string[] = [];

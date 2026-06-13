@@ -4,7 +4,7 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { recap } from "./recap.js";
+import { recap } from "./run.js";
 
 export function registerRecap(program: Command): void {
   addOutputOptions(

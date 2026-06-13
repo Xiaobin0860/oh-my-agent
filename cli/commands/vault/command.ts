@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { vaultGet, vaultList, vaultRm, vaultStore } from "./vault.js";
+import { vaultGet, vaultList, vaultRm, vaultStore } from "./actions.js";
 
 export function registerVault(program: Command): void {
   const vault = program

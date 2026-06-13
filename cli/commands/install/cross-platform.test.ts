@@ -9,7 +9,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { applyWin32LongPathPrefix } from "../../platform/fs-link.js";
-import { detectWsl } from "./install.js";
+import { detectWsl } from "./run.js";
 
 // ── detectWsl (Task 30, T2.13) ───────────────────────────────────────────────
 

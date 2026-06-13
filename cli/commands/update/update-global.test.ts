@@ -182,7 +182,7 @@ vi.mock("../../utils/gemini-deprecation.js", () => geminiState);
 vi.mock("../../utils/i18n.js", () => ({
   t: vi.fn((key: string) => key),
 }));
-vi.mock("../link/link.js", () => linkState);
+vi.mock("../link/run.js", () => linkState);
 vi.mock("../migrations/index.js", () => migrationsState);
 
 // ---------------------------------------------------------------------------
@@ -193,7 +193,7 @@ import {
   _resetInstallContext,
   setInstallContext,
 } from "../../platform/install-context.js";
-import { update } from "../update/update.js";
+import { update } from "../update/run.js";
 
 // ---------------------------------------------------------------------------
 // Test helpers

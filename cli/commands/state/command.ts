@@ -17,11 +17,60 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
+import { listInjectLogs, viewInjectLog } from "./inject-log.js";
 import {
+  archiveStateSessions,
+  purgeStateSessions,
+  repairStateSessions,
+} from "./maintenance.js";
+import {
+  renderArchivedStateList,
+  renderArchiveResult,
+  renderInjectLogView,
+  renderPurgeResult,
+  renderRepairResult,
+  renderSessionView,
+  renderStateList,
+} from "./render.js";
+import {
+  activateStateSession,
+  collectArchivedState,
+  collectState,
+  isValidSid,
+  parseOlderThan,
+  viewSession,
+} from "./sessions.js";
+import type {
+  ArchivedSession,
+  ArchivedStateView,
+  ArchiveResult,
+  InjectLogEntryRef,
+  InjectLogView,
+  PurgeResult,
+  RepairResult,
+  SessionView,
+  StateView,
+} from "./types.js";
+
+export type {
+  ArchivedSession,
+  ArchivedStateView,
+  ArchiveResult,
+  InjectLogEntryRef,
+  InjectLogView,
+  PurgeResult,
+  RepairResult,
+  SessionView,
+  StateView,
+};
+export {
   activateStateSession,
   archiveStateSessions,
   collectArchivedState,
   collectState,
+  isValidSid,
+  listInjectLogs,
+  parseOlderThan,
   purgeStateSessions,
   renderArchivedStateList,
   renderArchiveResult,
@@ -33,7 +82,7 @@ import {
   repairStateSessions,
   viewInjectLog,
   viewSession,
-} from "./state.js";
+};
 
 function registerDecisionVerifyCommand(
   program: Command,

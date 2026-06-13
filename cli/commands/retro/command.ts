@@ -4,7 +4,7 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { retro } from "./retro.js";
+import { retro } from "./run.js";
 
 export function registerRetro(program: Command): void {
   addOutputOptions(

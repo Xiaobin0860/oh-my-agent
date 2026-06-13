@@ -1,8 +1,8 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { update } from "./update.js";
+import { update } from "./run.js";
 
-export { update } from "./update.js";
+export { update } from "./run.js";
 
 export function registerUpdate(program: Command): void {
   program

@@ -11,7 +11,7 @@ import {
   vi,
 } from "vitest";
 import { lastCall as mockLastCall } from "../../__tests__/helpers.js";
-import { bridge, validateSerenaConfigs } from "../bridge/bridge.js";
+import { bridge, validateSerenaConfigs } from "../bridge/run.js";
 
 // Normalize Windows backslashes for cross-platform path string checks.
 const n = (s: string) => s.replace(/\\/g, "/");

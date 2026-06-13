@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { star } from "./star.js";
+import { star } from "./run.js";
 
 export function registerStar(program: Command): void {
   program

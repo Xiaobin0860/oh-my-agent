@@ -46,7 +46,7 @@ vi.mock("../../vendors/index.js", () => ({
   isQwenAuthenticated: vi.fn(() => false),
 }));
 
-import { installSkillsFromRemote } from "./doctor.js";
+import { installSkillsFromRemote } from "./report.js";
 
 describe("installSkillsFromRemote", () => {
   const target = "/tmp/test-project";

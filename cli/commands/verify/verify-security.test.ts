@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { hasBinary, runManifestCmd } from "./verify.js";
+import { hasBinary, runManifestCmd } from "./report.js";
 
 let workspace: string;
 

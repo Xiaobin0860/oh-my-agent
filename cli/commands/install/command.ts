@@ -1,8 +1,8 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { install } from "./install.js";
+import { install } from "./run.js";
 
-export { install } from "./install.js";
+export { install } from "./run.js";
 
 const YES_FLAG_DESC =
   "Skip prompts and use defaults (also honors OMA_YES=1 and CI=true)";

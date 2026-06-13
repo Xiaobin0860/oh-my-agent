@@ -4,9 +4,9 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { checkAuthStatus } from "./auth-status.js";
+import { checkAuthStatus } from "./check.js";
 
-export { checkAuthStatus } from "./auth-status.js";
+export { checkAuthStatus } from "./check.js";
 
 export function registerAuthStatus(program: Command): void {
   addOutputOptions(

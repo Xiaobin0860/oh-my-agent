@@ -8,8 +8,8 @@ import {
 
 const installMock = vi.hoisted(() => vi.fn(async () => {}));
 
-vi.mock("./install.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("./install.js")>();
+vi.mock("./run.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./run.js")>();
   return { ...actual, install: installMock };
 });
 

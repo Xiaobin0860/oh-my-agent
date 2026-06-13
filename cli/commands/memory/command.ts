@@ -1,10 +1,18 @@
 import type { Command } from "commander";
 import {
+  getAgentMemoryServicePresence,
+  installAgentMemoryService,
+  uninstallAgentMemoryService,
+} from "../../platform/agentmemory-service.js";
+import {
   addOutputOptions,
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
+import { controlAgentMemoryDaemon } from "./daemon.js";
+import { garbageCollectLocalState } from "./gc.js";
 import { printAgentMemoryImport } from "./import.js";
+import { maintainAgentMemory } from "./maintain.js";
 import {
   initMemory,
   printAgentMemoryDaemon,
@@ -16,7 +24,23 @@ import {
   printAgentMemoryUpgrade,
   printMemoryGc,
   printMemoryRetryDrain,
-} from "./memory.js";
+} from "./render.js";
+import { drainMemoryRetryQueue } from "./retry-drain.js";
+import { getAgentMemoryStatus, setupAgentMemory } from "./setup.js";
+import { upgradeAgentMemory } from "./upgrade.js";
+
+export {
+  controlAgentMemoryDaemon,
+  drainMemoryRetryQueue,
+  garbageCollectLocalState,
+  getAgentMemoryServicePresence,
+  getAgentMemoryStatus,
+  installAgentMemoryService,
+  maintainAgentMemory,
+  setupAgentMemory,
+  uninstallAgentMemoryService,
+  upgradeAgentMemory,
+};
 
 export function registerMemory(program: Command): void {
   addOutputOptions(

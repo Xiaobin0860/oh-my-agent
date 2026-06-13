@@ -102,7 +102,7 @@ import {
   collectDoctorReport,
   computeEvalCoverage,
   serializeReportAsJson,
-} from "./doctor.js";
+} from "./report.js";
 
 // Settle all pending procs synchronously
 function settleProcs(exitCode: number, stdoutData?: string): void {

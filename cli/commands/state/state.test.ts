@@ -37,7 +37,7 @@ import {
   repairStateSessions,
   viewInjectLog,
   viewSession,
-} from "./state.js";
+} from "./command.js";
 
 describe("state command helpers", () => {
   let projectDir: string;

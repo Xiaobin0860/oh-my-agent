@@ -4,7 +4,7 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { cleanup } from "./cleanup.js";
+import { cleanup } from "./run.js";
 
 export function registerCleanup(program: Command): void {
   addOutputOptions(

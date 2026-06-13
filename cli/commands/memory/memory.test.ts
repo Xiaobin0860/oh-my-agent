@@ -26,7 +26,7 @@ import {
   setupAgentMemory,
   uninstallAgentMemoryService,
   upgradeAgentMemory,
-} from "./memory.js";
+} from "./command.js";
 
 function providerStub(args: {
   status?: MemoryProviderStatus;

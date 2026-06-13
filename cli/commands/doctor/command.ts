@@ -4,8 +4,8 @@ import {
   resolveJsonMode,
   runAction,
 } from "../../utils/cli-framework.js";
-import { collectDoctorReport, serializeReportAsJson } from "./doctor.js";
 import { collectProfileReport } from "./profile.js";
+import { collectDoctorReport, serializeReportAsJson } from "./report.js";
 import { renderDoctorReport, renderProfileReport } from "./ui.js";
 
 export async function doctor(

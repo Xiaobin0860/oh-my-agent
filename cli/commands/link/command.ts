@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { link } from "./link.js";
+import { link } from "./run.js";
 
 export function registerLink(program: Command): void {
   program

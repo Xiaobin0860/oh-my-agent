@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { runAction } from "../../utils/cli-framework.js";
-import { uninstall } from "./uninstall.js";
+import { uninstall } from "./run.js";
 
 export function registerUninstall(program: Command): void {
   program

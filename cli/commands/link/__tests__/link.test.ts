@@ -98,7 +98,7 @@ import * as claudeMcp from "../../../vendors/claude/mcp.js";
 import * as gemini from "../../../vendors/gemini/settings.js";
 import * as grok from "../../../vendors/grok/settings.js";
 import * as qwen from "../../../vendors/qwen/settings.js";
-import { link } from "../link.js";
+import { link } from "../run.js";
 
 describe("link kernel", () => {
   const tempRoots: string[] = [];

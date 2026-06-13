@@ -11,7 +11,7 @@ import {
   reviewCandidates,
   runIntelSuggest,
   scoreCandidates,
-} from "./intel.js";
+} from "./suggest.js";
 
 let tmpDir: string;
 
