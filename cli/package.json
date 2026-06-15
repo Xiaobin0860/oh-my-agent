@@ -107,6 +107,10 @@
     "type": "git",
     "url": "https://github.com/first-fluke/oh-my-agent"
   },
+  "homepage": "https://firstfluke.com/oh-my-agent",
+  "bugs": {
+    "url": "https://github.com/first-fluke/oh-my-agent/issues"
+  },
   "antigravity": {
     "skillsPath": ".agents/skills",
     "skills": [

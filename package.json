@@ -2,6 +2,14 @@
   "name": "oh-my-agent-workspace",
   "version": "9.3.1",
   "private": true,
+  "homepage": "https://firstfluke.com/oh-my-agent",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/first-fluke/oh-my-agent"
+  },
+  "bugs": {
+    "url": "https://github.com/first-fluke/oh-my-agent/issues"
+  },
   "workspaces": [
     "cli",
     "web"
