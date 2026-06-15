@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.14.0](https://github.com/first-fluke/oh-my-agent/compare/web-v3.13.1...web-v3.14.0) (2026-06-15)
+
+
+### Features
+
+* add OpenCode vendor support for subagent dispatch ([#544](https://github.com/first-fluke/oh-my-agent/issues/544)) ([fa224ac](https://github.com/first-fluke/oh-my-agent/commit/fa224ace76d3d7a6be9b7392ee820cfc05f3a7c2))
+
+
+### Documentation
+
+* document OpenCode per-agent model routing ([a8009f6](https://github.com/first-fluke/oh-my-agent/commit/a8009f67ea59c71ba8d6e799224eb334cca97230))
+* **i18n:** sync OpenCode docs across 11 locales ([c10007a](https://github.com/first-fluke/oh-my-agent/commit/c10007a9990836dbb63c0c4fc8d08739d9e7523c))
+
 ## [3.13.1](https://github.com/first-fluke/oh-my-agent/compare/web-v3.13.0...web-v3.13.1) (2026-06-13)
 
 
