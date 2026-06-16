@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "9.5.0",
-  "releaseDate": "2026-06-15T09:16:57.493Z",
+  "releaseDate": "2026-06-16T00:36:30.461Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -291,8 +291,8 @@
     },
     {
       "path": ".agents/oma-config.yaml",
-      "sha256": "e844a7071dc8d37e5ce6fc08ead73ef9a1399dd4f3a08788f9577115ecc475d1",
-      "size": 11333
+      "sha256": "9c5bb68a915b60832e4fc9ad0b0f80f0bc043b06e29d870560646096b6cf727a",
+      "size": 12990
     },
     {
       "path": ".agents/rules/backend.md",
