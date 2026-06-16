@@ -556,6 +556,145 @@ oma agent:review -m gemini -w ./apps/web --no-uncommitted
 
 ---
 
+## Scheduled agents
+
+### schedule:add
+
+Register a scheduled agent job. Exactly one of `--cron` or `--every` is required.
+
+```
+oma schedule:add <agent-id> <prompt> --cron "<5-field>" | --every "<phrase>" [-m <vendor>] [-w <path>] [--once] [--max-age-days <n>] [--env <KEY1,KEY2>]
+```
+
+**Arguments:**
+
+| Argument | Required | Description |
+|:---------|:---------|:-----------|
+| `agent-id` | Yes | Agent type: `backend`, `frontend`, `mobile`, `qa`, `debug`, `pm` |
+| `prompt` | Yes | Task description passed to the agent at fire time |
+
+**Options:**
+
+| Flag | Description |
+|:-----|:-----------|
+| `--cron "<expr>"` | 5-field cron expression (e.g. `"0 9 * * *"`). Mutually exclusive with `--every`. |
+| `--every "<phrase>"` | Natural-language interval: `5m`, `2h`, `1d`, `every 20m`, `every 5 minutes`. Rounds to nearest cron-expressible step and prints a note. Mutually exclusive with `--cron`. |
+| `-m, --model <vendor>` | CLI vendor override passed to `oma agent:spawn`: `antigravity`, `claude`, `codex`, `cursor`, `opencode`, `qwen`, `grok`, `pi`. Defaults to auto-detect. |
+| `-w, --workspace <path>` | Working directory for the agent. Defaults to current directory at registration time. |
+| `--once` | One-shot mode: fires once, then self-removes. |
+| `--max-age-days <n>` | Auto-expire recurring job after N days (`0` = indefinite). |
+| `--env <KEY1,KEY2>` | Capture named env vars into `~/.agents/schedule/env/<id>` (0600) for injection at run time. Only listed keys are captured; never a full env dump. |
+
+**What it does:**
+1. Parses and validates the cron expression (or converts the `--every` phrase to cron).
+2. Writes the job to `~/.agents/schedule/schedules.json` (global manifest, permissions 0600).
+3. Registers the job with the OS scheduler (launchd / systemd --user / schtasks). The OS job calls `oma schedule:run <id>` at the configured interval.
+
+**Examples:**
+```bash
+# Exact cron: weekdays at 9 AM
+oma schedule:add qa-reviewer "Run QA review on latest changes" --cron "0 9 * * 1-5"
+
+# Natural language: every 2 hours
+oma schedule:add backend "Check for slow queries" --every "2h"
+
+# One-shot, pinned vendor and workspace
+oma schedule:add pm "Generate sprint plan" --cron "0 9 * * 1" --once -m claude -w /path/to/project
+
+# Capture specific env vars for the job
+oma schedule:add backend "Sync external data" --cron "0 * * * *" --env SYNC_API_KEY,SYNC_TARGET_URL
+```
+
+See the [Scheduled Agents guide](../guide/scheduled-agents.md) for a full walkthrough.
+
+### schedule:list
+
+List all scheduled jobs across all projects, grouped by project, with OS drift state.
+
+```
+oma schedule:list [--json]
+```
+
+**Options:**
+
+| Flag | Description |
+|:-----|:-----------|
+| `--json` | Output as JSON |
+
+**Drift states:** `synced` (manifest + OS agree), `missing-in-os` (run `schedule:sync` to repair), `orphan-in-os` (OS has a job not in manifest; run `schedule:sync --prune` to remove).
+
+**Examples:**
+```bash
+oma schedule:list
+oma schedule:list --json | jq '.jobs[] | select(.drift != "synced")'
+```
+
+### schedule:remove
+
+Remove a scheduled job from both the manifest and the OS scheduler.
+
+```
+oma schedule:remove <id>
+```
+
+**Arguments:**
+
+| Argument | Required | Description |
+|:---------|:---------|:-----------|
+| `id` | Yes | Job ID from `schedule:list` (format: `sch_<base32-12>`) |
+
+**Example:**
+```bash
+oma schedule:remove sch_abc123def456
+```
+
+### schedule:run
+
+Execute a scheduled job by ID. This is the entry point called by the OS scheduler at fire time. Not normally invoked by hand, but can be used to debug a job.
+
+```
+oma schedule:run <id>
+```
+
+**What it does:**
+1. Looks up `<id>` in the manifest (exits non-zero if not found).
+2. Loads captured env vars from `~/.agents/schedule/env/<id>` and injects them.
+3. Calls `oma agent:spawn <agentId> <prompt> <sessionId> -m <vendor> -w <workspace>`.
+4. Writes the result to `~/.agents/schedule/runs/<id>/<ISO-timestamp>.md`.
+5. Updates `lastFiredAt` in the manifest; self-removes if job is `--once`.
+6. Loud-fails on auth expiry: exits non-zero and prints `re-auth required: <vendor>` to stderr. Never silently succeeds.
+
+**Example:**
+```bash
+# Invoke manually to debug a job
+oma schedule:run sch_abc123def456
+```
+
+### schedule:sync
+
+Re-synchronize the manifest to the OS scheduler. Repairs drift after system migrations or OS scheduler resets.
+
+```
+oma schedule:sync [--prune]
+```
+
+**Options:**
+
+| Flag | Description |
+|:-----|:-----------|
+| `--prune` | Also remove OS jobs not present in the manifest (orphan-in-os). Without `--prune`, orphans are reported but not removed. |
+
+**Examples:**
+```bash
+# Repair missing-in-os jobs
+oma schedule:sync
+
+# Repair missing-in-os AND remove orphans
+oma schedule:sync --prune
+```
+
+---
+
 ## Memory management
 
 ### memory:init

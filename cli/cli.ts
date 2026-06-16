@@ -112,6 +112,7 @@ async function registerFullCli(): Promise<void> {
     import("./commands/serena/command.js").then(
       (m) => m.registerSerenaCommands,
     ),
+    import("./commands/schedule/command.js").then((m) => m.registerSchedule),
   ]);
   for (const register of registrars) {
     register(program);
