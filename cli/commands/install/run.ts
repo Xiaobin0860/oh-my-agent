@@ -391,9 +391,13 @@ export async function install(options: InstallOptions = {}): Promise<void> {
           installRoot,
           serenaLangs,
         );
-        if (configured) {
+        if (configured === "created") {
           p.log.success(
             pc.green(`Serena project configured (${serenaLangs.join(", ")})`),
+          );
+        } else if (configured === "reconciled") {
+          p.log.success(
+            pc.green(`Serena languages updated (${serenaLangs.join(", ")})`),
           );
         }
         if (registered) {

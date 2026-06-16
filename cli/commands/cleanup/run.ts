@@ -7,6 +7,12 @@ import {
   AGENTS_RESULTS_DIR,
   agentsPathFromRoot,
 } from "../../constants/paths.js";
+import {
+  type ActivitySignal,
+  discoverSerenaRoots,
+  selectOrphanedSerenaRoots,
+} from "../../io/serena-reaper.js";
+import { runPs } from "../../io/serena-reaper-runtime.js";
 import type { CleanupResult } from "../../types/index.js";
 
 interface GeminiCleanupConfig {
@@ -241,6 +247,32 @@ export async function cleanup(
   } else {
     logSkip(`No results directory found: ${resultsDir}`);
   }
+
+  // Orphaned Serena language servers: when an MCP client (e.g. claude) exits,
+  // its `serena start-mcp-server` reparents to init (ppid === 1) and its LSP
+  // children (tsserver/pyright/…, hundreds of MB) keep running with no client.
+  // These are pure waste and always safe to reap — the idle-but-live case is
+  // handled separately by `oma serena reap` / the reaper scheduler.
+  try {
+    const noActivity = (): ActivitySignal => ({
+      lastActivityMs: 0,
+      signalSource: "mtime",
+    });
+    const roots = discoverSerenaRoots(runPs(), noActivity);
+    const orphans = selectOrphanedSerenaRoots(roots);
+    for (const orphan of orphans) {
+      for (const lsp of orphan.lspChildren) {
+        logAction(
+          `Killing orphaned Serena LSP PID=${lsp.pid} (${lsp.name}, ${lsp.rssMb.toFixed(0)}MB; ${orphan.project})`,
+        );
+        await killProcess(lsp.pid);
+      }
+      logAction(
+        `Killing orphaned Serena root PID=${orphan.pid} (${orphan.project})`,
+      );
+      await killProcess(orphan.pid);
+    }
+  } catch {}
 
   if (
     geminiConfig.shouldCleanupBrain ||

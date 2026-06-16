@@ -20,6 +20,7 @@ import {
   collectVendorDocChecks,
 } from "./environment-checks.js";
 import { collectHookWrapperChecks } from "./hook-wrapper-check.js";
+import { collectSerenaReapCheck } from "./serena-reap.js";
 import { collectStateDoctorCheck } from "./state-health.js";
 import type {
   DoctorOptions,
@@ -126,6 +127,7 @@ export async function collectDoctorReport(
   const skillAudit = auditSkills(cwd);
   const skillEval = computeEvalCoverage(cwd, skillAudit.skillCount);
   const agentMemory = await collectAgentMemoryCheck(cwd);
+  const serenaReap = collectSerenaReapCheck(cwd);
   const state = collectStateDoctorCheck(cwd);
   const hookWrappers = collectHookWrapperChecks(cwd);
   const selfHealing = options.healCheckAgent
@@ -145,6 +147,7 @@ export async function collectDoctorReport(
     missingSkills.length +
     vendorDocIssues +
     agentMemory.issues.length +
+    serenaReap.issues.length +
     state.issues.length +
     selfHealingIssues;
 
@@ -159,6 +162,7 @@ export async function collectDoctorReport(
     hasSerena,
     serenaFileCount,
     agentMemory,
+    serenaReap,
     totalIssues,
     skillAudit,
     skillEval,

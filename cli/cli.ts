@@ -109,6 +109,9 @@ async function registerFullCli(): Promise<void> {
     import("./commands/scholar/index.js").then((m) => m.registerScholarCommand),
     import("./commands/image/index.js").then((m) => m.registerImageCommand),
     import("./commands/video/index.js").then((m) => m.registerVideoCommand),
+    import("./commands/serena/command.js").then(
+      (m) => m.registerSerenaCommands,
+    ),
   ]);
   for (const register of registrars) {
     register(program);

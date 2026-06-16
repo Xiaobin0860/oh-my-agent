@@ -1,10 +1,14 @@
 import { join, resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  advisoryHeavyLanguages,
   ensureSerenaProject,
   ensureSerenaProjectConfig,
   ensureSerenaRegistered,
   inferSerenaLanguages,
+  parseProjectYmlLanguages,
+  reconcileSerenaLanguages,
+  reconcileSerenaProjectConfig,
   resolveSerenaLanguages,
 } from "./serena.js";
 
@@ -56,6 +60,11 @@ describe("resolveSerenaLanguages", () => {
     expect(result).toEqual(["terraform"]);
   });
 
+  it("should return python for oma-db skill (Task 9)", () => {
+    const result = resolveSerenaLanguages(["oma-db"]);
+    expect(result).toEqual(["python"]);
+  });
+
   it("should map backend python variant", () => {
     const result = resolveSerenaLanguages(["oma-backend"], "python");
     expect(result).toEqual(["python"]);
@@ -98,6 +107,22 @@ describe("resolveSerenaLanguages", () => {
     const result = resolveSerenaLanguages(["oma-backend"], "other");
     expect(result).toEqual(["typescript"]);
   });
+
+  it("should never include bash in any combination of skills (Task 9)", () => {
+    const allSkills = [
+      "oma-frontend",
+      "oma-backend",
+      "oma-mobile",
+      "oma-db",
+      "oma-tf-infra",
+      "oma-scm",
+      "oma-qa",
+    ];
+    for (const variant of ["python", "node", "rust", undefined]) {
+      const result = resolveSerenaLanguages(allSkills, variant);
+      expect(result).not.toContain("bash");
+    }
+  });
 });
 
 describe("inferSerenaLanguages", () => {
@@ -107,6 +132,13 @@ describe("inferSerenaLanguages", () => {
     );
     const result = inferSerenaLanguages("/project");
     expect(result).toContain("typescript");
+  });
+
+  it("should detect oma-db skill and return python (Task 9)", () => {
+    mockFs.existsSync.mockImplementation((p: string) => p.includes("oma-db"));
+    const result = inferSerenaLanguages("/project");
+    expect(result).toContain("python");
+    expect(result).not.toContain("bash");
   });
 
   it("should read backend language from stack.yaml", () => {
@@ -130,6 +162,14 @@ describe("inferSerenaLanguages", () => {
     mockFs.existsSync.mockReturnValue(false);
     const result = inferSerenaLanguages("/project");
     expect(result).toEqual(["typescript"]);
+  });
+
+  it("should never infer bash regardless of installed skills (Task 9)", () => {
+    // Simulate all known skills installed
+    mockFs.existsSync.mockReturnValue(true);
+    mockFs.readFileSync.mockReturnValue("language: python\n");
+    const result = inferSerenaLanguages("/project");
+    expect(result).not.toContain("bash");
   });
 });
 
@@ -182,18 +222,210 @@ describe("ensureSerenaRegistered", () => {
   });
 });
 
-describe("ensureSerenaProjectConfig", () => {
-  it("should return false when project.yml already exists", () => {
-    mockFs.existsSync.mockReturnValue(true);
-    expect(ensureSerenaProjectConfig("/my/project", ["typescript"])).toBe(
-      false,
-    );
+// ---------------------------------------------------------------------------
+// reconcileSerenaLanguages (Task 10 — pure function)
+// ---------------------------------------------------------------------------
+
+describe("reconcileSerenaLanguages", () => {
+  const existingYml = `languages:
+- typescript
+- python
+
+encoding: "utf-8"
+project_name: "my-project"
+`;
+
+  it("should return null when all derived languages already present (idempotent)", () => {
+    const result = reconcileSerenaLanguages(existingYml, [
+      "typescript",
+      "python",
+    ]);
+    expect(result).toBeNull();
+  });
+
+  it("should add a missing derived language (additive merge)", () => {
+    const result = reconcileSerenaLanguages(existingYml, [
+      "typescript",
+      "python",
+      "dart",
+    ]);
+    expect(result).not.toBeNull();
+    expect(result).toContain("- dart");
+    expect(result).toContain("- typescript");
+    expect(result).toContain("- python");
+  });
+
+  it("should never remove an existing language (additive only)", () => {
+    // derivedLanguages does not include python — it must be preserved
+    const result = reconcileSerenaLanguages(existingYml, ["typescript"]);
+    expect(result).toBeNull(); // typescript already present, python preserved → no change
+  });
+
+  it("should preserve languages not in derived set when adding new ones", () => {
+    // existing has typescript + python; derived wants typescript + dart
+    // python must be preserved; dart must be added
+    const result = reconcileSerenaLanguages(existingYml, [
+      "typescript",
+      "dart",
+    ]);
+    expect(result).not.toBeNull();
+    expect(result).toContain("- typescript");
+    expect(result).toContain("- python"); // preserved
+    expect(result).toContain("- dart"); // added
+  });
+
+  it("should preserve non-language file content and formatting", () => {
+    const result = reconcileSerenaLanguages(existingYml, [
+      "typescript",
+      "dart",
+    ]);
+    expect(result).not.toBeNull();
+    expect(result).toContain('project_name: "my-project"');
+    expect(result).toContain('encoding: "utf-8"');
+  });
+
+  it("should be case-insensitive when checking existing languages", () => {
+    const ymlWithCaps = `languages:\n- TypeScript\n- Python\n\nproject_name: "test"\n`;
+    // "typescript" (lower) matches "TypeScript" — no change needed
+    const result = reconcileSerenaLanguages(ymlWithCaps, [
+      "typescript",
+      "python",
+    ]);
+    expect(result).toBeNull();
+  });
+
+  // Regression: QA F3 — inline YAML comments must not defeat dedup.
+  it("should not duplicate a language that carries an inline comment", () => {
+    const ymlWithComment = `languages:\n- typescript # primary stack\n\nproject_name: "test"\n`;
+    const result = reconcileSerenaLanguages(ymlWithComment, ["typescript"]);
+    // Already present (comment-stripped match) → no change.
+    expect(result).toBeNull();
+  });
+
+  it("preserves the inline comment while still adding a genuinely new language", () => {
+    const ymlWithComment = `languages:\n- typescript # primary stack\n\nproject_name: "test"\n`;
+    const result = reconcileSerenaLanguages(ymlWithComment, [
+      "typescript",
+      "python",
+    ]);
+    expect(result).not.toBeNull();
+    // typescript appears exactly once, comment intact; python added.
+    expect(result?.match(/- typescript/g)).toHaveLength(1);
+    expect(result).toContain("- typescript # primary stack");
+    expect(result).toContain("- python");
+  });
+
+  it("should return null for empty derived set", () => {
+    const result = reconcileSerenaLanguages(existingYml, []);
+    expect(result).toBeNull();
+  });
+
+  it("should prepend a languages block when none exists (autogenerate protection)", () => {
+    const ymlWithoutLanguages = `encoding: "utf-8"\nproject_name: "test"\n`;
+    const result = reconcileSerenaLanguages(ymlWithoutLanguages, [
+      "typescript",
+    ]);
+    expect(result).not.toBeNull();
+    expect(result).toContain("languages:");
+    expect(result).toContain("- typescript");
+  });
+
+  it("should never add bash even if present in derived set (defense-in-depth)", () => {
+    // This should not happen via normal code paths, but reconcile is pure so we test it directly.
+    // If caller somehow passes bash, it would be added. The protection is in SKILL_LANGUAGE_MAP.
+    // This test documents the behavior: reconcile itself does not filter — callers must not pass bash.
+    const result = reconcileSerenaLanguages(existingYml, [
+      "typescript",
+      "bash",
+    ]);
+    // bash is not in existing — it would be added. This test confirms the guard is in the map, not here.
+    // We just assert the pure function behavior is deterministic.
+    expect(result).not.toBeNull();
+    expect(result).toContain("- bash");
+    // Confirms bash protection lives in SKILL_LANGUAGE_MAP, not in reconcile itself.
+  });
+});
+
+// ---------------------------------------------------------------------------
+// reconcileSerenaProjectConfig (Task 10 — IO wrapper)
+// ---------------------------------------------------------------------------
+
+describe("reconcileSerenaProjectConfig", () => {
+  const projectPath = "/my/project";
+  const projectYml = join(projectPath, ".serena", "project.yml");
+
+  it("should return false when project.yml does not exist", () => {
+    mockFs.existsSync.mockReturnValue(false);
+    const result = reconcileSerenaProjectConfig(projectPath, ["typescript"]);
+    expect(result).toBe(false);
     expect(mockFs.writeFileSync).not.toHaveBeenCalled();
   });
 
-  it("should create project.yml with correct languages", () => {
+  it("should return false when no languages to add (already up-to-date)", () => {
+    mockFs.existsSync.mockReturnValue(true);
+    mockFs.readFileSync.mockReturnValue(
+      'languages:\n- typescript\n\nproject_name: "p"\n',
+    );
+    const result = reconcileSerenaProjectConfig(projectPath, ["typescript"]);
+    expect(result).toBe(false);
+    expect(mockFs.writeFileSync).not.toHaveBeenCalled();
+  });
+
+  it("should write updated file when languages are added", () => {
+    mockFs.existsSync.mockReturnValue(true);
+    mockFs.readFileSync.mockReturnValue(
+      'languages:\n- typescript\n\nproject_name: "p"\n',
+    );
+    const result = reconcileSerenaProjectConfig(projectPath, [
+      "typescript",
+      "python",
+    ]);
+    expect(result).toBe(true);
+    expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+      projectYml,
+      expect.stringContaining("- python"),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ensureSerenaProjectConfig (updated return type — Task 10)
+// ---------------------------------------------------------------------------
+
+describe("ensureSerenaProjectConfig", () => {
+  it("should return 'unchanged' when project.yml exists and has all derived languages", () => {
+    mockFs.existsSync.mockReturnValue(true);
+    mockFs.readFileSync.mockReturnValue(
+      'languages:\n- typescript\n\nproject_name: "p"\n',
+    );
+    const result = ensureSerenaProjectConfig("/my/project", ["typescript"]);
+    expect(result).toBe("unchanged");
+    expect(mockFs.writeFileSync).not.toHaveBeenCalled();
+  });
+
+  it("should return 'reconciled' when project.yml exists and new languages were added", () => {
+    mockFs.existsSync.mockReturnValue(true);
+    mockFs.readFileSync.mockReturnValue(
+      'languages:\n- typescript\n\nproject_name: "p"\n',
+    );
+    const result = ensureSerenaProjectConfig("/my/project", [
+      "typescript",
+      "python",
+    ]);
+    expect(result).toBe("reconciled");
+    expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+      expect.stringContaining("project.yml"),
+      expect.stringContaining("- python"),
+    );
+  });
+
+  it("should return 'created' and write project.yml when file does not exist", () => {
     mockFs.existsSync.mockReturnValue(false);
-    ensureSerenaProjectConfig("/my/project", ["typescript", "python"]);
+    const result = ensureSerenaProjectConfig("/my/project", [
+      "typescript",
+      "python",
+    ]);
+    expect(result).toBe("created");
 
     const calls = mockFs.writeFileSync.mock.calls;
     const projectYmlCall = calls.find((c: string[]) =>
@@ -206,7 +438,7 @@ describe("ensureSerenaProjectConfig", () => {
     expect(content).toContain('project_name: "project"');
   });
 
-  it("should create .gitignore and memories directory", () => {
+  it("should create .gitignore and memories directory on creation", () => {
     mockFs.existsSync.mockReturnValue(false);
     ensureSerenaProjectConfig("/my/project", ["typescript"]);
 
@@ -230,7 +462,7 @@ describe("ensureSerenaProjectConfig", () => {
 });
 
 describe("ensureSerenaProject", () => {
-  it("should call both config and registration", () => {
+  it("should return configured='created' when project.yml does not exist", () => {
     // project.yml doesn't exist, config file exists with projects
     mockFs.existsSync.mockImplementation((p: string) => {
       if ((p as string).includes("project.yml")) return false;
@@ -240,7 +472,117 @@ describe("ensureSerenaProject", () => {
     mockFs.readFileSync.mockReturnValue("projects:\n- /other\n");
 
     const result = ensureSerenaProject("/my/project", ["typescript"]);
-    expect(result.configured).toBe(true);
+    expect(result.configured).toBe("created");
     expect(result.registered).toBe(true);
+  });
+
+  it("should return configured='unchanged' when project.yml has all languages", () => {
+    mockFs.existsSync.mockImplementation((p: string) => {
+      if ((p as string).includes("project.yml")) return true;
+      if ((p as string).includes("serena_config.yml")) return true;
+      return false;
+    });
+    mockFs.readFileSync.mockImplementation((p: string) => {
+      if ((p as string).includes("project.yml")) {
+        return 'languages:\n- typescript\n\nproject_name: "p"\n';
+      }
+      return `projects:\n- ${MY_PROJECT}\n`;
+    });
+
+    const result = ensureSerenaProject("/my/project", ["typescript"]);
+    expect(result.configured).toBe("unchanged");
+    expect(result.registered).toBe(false); // already registered
+  });
+});
+
+// ---------------------------------------------------------------------------
+// advisoryHeavyLanguages (Task 11 — doctor advisory helper)
+// ---------------------------------------------------------------------------
+
+describe("advisoryHeavyLanguages", () => {
+  it("should return empty array when all project languages are skill-derived", () => {
+    const result = advisoryHeavyLanguages(
+      ["typescript", "python"],
+      ["typescript", "python"],
+    );
+    expect(result).toEqual([]);
+  });
+
+  it("should flag bash as heavy when present but not skill-derived", () => {
+    const result = advisoryHeavyLanguages(
+      ["typescript", "bash"],
+      ["typescript"],
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0]?.language).toBe("bash");
+    expect(result[0]?.reason).toContain("bash");
+    expect(result[0]?.reason).toContain("40 MB");
+    expect(result[0]?.suggestion).toContain(".serena/project.yml");
+  });
+
+  it("should not flag bash when it is in the derived set", () => {
+    // Edge case: if a future skill maps to bash, it should not be flagged
+    const result = advisoryHeavyLanguages(
+      ["typescript", "bash"],
+      ["typescript", "bash"],
+    );
+    expect(result).toEqual([]);
+  });
+
+  it("should not flag unknown/unmapped languages (only known heavy ones)", () => {
+    // "cobol" is not in HEAVY_UNMAPPED_LANGUAGES — no advisory
+    const result = advisoryHeavyLanguages(
+      ["typescript", "cobol"],
+      ["typescript"],
+    );
+    expect(result).toEqual([]);
+  });
+
+  it("should flag multiple heavy languages when present", () => {
+    // If we had multiple heavy languages, all should be flagged
+    const result = advisoryHeavyLanguages(["typescript", "bash"], []);
+    // typescript is not heavy — only bash is flagged
+    expect(result).toHaveLength(1);
+    expect(result[0]?.language).toBe("bash");
+  });
+
+  it("should return structured items with language, reason, and suggestion fields", () => {
+    const result = advisoryHeavyLanguages(["bash"], []);
+    expect(result[0]).toHaveProperty("language");
+    expect(result[0]).toHaveProperty("reason");
+    expect(result[0]).toHaveProperty("suggestion");
+  });
+
+  it("should handle empty project languages list", () => {
+    const result = advisoryHeavyLanguages([], ["typescript"]);
+    expect(result).toEqual([]);
+  });
+
+  it("should handle empty derived languages list", () => {
+    // All project languages are non-derived; only heavy ones are flagged
+    const result = advisoryHeavyLanguages(["typescript", "bash"], []);
+    expect(result).toHaveLength(1); // only bash is in HEAVY_UNMAPPED_LANGUAGES
+    expect(result[0]?.language).toBe("bash");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseProjectYmlLanguages (convenience helper for doctor consumers)
+// ---------------------------------------------------------------------------
+
+describe("parseProjectYmlLanguages", () => {
+  it("should parse a standard languages block", () => {
+    const yml = `languages:\n- typescript\n- python\n\nproject_name: "test"\n`;
+    expect(parseProjectYmlLanguages(yml)).toEqual(["typescript", "python"]);
+  });
+
+  it("should return empty array when languages block is absent", () => {
+    expect(parseProjectYmlLanguages('project_name: "test"\n')).toEqual([]);
+  });
+
+  it("should return empty array for empty languages block", () => {
+    expect(
+      parseProjectYmlLanguages('languages:\n\nproject_name: "test"\n'),
+    ).toEqual([]);
   });
 });

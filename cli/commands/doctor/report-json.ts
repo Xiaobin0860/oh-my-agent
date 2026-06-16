@@ -100,6 +100,29 @@ export function serializeReportAsJson(report: DoctorReport): string {
       status: w.status,
       remediation: w.remediation ?? null,
     })),
+    serenaReap: {
+      rootCount: report.serenaReap.roots.length,
+      totalLspRssMb: report.serenaReap.totalLspRssMb,
+      reapableRssMb: report.serenaReap.reapableRssMb,
+      reapTargetCount: report.serenaReap.reapTargetCount,
+      config: report.serenaReap.config,
+      roots: report.serenaReap.roots.map((r) => ({
+        pid: r.pid,
+        project: r.project,
+        signalSource: r.signalSource,
+        idleMinutes: r.idleMinutes,
+        lspRssMb: r.lspRssMb,
+        lspCount: r.lspCount,
+        lspNames: r.lspNames,
+        isReapTarget: r.isReapTarget,
+      })),
+      languageAdvisories: report.serenaReap.languageAdvisories.map((a) => ({
+        language: a.language,
+        reason: a.reason,
+        suggestion: a.suggestion,
+      })),
+      issues: report.serenaReap.issues,
+    },
   };
   return JSON.stringify(payload, null, 2);
 }

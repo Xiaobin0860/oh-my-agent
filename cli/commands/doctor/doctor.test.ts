@@ -58,6 +58,9 @@ const spawnState = vi.hoisted(() => {
 vi.mock("node:child_process", () => ({
   execFileSync: spawnState.execFileSyncFn,
   spawn: spawnState.spawnFn,
+  // spawnSync is used by serena-reaper-runtime (runPs) — return empty stdout so
+  // discoverSerenaRoots finds no roots and serenaReap.issues stays empty.
+  spawnSync: vi.fn(() => ({ stdout: "", status: 0 })),
 }));
 
 // ---- dependency mocks needed by doctor.ts imports ----
@@ -422,6 +425,7 @@ describe("self-healing doctor check", () => {
       report.missingCLIs.length +
         report.missingSkills.length +
         report.agentMemory.issues.length +
+        report.serenaReap.issues.length +
         1,
     );
   });

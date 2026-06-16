@@ -96,7 +96,27 @@ export interface StateDoctorCheck {
   hookOrder: HookOrderDoctorCheck[];
 }
 
+import type { SerenaLanguageAdvisory } from "../../io/serena.js";
+import type { SerenaReaperConfig } from "../../io/serena-reaper.js";
 import type { HookWrapperCheck } from "./hook-wrapper-check.js";
+import type { SerenaRootSummary } from "./serena-reap.js";
+
+export interface SerenaReapDoctorCheck {
+  /** All discovered Serena root processes with per-root diagnostics. */
+  roots: SerenaRootSummary[];
+  /** Total LSP RSS across all roots (MB). */
+  totalLspRssMb: number;
+  /** Projected RSS that would be freed under current config (MB). */
+  reapableRssMb: number;
+  /** Number of roots that are reap targets under current config. */
+  reapTargetCount: number;
+  /** The reaper config in effect (from oma-config.yaml or defaults). */
+  config: SerenaReaperConfig;
+  /** Track-A advisories: heavy/unmapped languages in .serena/project.yml (T2-2). */
+  languageAdvisories: SerenaLanguageAdvisory[];
+  /** Summarised issues for the doctor issue counter. */
+  issues: string[];
+}
 
 export interface DoctorReport {
   cwd: string;
@@ -109,6 +129,7 @@ export interface DoctorReport {
   hasSerena: boolean;
   serenaFileCount: number;
   agentMemory: AgentMemoryDoctorCheck;
+  serenaReap: SerenaReapDoctorCheck;
   totalIssues: number;
   skillAudit: SkillAuditReport;
   skillEval: SkillEvalCoverage;
