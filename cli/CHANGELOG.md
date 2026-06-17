@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.9.1](https://github.com/first-fluke/oh-my-agent/compare/cli-v9.9.0...cli-v9.9.1) (2026-06-17)
+
+
+### Documentation
+
+* **oma-mobile:** align swift-ios variant with volunteerly reference ([fc0db44](https://github.com/first-fluke/oh-my-agent/commit/fc0db448ad56c933cd259a5db3b4c275354b1408))
+
 ## [9.9.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v9.8.0...cli-v9.9.0) (2026-06-17)
 
 
