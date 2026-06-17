@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.16.0](https://github.com/first-fluke/oh-my-agent/compare/web-v3.15.0...web-v3.16.0) (2026-06-17)
+
+
+### Features
+
+* **kimi:** integrate Kimi Code CLI as a first-class vendor ([cb5561a](https://github.com/first-fluke/oh-my-agent/commit/cb5561af9cf0d83da39e71ac52f84863258bc1cf))
+
 ## [3.15.0](https://github.com/first-fluke/oh-my-agent/compare/web-v3.14.1...web-v3.15.0) (2026-06-16)
 
 
