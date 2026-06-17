@@ -8,7 +8,7 @@ Hast du dir schon mal gewünscht, dein KI-Assistent hätte Kollegen? Genau das m
 
 Statt dass eine einzige KI alles erledigt (und sich auf halbem Weg verheddert), verteilt oh-my-agent die Arbeit auf **spezialisierte Agenten**: Frontend, Backend, Architektur, QA, PM, DB, Mobile, Infra, Debug, Design und mehr. Jeder kennt sein Fachgebiet in- und auswendig, hat eigene Tools und Checklisten und bleibt in seiner Spur.
 
-Funktioniert mit allen großen KI-IDEs: Pi, Claude Code, Cursor, Antigravity, Codex CLI, OpenCode und weiteren.
+Funktioniert mit allen großen KI-IDEs: Antigravity, Claude Code, Codex, Cursor, Grok Build, Kimi Code, OpenCode, Pi, Qwen Code und weiteren.
 
 ## Schnellstart
 
@@ -120,8 +120,8 @@ Wähl ein Preset und los geht's:
 <sub>Skills per Symlink</sub>
 </td>
 <td align="center">
-<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok" width="48" height="48" /></a><br/>
-<strong>Grok</strong><br/>
+<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok Build" width="48" height="48" /></a><br/>
+<strong>Grok Build</strong><br/>
 <sub>native Hooks</sub>
 </td>
 <td align="center">

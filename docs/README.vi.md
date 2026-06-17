@@ -8,7 +8,7 @@ Bạn đã bao giờ ước trợ lý AI của mình có đồng nghiệp chưa?
 
 Thay vì một AI làm tất cả mọi thứ (rồi bị lạc hướng giữa chừng), oh-my-agent phân chia công việc cho các **agent chuyên biệt**: frontend, backend, architecture, QA, PM, DB, mobile, infra, debug, design và nhiều hơn nữa. Mỗi agent hiểu sâu lĩnh vực của mình, có công cụ và checklist riêng, và chỉ tập trung vào phần việc được giao.
 
-Hỗ trợ tất cả các AI IDE chính: Pi, Claude Code, Cursor, Antigravity, Codex CLI, OpenCode và nhiều hơn nữa.
+Hỗ trợ tất cả các AI IDE chính: Antigravity, Claude Code, Codex, Cursor, Grok Build, Kimi Code, OpenCode, Pi, Qwen Code và nhiều hơn nữa.
 
 ## Bắt đầu nhanh
 
@@ -120,8 +120,8 @@ Chọn một preset và bạn đã sẵn sàng:
 <sub>skills qua symlink</sub>
 </td>
 <td align="center">
-<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok" width="48" height="48" /></a><br/>
-<strong>Grok</strong><br/>
+<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok Build" width="48" height="48" /></a><br/>
+<strong>Grok Build</strong><br/>
 <sub>native hooks</sub>
 </td>
 <td align="center">

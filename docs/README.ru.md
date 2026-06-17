@@ -8,7 +8,7 @@
 
 Вместо того чтобы один ИИ делал все (и терялся на полпути), oh-my-agent распределяет работу между **специализированными агентами**: frontend, backend, architecture, QA, PM, DB, mobile, infra, debug, design и другими. Каждый глубоко знает свою область, имеет свои инструменты и чеклисты и не лезет в чужую зону.
 
-Работает со всеми основными AI IDE: Pi, Claude Code, Cursor, Antigravity, Codex CLI, OpenCode и другими.
+Работает со всеми основными AI IDE: Antigravity, Claude Code, Codex, Cursor, Grok Build, Kimi Code, OpenCode, Pi, Qwen Code и другими.
 
 ## Быстрый старт
 
@@ -120,8 +120,8 @@ APM поставляет только скилы. Для workflow, правил,
 <sub>skills через symlink</sub>
 </td>
 <td align="center">
-<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok" width="48" height="48" /></a><br/>
-<strong>Grok</strong><br/>
+<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok Build" width="48" height="48" /></a><br/>
+<strong>Grok Build</strong><br/>
 <sub>нативные hooks</sub>
 </td>
 <td align="center">

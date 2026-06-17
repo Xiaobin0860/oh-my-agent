@@ -8,7 +8,7 @@
 
 与其让一个 AI 包揽一切（然后做到一半就迷路），oh-my-agent 把工作分配给**专业 agent**：frontend、backend、architecture、QA、PM、DB、mobile、infra、debug、design 等等。每个 agent 深耕自己的领域，拥有专属工具和检查清单，各司其职。
 
-支持所有主流 AI IDE：Pi、Claude Code、Cursor、Antigravity、Codex CLI、OpenCode 等。
+支持所有主流 AI IDE：Antigravity、Claude Code、Codex、Cursor、Grok Build、Kimi Code、OpenCode、Pi、Qwen Code 等。
 
 ## 快速开始
 
@@ -120,8 +120,8 @@ APM 只分发 skill。workflow、规则、`oma-config.yaml`、关键词检测 ho
 <sub>符号链接技能</sub>
 </td>
 <td align="center">
-<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok" width="48" height="48" /></a><br/>
-<strong>Grok</strong><br/>
+<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok Build" width="48" height="48" /></a><br/>
+<strong>Grok Build</strong><br/>
 <sub>原生钩子</sub>
 </td>
 <td align="center">

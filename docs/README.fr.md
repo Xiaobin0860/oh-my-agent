@@ -8,7 +8,7 @@ Tu as déjà rêvé que ton assistant IA ait des collègues ? C'est exactement c
 
 Au lieu qu'une seule IA fasse tout (et se perde en route), oh-my-agent répartit le boulot entre des **agents spécialisés** : frontend, backend, architecture, QA, PM, DB, mobile, infra, debug, design, et plus encore. Chacun connaît son domaine sur le bout des doigts, a ses propres outils et checklists, et reste dans sa voie.
 
-Compatible avec tous les principaux IDEs IA : Pi, Claude Code, Cursor, Antigravity, Codex CLI, OpenCode, et d'autres.
+Compatible avec tous les principaux IDEs IA : Antigravity, Claude Code, Codex, Cursor, Grok Build, Kimi Code, OpenCode, Pi, Qwen Code, et d'autres.
 
 ## Démarrage Rapide
 
@@ -120,8 +120,8 @@ Choisis un preset et c'est parti :
 <sub>skills via symlink</sub>
 </td>
 <td align="center">
-<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok" width="48" height="48" /></a><br/>
-<strong>Grok</strong><br/>
+<a href="https://grok.x.ai"><img src="./assets/agents/grok.png" alt="Grok Build" width="48" height="48" /></a><br/>
+<strong>Grok Build</strong><br/>
 <sub>hooks natifs</sub>
 </td>
 <td align="center">
