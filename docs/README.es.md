@@ -201,7 +201,7 @@ O usa slash commands para flujos estructurados:
 | 4 | `/review` | Auditoría de seguridad + rendimiento + accesibilidad |
 | 4 | `/deepsec` | Escaneo de seguridad profundo por agente |
 | 5 | `/debug` | Debugging estructurado de causa raíz |
-| 5 | `/docs` | Verificación y sincronización de drift de documentación con `oma-docs` |
+| 5 | `/docs` | Verificación y sincronización de drift de documentación |
 | 6 | `/scm` | Flujo SCM y Git con soporte de Conventional Commits |
 
 **Auto-detección**: Ni siquiera necesitas slash commands. Palabras clave como "arquitectura", "plan", "review" y "debug" en tu mensaje (¡en 11 idiomas!) activan automáticamente el flujo correcto.

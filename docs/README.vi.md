@@ -201,7 +201,7 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 | 4 | `/review` | Kiểm tra bảo mật + hiệu suất + accessibility |
 | 4 | `/deepsec` | Quét bảo mật chuyên sâu bằng agent |
 | 5 | `/debug` | Debug có cấu trúc tìm nguyên nhân gốc |
-| 5 | `/docs` | Xác minh và đồng bộ trôi tài liệu qua `oma-docs` |
+| 5 | `/docs` | Xác minh và đồng bộ trôi tài liệu |
 | 6 | `/scm` | Quy trình SCM và Git, hỗ trợ Conventional Commits |
 
 **Tự động phát hiện**: Bạn không nhất thiết cần slash command. Các từ khóa như "kiến trúc", "kế hoạch", "đánh giá", "debug" trong tin nhắn (hỗ trợ 11 ngôn ngữ!) sẽ tự động kích hoạt workflow phù hợp.

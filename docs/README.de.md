@@ -201,7 +201,7 @@ Oder nutz Slash Commands für strukturierte Workflows:
 | 4 | `/review` | Sicherheits- + Performance- + Barrierefreiheits-Audit |
 | 4 | `/deepsec` | Tiefer agent-basierter Security-Scan |
 | 5 | `/debug` | Strukturiertes Ursachen-Debugging |
-| 5 | `/docs` | Dokumentations-Drift verifizieren und synchronisieren via `oma-docs` |
+| 5 | `/docs` | Dokumentations-Drift verifizieren und synchronisieren |
 | 6 | `/scm` | SCM- und Git-Workflow sowie Unterstützung für Conventional Commits |
 
 **Auto-Erkennung**: Du brauchst nicht mal Slash Commands. Schlüsselwörter wie "Architektur", "plan", "review" und "debug" in deiner Nachricht (in 11 Sprachen!) aktivieren automatisch den richtigen Workflow.

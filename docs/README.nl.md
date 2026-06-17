@@ -201,7 +201,7 @@ Of gebruik slash commands voor gestructureerde workflows:
 | 4 | `/review` | Beveiligings- + performance- + toegankelijkheidsaudit |
 | 4 | `/deepsec` | Diepe agent-gedreven security scan |
 | 5 | `/debug` | Gestructureerde root cause-debugging |
-| 5 | `/docs` | Documentatie-drift verifiëren en synchroniseren via `oma-docs` |
+| 5 | `/docs` | Documentatie-drift verifiëren en synchroniseren |
 | 6 | `/scm` | SCM- en Git-workflow met ondersteuning voor Conventional Commits |
 
 **Autodetectie**: Je hebt de slash commands niet eens nodig. Woorden als "architectuur", "plan", "review" en "debug" in je bericht (in 11 talen!) activeren automatisch de juiste workflow.
