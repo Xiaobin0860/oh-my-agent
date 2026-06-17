@@ -88,10 +88,13 @@ export function installVendorAdaptations(
     if (existsSync(variantPath)) {
       const variant = safeLoadHookVariant(variantPath, installRoot);
       if (variant?.homeOnly) {
-        // HOME-scoped vendor (agy): its dedicated installer (link 4g →
-        // installAntigravityHud) owns all writes; a project-variant install
-        // would only produce dead files the vendor never loads.
-        sweepStaleAgyProjectInstall(installRoot);
+        // HOME-scoped vendors (agy, kimi): a dedicated installer (link 4g/4h →
+        // installAntigravityHud / installKimiHooks) owns all writes; a
+        // project-variant install would only produce dead files the vendor
+        // never loads. The stale-dir sweep is agy-specific.
+        if (variant.vendor === "antigravity") {
+          sweepStaleAgyProjectInstall(installRoot);
+        }
       } else if (variant) {
         installHooksFromVariant(sourceDir, installRoot, variant);
       }

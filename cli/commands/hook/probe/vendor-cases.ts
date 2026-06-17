@@ -8,6 +8,7 @@ export type ProbeVendor =
   | "cursor"
   | "gemini"
   | "grok"
+  | "kimi"
   | "kiro"
   | "qwen";
 
@@ -17,6 +18,7 @@ export const PROBE_VENDORS: ProbeVendor[] = [
   "cursor",
   "gemini",
   "grok",
+  "kimi",
   "kiro",
   "qwen",
   "antigravity",
@@ -125,6 +127,24 @@ export const VENDOR_CASES: Record<ProbeVendor, VendorCase> = {
         prompt,
       },
       env: { GROK_WORKSPACE_ROOT: projectDir },
+    }),
+  },
+  kimi: {
+    // Kimi Code CLI: blockable UserPromptSubmit hook; stdout (exit 0) is
+    // appended to context as plain text. snake_case session_id + cwd in stdin;
+    // no project-dir env var (the hook runs with cwd = project dir).
+    promptEvent: "UserPromptSubmit",
+    expectedHookEvent: "UserPromptSubmit",
+    injectionFields: ["additionalContext"],
+    usesHookSpecificOutput: false,
+    build: (projectDir, vendorSid, prompt) => ({
+      input: {
+        hook_event_name: "UserPromptSubmit",
+        session_id: vendorSid,
+        cwd: projectDir,
+        prompt,
+      },
+      env: {},
     }),
   },
   kiro: {

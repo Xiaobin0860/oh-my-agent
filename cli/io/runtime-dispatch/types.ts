@@ -12,6 +12,7 @@ export type RuntimeVendor =
   | "antigravity"
   | "qwen"
   | "grok"
+  | "kimi"
   | "kiro"
   | "opencode"
   | "pi"

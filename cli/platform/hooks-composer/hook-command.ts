@@ -86,6 +86,23 @@ function buildVariantPath(
   return shellQuote(relPath);
 }
 
+/**
+ * Build the `--vendor <v> --event <e> [--matcher <m>]` argument tail that the
+ * oma-hook wrapper is invoked with. All values originate from variant JSON
+ * (potentially attacker-controlled) so each is `shellQuote`d to neutralise
+ * shell metacharacters. Shared by `buildOmaHookCmd` (settings-file vendors,
+ * relative wrapper path) and the Kimi TOML installer (absolute wrapper path).
+ */
+export function buildOmaHookArgs(
+  vendor: string,
+  nativeEvent: string,
+  matcher?: string,
+): string {
+  let args = `--vendor ${shellQuote(vendor)} --event ${shellQuote(nativeEvent)}`;
+  if (matcher) args += ` --matcher ${shellQuote(matcher)}`;
+  return args;
+}
+
 export function buildOmaHookCmd(
   variant: HookVariant,
   nativeEvent: string,
@@ -100,11 +117,7 @@ export function buildOmaHookCmd(
     variant.projectDirEnv,
     `${variant.hookDir}/${wrapperName}`,
   );
-  // Quote interpolated values — they originate from variant JSON and must not
-  // be able to inject shell metacharacters into the registered command.
-  let cmd = `${basePath} --vendor ${shellQuote(variant.vendor)} --event ${shellQuote(nativeEvent)}`;
-  if (matcher) cmd += ` --matcher ${shellQuote(matcher)}`;
-  return cmd;
+  return `${basePath} ${buildOmaHookArgs(variant.vendor, nativeEvent, matcher)}`;
 }
 
 export function deriveHookName(script: string): string {

@@ -44,6 +44,8 @@ describe("auth:status command", () => {
       "XAI_API_KEY",
       "MISTRAL_API_KEY",
       "AZURE_OPENAI_API_KEY",
+      "KIMI_API_KEY",
+      "MOONSHOT_API_KEY",
     ]) {
       vi.stubEnv(key, "");
     }
@@ -102,6 +104,7 @@ describe("auth:status command", () => {
         qwen: true,
         antigravity: false,
         grok: false,
+        kimi: false,
         kiro: true,
         pi: true,
         opencode: true,
@@ -132,6 +135,7 @@ describe("auth:status command", () => {
         qwen: false,
         antigravity: false,
         grok: false,
+        kimi: false,
         kiro: false,
         pi: false,
         opencode: false,

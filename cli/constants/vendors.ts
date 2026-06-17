@@ -22,6 +22,7 @@ export const VENDORS = [
   "cursor",
   "gemini",
   "grok",
+  "kimi",
   "kiro",
   "qwen",
 ] as const;
@@ -107,6 +108,19 @@ export const CLI_SKILLS_DIR: Record<CliTool, SkillTargetSpec> & {
     projectPath: ".hermes/skills/oma",
     homePath: ".hermes/skills/oma",
     requiresHomeConsent: true,
+  },
+  kimi: {
+    // Kimi's hooks are global-only (~/.kimi-code/config.toml), so selecting Kimi
+    // always entails a HOME write. requiresHomeConsent keeps the explicit
+    // HOME-write consent prompt that also gates those hooks, and parks the skill
+    // symlinks in the user-tier `~/.kimi-code/skills/`. Kimi additionally scans
+    // the project's SSOT `.agents/skills/` natively, so skills resolve
+    // project-wide regardless. (MCP, which needs no HOME write, stays
+    // project-scoped — see cli/vendors/kimi/mcp.ts.)
+    projectPath: ".kimi-code/skills",
+    homePath: ".kimi-code/skills",
+    requiresHomeConsent: true,
+    optIn: true,
   },
   kiro: { projectPath: ".kiro/skills", homePath: ".kiro/skills", optIn: true },
   opencode: {

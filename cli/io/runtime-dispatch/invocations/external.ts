@@ -133,6 +133,35 @@ export function buildExternalInvocation(
     return { command, args, env: { ...process.env } };
   }
 
+  // Kimi Code CLI: `kimi -p "<prompt>"` runs a single prompt non-interactively
+  // and streams stdout. In `-p` mode Kimi uses the `auto` permission policy by
+  // default — tool calls are auto-approved — and `--yolo`/`--auto` are MUTUALLY
+  // EXCLUSIVE with `--prompt`, so we must NOT append them. Kimi exposes no
+  // headless read-only sandbox flag, so read-only mode can only warn.
+  if (vendor === "kimi") {
+    const command = vendorConfig.command || "kimi";
+    const args: string[] = [];
+
+    if (vendorConfig.model_flag && vendorConfig.default_model) {
+      args.push(vendorConfig.model_flag, vendorConfig.default_model);
+    }
+
+    if (readOnly) {
+      if (vendorConfig.read_only_flag) {
+        args.push(...splitArgs(vendorConfig.read_only_flag));
+      } else {
+        console.warn(
+          `[agent-spawn] read-only mode requested but vendor '${vendor}' has no read_only_flag defined; spawning without auto-approve (permissive flags suppressed)`,
+        );
+      }
+    }
+
+    // `-p`/`--prompt` is Kimi's non-interactive prompt flag.
+    args.push("-p", promptContent);
+
+    return { command, args, env: { ...process.env } };
+  }
+
   // pi (Earendil): `pi -p [--exclude-tools …] [--model …] "<prompt>"`. pi has no
   // permission sandbox or auto-approve flag — tools run without prompting — so
   // read-only is enforced by excluding the mutating tools. The model/thinking

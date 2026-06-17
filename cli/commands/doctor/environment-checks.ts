@@ -12,6 +12,7 @@ import {
   isCodexAuthenticated,
   isGeminiAuthenticated,
   isGrokAuthenticated,
+  isKimiAuthenticated,
   isKiroAuthenticated,
   isPiAuthenticated,
   isQwenAuthenticated,
@@ -35,6 +36,7 @@ export const CLI_DEFINITIONS: Array<[string, string, string]> = [
   ],
   ["grok", "grok", "Follow instructions at https://grok.x.ai"],
   ["kiro", "kiro-cli", "Follow instructions at https://kiro.dev"],
+  ["kimi", "kimi", "Follow instructions at https://www.kimi.com/code"],
   ["pi", "pi", "bun install --global @earendil-works/pi-coding-agent"],
 ];
 
@@ -46,6 +48,7 @@ export const AUTH_CHECKERS: Record<string, () => boolean> = {
   antigravity: () => isAntigravityAuthenticated(),
   grok: isGrokAuthenticated,
   kiro: isKiroAuthenticated,
+  kimi: isKimiAuthenticated,
   pi: isPiAuthenticated,
 };
 

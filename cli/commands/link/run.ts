@@ -56,6 +56,8 @@ import {
   needsGrokProjectMcpUpdate,
   needsGrokTelemetryUpdate,
 } from "../../vendors/grok/settings.js";
+import { installKimiHooks } from "../../vendors/kimi/hooks.js";
+import { installKimiMcp } from "../../vendors/kimi/mcp.js";
 import {
   applyKiroOmaHooksAgent,
   applyKiroProjectMcp,
@@ -407,6 +409,25 @@ export function link(opts: LinkOptions = {}): LinkResult {
       }
     } catch {
       // getInstallMode may not be set in some test contexts — skip silently.
+    }
+  }
+
+  // 4h. Kimi Code CLI HOME wiring — Kimi is global-only: it reads hooks from
+  //     ~/.kimi-code/config.toml ([[hooks]] TOML, KIMI_CODE_HOME) and exposes
+  //     no project-scoped config, so the generic project-variant install is
+  //     skipped (kimi.json is homeOnly) and we merge into HOME here. Gated on
+  //     recorded consent (kimi in configuredVendors), like the agy block above.
+  if (configuredVendors.includes("kimi")) {
+    const kimiResult = installKimiHooks(cwd);
+    if (!kimiResult.installed && kimiResult.reason && !quiet) {
+      console.log(`${pc.yellow("⚠")} kimi: ${kimiResult.reason}`);
+    }
+    // Kimi MCP: serena + chrome-devtools into mcp.json (Claude-style JSON).
+    // Mode-aware — project installs write <cwd>/.kimi-code/mcp.json, global
+    // installs write ~/.kimi-code/mcp.json (skipped silently when absent).
+    const kimiMcp = installKimiMcp(cwd);
+    if (kimiMcp.installed && kimiMcp.path && !quiet) {
+      console.log(`${pc.green("✓")} kimi mcp.json: ${kimiMcp.path}`);
     }
   }
 

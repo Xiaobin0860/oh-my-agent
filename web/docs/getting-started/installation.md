@@ -7,7 +7,7 @@ description: Complete installation guide for oh-my-agent, covering three install
 
 ## Prerequisites
 
-- **An AI-powered IDE or CLI**: at least one of Claude Code, Gemini CLI, Codex CLI, Qwen CLI, Antigravity CLI (`agy`), Antigravity IDE, Cursor, or OpenCode
+- **An AI-powered IDE or CLI**: at least one of Claude Code, Gemini CLI, Codex CLI, Qwen CLI, Antigravity CLI (`agy`), Antigravity IDE, Cursor, OpenCode, or Kimi Code CLI
 - **bun**: JavaScript runtime and package manager (auto-installed by the install script if missing)
 - **uv**: Python package manager (auto-installed if missing)
 - **serena-agent**: Serena MCP binary, installed globally via `uv tool install -p 3.13 serena-agent@latest --prerelease=allow` (auto-installed by the install script if missing)

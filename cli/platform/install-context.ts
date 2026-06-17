@@ -43,6 +43,20 @@ export function getInstallMode(): InstallMode {
   return getInstallContext().mode;
 }
 
+/**
+ * Like {@link getInstallMode} but never throws: returns `"project"` when the
+ * install context has not been set yet (early bootstrap or unit tests that
+ * don't initialise it). Use at call sites that must degrade gracefully rather
+ * than fail when the context is absent.
+ */
+export function safeGetInstallMode(): InstallMode {
+  try {
+    return getInstallMode();
+  } catch {
+    return "project";
+  }
+}
+
 /** Test-only — resets the module-level singleton between vitest cases. */
 export function _resetInstallContext(): void {
   _ctx = null;

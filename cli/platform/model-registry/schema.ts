@@ -12,6 +12,7 @@ const RuntimeIdSchema = z.enum([
   "antigravity",
   "qwen",
   "kiro",
+  "kimi",
   "opencode",
 ]);
 

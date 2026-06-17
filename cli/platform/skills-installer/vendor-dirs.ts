@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { CLI_SKILLS_DIR, EXTENSION_VENDORS } from "../../constants/index.js";
 import type { CliTool, CliVendor, VendorType } from "../../types/index.js";
-import { getInstallMode } from "../install-context.js";
+import { safeGetInstallMode } from "../install-context.js";
 
 /**
  * Vendors with a hook bridge (settings, prompt hooks, agent variants).
@@ -17,6 +17,7 @@ const HOOK_VENDORS: ReadonlySet<VendorType> = new Set([
   "cursor",
   "gemini",
   "grok",
+  "kimi",
   "kiro",
   "qwen",
 ]);
@@ -59,15 +60,7 @@ export function vendorSkillsDir(cli: CliTool, installRoot: string): string {
     return join(homedir(), spec.homePath);
   }
 
-  let mode: "project" | "global" = "project";
-  try {
-    mode = getInstallMode();
-  } catch {
-    // Context not set yet (early bootstrap or unit tests that don't init).
-    mode = "project";
-  }
-
-  if (mode === "global") {
+  if (safeGetInstallMode() === "global") {
     return join(installRoot, spec.homePath);
   }
 

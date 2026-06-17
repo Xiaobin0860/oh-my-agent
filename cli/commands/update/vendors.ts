@@ -23,6 +23,10 @@ const VENDOR_ROOTS: Record<CliVendor, string[]> = {
   gemini: [".gemini"],
   grok: [".grok"],
   hermes: [".hermes"],
+  // Kimi is global-only (~/.kimi-code, KIMI_CODE_HOME) — it has no project
+  // marker. Its HOME hooks are (re)written by `oma link` under recorded consent
+  // (installKimiHooks), not the project-root update sweep.
+  kimi: [],
   kiro: [".kiro"],
   opencode: [".opencode"],
   pi: [".pi"],

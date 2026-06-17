@@ -38,6 +38,9 @@ import geminiVariant from "../../../.agents/hooks/variants/gemini.json" with {
 import grokVariant from "../../../.agents/hooks/variants/grok.json" with {
   type: "json",
 };
+import kimiVariant from "../../../.agents/hooks/variants/kimi.json" with {
+  type: "json",
+};
 import kiroVariant from "../../../.agents/hooks/variants/kiro.json" with {
   type: "json",
 };
@@ -112,6 +115,7 @@ export const VARIANT_ROUTES: Readonly<Record<string, VariantJson>> = {
   cursor: cursorVariant as VariantJson,
   gemini: geminiVariant as VariantJson,
   grok: grokVariant as VariantJson,
+  kimi: kimiVariant as VariantJson,
   kiro: kiroVariant as VariantJson,
   qwen: qwenVariant as VariantJson,
 };

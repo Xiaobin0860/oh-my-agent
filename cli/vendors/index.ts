@@ -6,6 +6,7 @@ import { isCommandCodeAuthenticated } from "./commandcode/auth.js";
 import { isCursorAuthenticated } from "./cursor/auth.js";
 import { isGeminiAuthenticated } from "./gemini/auth.js";
 import { isGrokAuthenticated } from "./grok/auth.js";
+import { isKimiAuthenticated } from "./kimi/auth.js";
 import { isKiroAuthenticated } from "./kiro/auth.js";
 import { isOpencodeAuthenticated } from "./opencode/auth.js";
 import { isPiAuthenticated } from "./pi/auth.js";
@@ -46,6 +47,11 @@ export const VENDORS: readonly Vendor[] = [
     isAuthenticated: isGrokAuthenticated,
   },
   {
+    id: "kimi",
+    label: "Kimi Code CLI",
+    isAuthenticated: isKimiAuthenticated,
+  },
+  {
     id: "kiro",
     label: "Kiro CLI",
     isAuthenticated: isKiroAuthenticated,
@@ -70,6 +76,7 @@ export {
   isCursorAuthenticated,
   isGeminiAuthenticated,
   isGrokAuthenticated,
+  isKimiAuthenticated,
   isKiroAuthenticated,
   isOpencodeAuthenticated,
   isPiAuthenticated,

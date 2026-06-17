@@ -374,3 +374,68 @@ provider needs login or a subscription.
 > therefore run with **degraded Stop semantics** under opencode — workflow
 > reinforcement happens on the next message rather than by holding the session
 > open.
+
+---
+
+## Dispatching through Kimi Code CLI
+
+[Kimi Code CLI](https://www.kimi.com/code) reads **hooks** only from a global
+config (`~/.kimi-code/config.toml`, `KIMI_CODE_HOME`), so `oma install`/`oma link`
+write the Kimi hook chain and its skill symlinks into HOME under explicit consent
+(like Antigravity). Kimi also scans oma's SSOT `.agents/skills/` directly, so
+skills resolve project-wide regardless. **MCP** needs no HOME write and is
+project-scoped — written mode-aware to `<cwd>/.kimi-code/mcp.json` (project) or
+`~/.kimi-code/mcp.json` (global).
+
+### Explicit dispatch
+
+Route any agent through Kimi with the `-m kimi` override:
+
+```bash
+oma agent:spawn pm "Draft the rollout plan" <session> -m kimi
+```
+
+This runs `kimi -p "<prompt>"`. Kimi's `-p` (non-interactive) mode auto-approves
+regular tool calls under its `auto` permission policy, so oma does **not** append
+`--yolo`/`--auto` (they are mutually exclusive with `-p`).
+
+### Per-agent Kimi models
+
+Like opencode, oma does **not** hardcode a Kimi model catalog (Kimi's lineup is
+provider/subscription-dependent). To route specific agents to a Kimi model,
+register a complete spec under `models:` with `cli: kimi` and reference it from
+`agents:`:
+
+The registry key must be in `owner/model` form (bare names are rejected by the
+`agents.<id>.model` schema), and `cli_model` is the exact alias passed to
+`kimi --model` — Kimi's documented coding alias is `kimi-code/kimi-for-coding`.
+Confirm the alias your subscription exposes with `kimi --model <alias>` before
+committing it.
+
+```yaml
+# .agents/oma-config.yaml
+models:
+  kimi-code/kimi-for-coding:
+    cli: kimi
+    cli_model: kimi-code/kimi-for-coding
+    auth_hint: "Kimi subscription — run: kimi login"
+    supports:
+      effort: null
+      apply_patch: false
+      task_budget: false
+      prompt_cache: false
+      computer_use: false
+      native_dispatch_from: []
+      api_only: false
+
+agents:
+  pm:   { model: kimi-code/kimi-for-coding }
+  docs: { model: kimi-code/kimi-for-coding }
+```
+
+Each routed agent dispatches `kimi --model kimi-code/kimi-for-coding -p "<prompt>"`.
+
+> **Persistent-workflow note:** Kimi's documented Stop-blocking path is exit-code
+> 2 / stderr, but the `oma hook` router always exits 0 and emits a stdout dialect.
+> oma emits a best-effort `permissionDecision: "deny"` (plus Claude-style
+> `decision: "block"`) so persistent workflows degrade gracefully under Kimi.

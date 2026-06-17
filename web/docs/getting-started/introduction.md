@@ -178,6 +178,7 @@ oh-my-agent works with any AI-powered IDE or CLI that supports skill/prompt load
 | **Antigravity IDE** | Skills auto-loaded | `oma agent:spawn` |
 | **Cursor** | Skills via `.cursor/` integration | Manual spawning |
 | **OpenCode** | Skills + in-process plugin bridge + generated subagents (`.opencode/agents/`) | `oma agent:spawn -m opencode` |
+| **Kimi Code CLI** | Hooks + skills in `~/.kimi-code/` (consent-gated HOME write; also reads SSOT `.agents/skills/` natively); project-scoped Serena MCP | `oma agent:spawn -m kimi` |
 
 Agent spawning adapts to each vendor automatically via the vendor detection protocol, which checks for vendor-specific markers (e.g., the `Agent` tool for Claude Code, `apply_patch` for Codex CLI).
 
@@ -242,6 +243,7 @@ oh-my-agent is not limited to Claude Code. All hook-model vendors share the same
 | **Cursor** | `oma-hook.sh --vendor cursor --event beforeSubmitPrompt` / `preToolUse` | — |
 | **Grok** | `oma-hook.sh --vendor grok --event UserPromptSubmit` / `Stop` | — |
 | **Kiro** | `oma-hook.sh --vendor kiro --event userPromptSubmit` / `preToolUse` / `stop` | — |
+| **Kimi Code** | `oma-hook.sh --vendor kimi --event UserPromptSubmit` / `PreToolUse` / `Stop` (global-only TOML `[[hooks]]` in `~/.kimi-code/config.toml`) | — |
 | **Antigravity** | `oma-hook.sh --vendor antigravity --event PreInvocation` / `PreToolUse` / `Stop` | — |
 | **pi** | In-process bridge (`installPiExtension`) — not routed through `oma hook` | — |
 

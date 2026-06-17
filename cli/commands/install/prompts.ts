@@ -178,6 +178,11 @@ export async function promptVendors(
             label: "Hermes Agent",
             hint: "skills only — workflows N/A, HOME-shared (no per-project isolation)",
           },
+          {
+            value: "kimi" as const,
+            label: "Kimi Code CLI",
+            hint: "hooks + skills — HOME-shared (~/.kimi-code/) + project Serena MCP",
+          },
         ]
       : []),
     { value: "qwen", label: "Qwen Code", hint: "hooks + settings" },

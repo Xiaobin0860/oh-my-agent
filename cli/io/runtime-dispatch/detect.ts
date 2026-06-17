@@ -8,6 +8,7 @@ const SUPPORTED_RUNTIME_VENDORS = new Set<RuntimeVendor>([
   "antigravity",
   "qwen",
   "grok",
+  "kimi",
   "kiro",
   "opencode",
   "pi",

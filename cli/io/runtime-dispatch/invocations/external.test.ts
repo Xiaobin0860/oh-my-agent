@@ -516,3 +516,70 @@ describe("isolation_env hardening", () => {
     expect(isSafeIsolationEnvKey("BAD-KEY")).toBe(false);
   });
 });
+
+describe("buildExternalInvocation — kimi", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const kimiConfig = (extra: Partial<VendorConfig> = {}): VendorConfig => ({
+    command: "kimi",
+    auto_approve_flag: undefined,
+    read_only_flag: undefined,
+    model_flag: undefined,
+    default_model: undefined,
+    output_format_flag: undefined,
+    output_format: undefined,
+    subcommand: undefined,
+    isolation_flags: undefined,
+    isolation_env: undefined,
+    prompt_flag: undefined,
+    ...extra,
+  });
+
+  it("dispatches `kimi -p <prompt>` and NEVER appends --yolo/--auto (mutually exclusive with -p)", () => {
+    const inv = buildExternalInvocation("kimi", kimiConfig(), "-p", "do work");
+    expect(inv.command).toBe("kimi");
+    expect(inv.args).toEqual(["-p", "do work"]);
+    expect(inv.args).not.toContain("--yolo");
+    expect(inv.args).not.toContain("--auto");
+  });
+
+  it("prepends the model flag before -p when configured", () => {
+    const inv = buildExternalInvocation(
+      "kimi",
+      kimiConfig({ model_flag: "--model", default_model: "kimi-for-coding" }),
+      "-p",
+      "do work",
+    );
+    expect(inv.args).toEqual(["--model", "kimi-for-coding", "-p", "do work"]);
+  });
+
+  it("readOnly:true with no read_only_flag warns and still omits auto-approve", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const inv = buildExternalInvocation(
+      "kimi",
+      kimiConfig(),
+      "-p",
+      "do work",
+      undefined,
+      { readOnly: true },
+    );
+    expect(inv.args).toEqual(["-p", "do work"]);
+    expect(inv.args).not.toContain("--yolo");
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  it("readOnly:true appends a configured read_only_flag", () => {
+    const inv = buildExternalInvocation(
+      "kimi",
+      kimiConfig({ read_only_flag: "--kimi-ro" }),
+      "-p",
+      "do work",
+      undefined,
+      { readOnly: true },
+    );
+    expect(inv.args).toEqual(["--kimi-ro", "-p", "do work"]);
+  });
+});

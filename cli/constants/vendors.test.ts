@@ -38,6 +38,7 @@ describe("VENDORS (unchanged guard)", () => {
       "cursor",
       "gemini",
       "grok",
+      "kimi",
       "kiro",
       "qwen",
     ]);

@@ -31,7 +31,9 @@ export function classifyInjection(
 ): { ok: boolean; field: string; context: string | null } {
   const trimmed = raw.trim();
   if (!trimmed) return { ok: false, field: "(no output)", context: null };
-  if (vendor === "kiro") {
+  if (vendor === "kiro" || vendor === "kimi") {
+    // Kiro and Kimi inject context as plain stdout (exit 0 → appended to
+    // context), not a JSON envelope — so don't attempt to JSON.parse them.
     return { ok: true, field: "stdout", context: trimmed };
   }
   let parsed: Record<string, unknown>;
