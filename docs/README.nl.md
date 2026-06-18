@@ -189,20 +189,21 @@ Of gebruik slash commands voor gestructureerde workflows:
 
 | Stap | Commando | Wat het doet |
 |------|----------|-------------|
-| 0 | `/deepinit` | Initialiseert een bestaande codebase (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Vrije brainstorm |
-| 2 | `/architecture` | Software-architectuurreview, trade-offs, ADR/ATAM/CBAM-stijl analyse |
-| 2 | `/design` | 7-fasen design system workflow |
-| 2 | `/plan` | PM splitst je feature op in taken |
-| 3 | `/work` | Stapsgewijze multi-agent uitvoering |
-| 3 | `/orchestrate` | Automatische parallelle agent-spawning |
-| 3 | `/ultrawork` | 5-fasen kwaliteitsworkflow met 11 review gates |
-| 3 | `/ralph` | Wikkelt `/ultrawork` in een onafhankelijke verificatielus tot de criteria slagen |
-| 4 | `/review` | Beveiligings- + performance- + toegankelijkheidsaudit |
-| 4 | `/deepsec` | Diepe agent-gedreven security scan |
-| 5 | `/debug` | Gestructureerde root cause-debugging |
-| 5 | `/docs` | Documentatie-drift verifiëren en synchroniseren |
-| 6 | `/scm` | SCM- en Git-workflow met ondersteuning voor Conventional Commits |
+| 0 | `/deepinit` | Brengt je bestaande codebase in kaart in AGENTS.md, ARCHITECTURE.md en docs |
+| 1 | `/brainstorm` | Verkent ideeën met je voordat je begint te bouwen |
+| 2 | `/architecture` | Weegt je design-trade-offs af en trekt heldere modulegrenzen |
+| 2 | `/design` | Bouwt je design system met tokens, toegankelijkheid en responsive layouts |
+| 2 | `/plan` | Splitst je feature op in geprioriteerde taken |
+| 3 | `/work` | Bouwt je feature stap voor stap over meerdere agents |
+| 3 | `/orchestrate` | Draait meerdere agents parallel om je feature sneller te bouwen |
+| 3 | `/ultrawork` | Bouwt je feature door vijf kwaliteitsfasen en elf review gates |
+| 3 | `/ralph` | Herhaalt `/ultrawork` tot een onafhankelijke verificator elk criterium goedkeurt |
+| 4 | `/review` | Bekijkt je code op beveiligings-, performance- en toegankelijkheidsproblemen |
+| 4 | `/deepsec` | Draait een diepe security scan en blokkeert riskante pull requests |
+| 5 | `/debug` | Vindt de root cause, fixt de bug en schrijft een regressietest |
+| 5 | `/docs` | Controleert je docs op kapotte verwijzingen en patcht die welke je codewijzigingen raken |
+| 6 | `/scm` | Beheert je branches, merges en Conventional Commits |
+| - | `/schedule` | Plant een agent-job in om met een terugkerend interval te draaien |
 
 **Autodetectie**: Je hebt de slash commands niet eens nodig. Woorden als "architectuur", "plan", "review" en "debug" in je bericht (in 11 talen!) activeren automatisch de juiste workflow.
 

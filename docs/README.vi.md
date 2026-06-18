@@ -189,20 +189,21 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 
 | Bước | Lệnh | Chức năng |
 |------|------|----------|
-| 0 | `/deepinit` | Khởi tạo một codebase hiện có (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Phát triển ý tưởng tự do |
-| 2 | `/architecture` | Rà soát kiến trúc, trade-off, phân tích kiểu ADR/ATAM/CBAM |
-| 2 | `/design` | Workflow hệ thống thiết kế 7 giai đoạn |
-| 2 | `/plan` | PM phân tách tính năng thành các task |
-| 3 | `/work` | Thực thi multi-agent từng bước |
-| 3 | `/orchestrate` | Tự động spawn agent song song |
-| 3 | `/ultrawork` | Workflow chất lượng 5 giai đoạn với 11 cổng đánh giá |
-| 3 | `/ralph` | Bọc `/ultrawork` trong vòng lặp kiểm chứng độc lập cho đến khi đạt tiêu chí |
-| 4 | `/review` | Kiểm tra bảo mật + hiệu suất + accessibility |
-| 4 | `/deepsec` | Quét bảo mật chuyên sâu bằng agent |
-| 5 | `/debug` | Debug có cấu trúc tìm nguyên nhân gốc |
-| 5 | `/docs` | Xác minh và đồng bộ trôi tài liệu |
-| 6 | `/scm` | Quy trình SCM và Git, hỗ trợ Conventional Commits |
+| 0 | `/deepinit` | Lập bản đồ codebase hiện có của bạn vào AGENTS.md, ARCHITECTURE.md và docs |
+| 1 | `/brainstorm` | Cùng bạn khám phá ý tưởng trước khi bắt tay xây dựng |
+| 2 | `/architecture` | Cân nhắc trade-off thiết kế và vạch ranh giới module gọn gàng cho bạn |
+| 2 | `/design` | Dựng hệ thống thiết kế cho bạn với token, accessibility và layout responsive |
+| 2 | `/plan` | Phân tách tính năng của bạn thành các task được ưu tiên |
+| 3 | `/work` | Xây dựng tính năng của bạn từng bước qua nhiều agent |
+| 3 | `/orchestrate` | Chạy nhiều agent song song để xây tính năng của bạn nhanh hơn |
+| 3 | `/ultrawork` | Xây dựng tính năng của bạn qua năm giai đoạn chất lượng và mười một cổng đánh giá |
+| 3 | `/ralph` | Lặp lại `/ultrawork` cho đến khi một trình kiểm chứng độc lập đạt mọi tiêu chí |
+| 4 | `/review` | Rà soát code của bạn về các vấn đề bảo mật, hiệu suất và accessibility |
+| 4 | `/deepsec` | Quét bảo mật chuyên sâu và chặn các pull request rủi ro |
+| 5 | `/debug` | Tìm nguyên nhân gốc, sửa lỗi và viết regression test |
+| 5 | `/docs` | Kiểm tra tài liệu của bạn về tham chiếu hỏng và vá những phần mà thay đổi code chạm tới |
+| 6 | `/scm` | Quản lý branch, merge và Conventional Commits của bạn |
+| - | `/schedule` | Lên lịch một job agent chạy theo chu kỳ lặp lại |
 
 **Tự động phát hiện**: Bạn không nhất thiết cần slash command. Các từ khóa như "kiến trúc", "kế hoạch", "đánh giá", "debug" trong tin nhắn (hỗ trợ 11 ngôn ngữ!) sẽ tự động kích hoạt workflow phù hợp.
 

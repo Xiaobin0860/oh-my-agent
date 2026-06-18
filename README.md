@@ -193,20 +193,21 @@ Or use slash commands for structured workflows:
 
 | Step | Command | What It Does |
 |------|---------|-------------|
-| 0 | `/deepinit` | Bootstrap an existing codebase (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Free-form ideation |
-| 2 | `/architecture` | Software architecture review, tradeoffs, ADR/ATAM/CBAM-style analysis |
-| 2 | `/design` | 7-phase design system workflow |
-| 2 | `/plan` | PM breaks down your feature into tasks |
-| 3 | `/work` | Step-by-step multi-agent execution |
-| 3 | `/orchestrate` | Automated parallel agent spawning |
-| 3 | `/ultrawork` | 5-phase quality workflow with 11 review gates |
-| 3 | `/ralph` | Wraps `/ultrawork` in an independent verifier loop until criteria pass |
-| 4 | `/review` | Security + performance + accessibility audit |
-| 4 | `/deepsec` | Deep agent-powered security scan |
-| 5 | `/debug` | Structured root-cause debugging |
-| 5 | `/docs` | Documentation drift verify + sync |
-| 6 | `/scm` | SCM + Git workflow and Conventional Commit support |
+| 0 | `/deepinit` | Maps your existing codebase into AGENTS.md, ARCHITECTURE.md, and docs |
+| 1 | `/brainstorm` | Explores ideas with you before you commit to building |
+| 2 | `/architecture` | Weighs your design tradeoffs and draws clean module boundaries |
+| 2 | `/design` | Builds your design system with tokens, accessibility, and responsive layouts |
+| 2 | `/plan` | Breaks your feature down into prioritized tasks |
+| 3 | `/work` | Builds your feature step by step across multiple agents |
+| 3 | `/orchestrate` | Runs multiple agents in parallel to build your feature faster |
+| 3 | `/ultrawork` | Builds your feature through five quality phases and eleven review gates |
+| 3 | `/ralph` | Repeats `/ultrawork` until an independent verifier passes every criterion |
+| 4 | `/review` | Reviews your code for security, performance, and accessibility issues |
+| 4 | `/deepsec` | Runs a deep security scan and blocks risky pull requests |
+| 5 | `/debug` | Finds the root cause, fixes the bug, and writes a regression test |
+| 5 | `/docs` | Checks your docs for broken references and patches the ones your code changes touched |
+| 6 | `/scm` | Manages your branches, merges, and Conventional Commits |
+| - | `/schedule` | Schedules an agent job to run on a recurring interval |
 
 **Auto-detection**: You don't even need slash commands — keywords like "architecture", "plan", "review", and "debug" in your message (in 11 languages!) auto-activate the right workflow.
 

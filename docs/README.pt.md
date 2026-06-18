@@ -189,20 +189,21 @@ Ou use slash commands para workflows estruturados:
 
 | Etapa | Comando | O Que Faz |
 |-------|---------|-------------|
-| 0 | `/deepinit` | Inicializa uma base de codigo existente (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Ideacao livre |
-| 2 | `/architecture` | Revisao de arquitetura, trade-offs, analise estilo ADR/ATAM/CBAM |
-| 2 | `/design` | Workflow de design system em 7 fases |
-| 2 | `/plan` | PM detalha sua feature em tarefas |
-| 3 | `/work` | Execucao multi-agente passo a passo |
-| 3 | `/orchestrate` | Spawn automatico e paralelo de agentes |
-| 3 | `/ultrawork` | Workflow de qualidade em 5 fases com 11 gates de revisao |
-| 3 | `/ralph` | Envolve `/ultrawork` num loop de verificacao independente ate os criterios passarem |
-| 4 | `/review` | Auditoria de seguranca + performance + acessibilidade |
-| 4 | `/deepsec` | Varredura de seguranca profunda por agente |
-| 5 | `/debug` | Debugging estruturado de causa raiz |
-| 5 | `/docs` | Verificação e sincronização de drift de documentação |
-| 6 | `/scm` | Workflow SCM e Git com suporte a Conventional Commits |
+| 0 | `/deepinit` | Mapeia sua base de codigo existente em AGENTS.md, ARCHITECTURE.md e docs |
+| 1 | `/brainstorm` | Explora ideias com voce antes de comecar a construir |
+| 2 | `/architecture` | Pesa os trade-offs do seu design e traca limites de modulo bem definidos |
+| 2 | `/design` | Monta seu design system com tokens, acessibilidade e layouts responsivos |
+| 2 | `/plan` | Quebra sua feature em tarefas priorizadas |
+| 3 | `/work` | Constroi sua feature passo a passo com varios agentes |
+| 3 | `/orchestrate` | Roda varios agentes em paralelo para construir sua feature mais rapido |
+| 3 | `/ultrawork` | Constroi sua feature por cinco fases de qualidade e onze gates de revisao |
+| 3 | `/ralph` | Repete `/ultrawork` ate um verificador independente aprovar todos os criterios |
+| 4 | `/review` | Revisa seu codigo em busca de problemas de seguranca, performance e acessibilidade |
+| 4 | `/deepsec` | Roda uma varredura de seguranca profunda e bloqueia pull requests arriscados |
+| 5 | `/debug` | Encontra a causa raiz, corrige o bug e escreve um teste de regressao |
+| 5 | `/docs` | Confere sua documentacao em busca de referencias quebradas e corrige as que suas mudancas de codigo afetam |
+| 6 | `/scm` | Gerencia seus branches, merges e Conventional Commits |
+| - | `/schedule` | Agenda um job de agente para rodar em intervalos recorrentes |
 
 **Auto-deteccao**: Voce nem precisa dos slash commands. Palavras como "arquitetura", "plan", "review" e "debug" na sua mensagem (em 11 idiomas!) ativam automaticamente o workflow certo.
 

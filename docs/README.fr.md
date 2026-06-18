@@ -189,20 +189,21 @@ Ou utilise les slash commands pour des workflows structurés :
 
 | Étape | Commande | Description |
 |-------|----------|-------------|
-| 0 | `/deepinit` | Amorce une base de code existante (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Idéation libre |
-| 2 | `/architecture` | Revue d'architecture, arbitrages, analyse type ADR/ATAM/CBAM |
-| 2 | `/design` | Workflow de système de design en 7 phases |
-| 2 | `/plan` | PM découpe ta feature en tâches |
-| 3 | `/work` | Exécution multi-agent étape par étape |
-| 3 | `/orchestrate` | Lancement automatisé d'agents en parallèle |
-| 3 | `/ultrawork` | Workflow qualité en 5 phases avec 11 portes de revue |
-| 3 | `/ralph` | Enveloppe `/ultrawork` dans une boucle de vérification indépendante jusqu'à validation des critères |
-| 4 | `/review` | Audit sécurité + performance + accessibilité |
-| 4 | `/deepsec` | Scan de sécurité profond par agent |
-| 5 | `/debug` | Debugging structuré par cause racine |
-| 5 | `/docs` | Vérification et synchronisation de la dérive documentaire |
-| 6 | `/scm` | Workflow SCM et Git, prise en charge des Conventional Commits |
+| 0 | `/deepinit` | Cartographie ta base de code existante dans AGENTS.md, ARCHITECTURE.md et docs |
+| 1 | `/brainstorm` | Explore les idées avec toi avant que tu te lances dans la construction |
+| 2 | `/architecture` | Pèse les arbitrages de ta conception et trace des frontières de modules nettes |
+| 2 | `/design` | Construit ton système de design avec tokens, accessibilité et mises en page responsive |
+| 2 | `/plan` | Découpe ta feature en tâches priorisées |
+| 3 | `/work` | Construit ta feature étape par étape sur plusieurs agents |
+| 3 | `/orchestrate` | Lance plusieurs agents en parallèle pour construire ta feature plus vite |
+| 3 | `/ultrawork` | Construit ta feature à travers cinq phases qualité et onze portes de revue |
+| 3 | `/ralph` | Répète `/ultrawork` jusqu'à ce qu'un vérificateur indépendant valide chaque critère |
+| 4 | `/review` | Revoit ton code pour les problèmes de sécurité, de performance et d'accessibilité |
+| 4 | `/deepsec` | Lance un scan de sécurité profond et bloque les pull requests à risque |
+| 5 | `/debug` | Trouve la cause racine, corrige le bug et écrit un test de régression |
+| 5 | `/docs` | Vérifie tes docs pour les références cassées et corrige celles que touchent tes changements de code |
+| 6 | `/scm` | Gère tes branches, tes merges et les Conventional Commits |
+| - | `/schedule` | Planifie une tâche d'agent à exécuter sur un intervalle récurrent |
 
 **Auto-détection** : Tu n'as même pas besoin des slash commands. Des mots-clés comme "architecture", "plan", "review" et "debug" dans ton message (en 11 langues !) activent automatiquement le bon workflow.
 

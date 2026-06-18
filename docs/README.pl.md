@@ -189,20 +189,21 @@ Lub uzyj slash commands do ustrukturyzowanych workflow:
 
 | Krok | Komenda | Co robi |
 |------|---------|-------------|
-| 0 | `/deepinit` | Inicjuje istniejaca baze kodu (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Swobodna burza mozgow |
-| 2 | `/architecture` | Przeglad architektury, trade-offy, analiza w stylu ADR/ATAM/CBAM |
-| 2 | `/design` | 7-fazowy workflow design systemu |
-| 2 | `/plan` | PM rozbija Twoja funkcjonalnosc na zadania |
-| 3 | `/work` | Krokowe wykonanie wieloagentowe |
-| 3 | `/orchestrate` | Automatyczne rownolegle uruchamianie agentow |
-| 3 | `/ultrawork` | 5-fazowy workflow jakosci z 11 bramkami rewizji |
-| 3 | `/ralph` | Owija `/ultrawork` w niezalezna petle weryfikacji az do spelnienia kryteriow |
-| 4 | `/review` | Audyt bezpieczenstwa + wydajnosci + dostepnosci |
-| 4 | `/deepsec` | Gleboki skan bezpieczenstwa przez agenta |
-| 5 | `/debug` | Ustrukturyzowane debugowanie z analiza przyczyn |
-| 5 | `/docs` | Weryfikacja i synchronizacja dryfu dokumentacji |
-| 6 | `/scm` | Workflow SCM i Git oraz wsparcie Conventional Commits |
+| 0 | `/deepinit` | Mapuje Twoja istniejaca baze kodu do AGENTS.md, ARCHITECTURE.md i docs |
+| 1 | `/brainstorm` | Przeglada z Toba pomysly, zanim zabierzesz sie za budowanie |
+| 2 | `/architecture` | Wazy trade-offy Twojego projektu i wyznacza czyste granice modulow |
+| 2 | `/design` | Buduje Twoj design system z tokenami, dostepnoscia i responsywnymi ukladami |
+| 2 | `/plan` | Rozbija Twoja funkcjonalnosc na zadania z priorytetami |
+| 3 | `/work` | Buduje Twoja funkcjonalnosc krok po kroku, korzystajac z wielu agentow |
+| 3 | `/orchestrate` | Uruchamia wielu agentow rownolegle, by szybciej zbudowac Twoja funkcjonalnosc |
+| 3 | `/ultrawork` | Buduje Twoja funkcjonalnosc przez piec faz jakosci i jedenascie bramek rewizji |
+| 3 | `/ralph` | Powtarza `/ultrawork` az niezalezny weryfikator zaliczy wszystkie kryteria |
+| 4 | `/review` | Przeglada Twoj kod pod katem bezpieczenstwa, wydajnosci i dostepnosci |
+| 4 | `/deepsec` | Wykonuje gleboki skan bezpieczenstwa i blokuje ryzykowne pull requesty |
+| 5 | `/debug` | Znajduje przyczyne, naprawia blad i pisze test regresji |
+| 5 | `/docs` | Sprawdza Twoja dokumentacje pod katem zepsutych odwolan i lata te, ktorych dotykaja zmiany w kodzie |
+| 6 | `/scm` | Zarzadza Twoimi galeziami, scaleniami i Conventional Commits |
+| - | `/schedule` | Planuje zadanie agenta do cyklicznego uruchamiania w zadanym interwale |
 
 **Autodetekcja**: Nie musisz nawet uzywac slash commands. Slowa takie jak "architektura", "plan", "review" i "debug" w Twojej wiadomosci (w 11 jezykach!) automatycznie uruchamiaja odpowiedni workflow.
 

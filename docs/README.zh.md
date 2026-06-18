@@ -189,20 +189,21 @@ You: "做一个带用户认证的 TODO 应用"
 
 | 步骤 | 命令 | 说明 |
 |------|------|------|
-| 0 | `/deepinit` | 引导现有代码库 (AGENTS.md、ARCHITECTURE.md、`docs/`) |
-| 1 | `/brainstorm` | 自由发散想法 |
-| 2 | `/architecture` | 软件架构评审、权衡、ADR/ATAM/CBAM 式分析 |
-| 2 | `/design` | 7 阶段设计系统工作流 |
-| 2 | `/plan` | PM 把功能拆解成任务 |
-| 3 | `/work` | 逐步执行多 agent 协作 |
-| 3 | `/orchestrate` | 自动并行 agent 调度 |
-| 3 | `/ultrawork` | 含 11 个审查门禁的 5 阶段质量工作流 |
-| 3 | `/ralph` | 用独立验证循环包裹 `/ultrawork`，直到所有标准通过 |
-| 4 | `/review` | 安全 + 性能 + 无障碍审计 |
-| 4 | `/deepsec` | 智能体驱动的深度安全扫描 |
-| 5 | `/debug` | 结构化根因调试 |
-| 5 | `/docs` | 文档漂移校验与同步 |
-| 6 | `/scm` | SCM 与 Git 工作流，Conventional Commits 支持 |
+| 0 | `/deepinit` | 把你现有的代码库梳理成 AGENTS.md、ARCHITECTURE.md 和 docs |
+| 1 | `/brainstorm` | 在你动手开发前，先陪你一起探索想法 |
+| 2 | `/architecture` | 帮你权衡设计取舍，划出清晰的模块边界 |
+| 2 | `/design` | 帮你构建设计系统，涵盖设计令牌、无障碍和响应式布局 |
+| 2 | `/plan` | 把你的功能拆解成按优先级排好的任务 |
+| 3 | `/work` | 跨多个 agent，一步步帮你把功能做出来 |
+| 3 | `/orchestrate` | 并行调度多个 agent，更快地把你的功能做出来 |
+| 3 | `/ultrawork` | 用五个质量阶段、十一道审查门禁，把你的功能做扎实 |
+| 3 | `/ralph` | 反复跑 `/ultrawork`，直到一个独立校验器确认每条标准都过关 |
+| 4 | `/review` | 审查你的代码，排查安全、性能和无障碍问题 |
+| 4 | `/deepsec` | 运行深度安全扫描，拦下有风险的 pull request |
+| 5 | `/debug` | 找到根因、修好 bug，再补上一条回归测试 |
+| 5 | `/docs` | 检查你的文档有没有失效引用，并修补代码改动牵涉到的那些 |
+| 6 | `/scm` | 管理你的分支、合并和 Conventional Commits |
+| - | `/schedule` | 安排一个 agent 任务，按固定周期反复运行 |
 
 **自动检测**：不用斜杠命令也行，消息里出现“架构”“计划”“审查”“调试”等关键词（支持 11 种语言！）就会自动激活对应工作流。
 

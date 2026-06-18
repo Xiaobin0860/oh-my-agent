@@ -189,20 +189,21 @@ O usa slash commands para flujos estructurados:
 
 | Paso | Comando | Qué Hace |
 |------|---------|-------------|
-| 0 | `/deepinit` | Inicializa una base de código existente (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Ideación libre |
-| 2 | `/architecture` | Revisión de arquitectura, trade-offs, análisis estilo ADR/ATAM/CBAM |
-| 2 | `/design` | Flujo de sistema de diseño en 7 fases |
-| 2 | `/plan` | PM desglosa tu feature en tareas |
-| 3 | `/work` | Ejecución multi-agente paso a paso |
-| 3 | `/orchestrate` | Lanzamiento automatizado de agentes en paralelo |
-| 3 | `/ultrawork` | Flujo de calidad en 5 fases con 11 puertas de revisión |
-| 3 | `/ralph` | Envuelve `/ultrawork` en un bucle de verificación independiente hasta que se cumplen los criterios |
-| 4 | `/review` | Auditoría de seguridad + rendimiento + accesibilidad |
-| 4 | `/deepsec` | Escaneo de seguridad profundo por agente |
-| 5 | `/debug` | Debugging estructurado de causa raíz |
-| 5 | `/docs` | Verificación y sincronización de drift de documentación |
-| 6 | `/scm` | Flujo SCM y Git con soporte de Conventional Commits |
+| 0 | `/deepinit` | Mapea tu base de código existente en AGENTS.md, ARCHITECTURE.md y docs |
+| 1 | `/brainstorm` | Explora ideas contigo antes de que te comprometas a construir |
+| 2 | `/architecture` | Sopesa los trade-offs de tu diseño y traza límites de módulo limpios |
+| 2 | `/design` | Construye tu sistema de diseño con tokens, accesibilidad y layouts responsive |
+| 2 | `/plan` | Desglosa tu feature en tareas priorizadas |
+| 3 | `/work` | Construye tu feature paso a paso a través de varios agentes |
+| 3 | `/orchestrate` | Ejecuta varios agentes en paralelo para construir tu feature más rápido |
+| 3 | `/ultrawork` | Construye tu feature a través de cinco fases de calidad y once puertas de revisión |
+| 3 | `/ralph` | Repite `/ultrawork` hasta que un verificador independiente cumple todos los criterios |
+| 4 | `/review` | Revisa tu código en busca de problemas de seguridad, rendimiento y accesibilidad |
+| 4 | `/deepsec` | Ejecuta un escaneo de seguridad profundo y bloquea los pull requests arriesgados |
+| 5 | `/debug` | Encuentra la causa raíz, corrige el bug y escribe una prueba de regresión |
+| 5 | `/docs` | Revisa tus docs en busca de referencias rotas y parchea las que tocan tus cambios de código |
+| 6 | `/scm` | Gestiona tus ramas, merges y Conventional Commits |
+| - | `/schedule` | Programa un trabajo de agente para ejecutarse en un intervalo recurrente |
 
 **Auto-detección**: Ni siquiera necesitas slash commands. Palabras clave como "arquitectura", "plan", "review" y "debug" en tu mensaje (¡en 11 idiomas!) activan automáticamente el flujo correcto.
 

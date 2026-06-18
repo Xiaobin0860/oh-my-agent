@@ -189,20 +189,21 @@ Oder nutz Slash Commands für strukturierte Workflows:
 
 | Schritt | Befehl | Was Er Macht |
 |---------|--------|-------------|
-| 0 | `/deepinit` | Initialisiert eine bestehende Codebasis (AGENTS.md, ARCHITECTURE.md, `docs/`) |
-| 1 | `/brainstorm` | Freie Ideenfindung |
-| 2 | `/architecture` | Softwarearchitektur-Review, Trade-offs, Analyse im Stil von ADR/ATAM/CBAM |
-| 2 | `/design` | 7-Phasen Design-System-Workflow |
-| 2 | `/plan` | PM zerlegt dein Feature in Aufgaben |
-| 3 | `/work` | Schritt-für-Schritt Multi-Agent-Ausführung |
-| 3 | `/orchestrate` | Automatisiertes paralleles Agenten-Spawning |
-| 3 | `/ultrawork` | 5-Phasen-Qualitätsworkflow mit 11 Review-Gates |
-| 3 | `/ralph` | Umhüllt `/ultrawork` mit einer unabhängigen Prüfschleife, bis alle Kriterien erfüllt sind |
-| 4 | `/review` | Sicherheits- + Performance- + Barrierefreiheits-Audit |
-| 4 | `/deepsec` | Tiefer agent-basierter Security-Scan |
-| 5 | `/debug` | Strukturiertes Ursachen-Debugging |
-| 5 | `/docs` | Dokumentations-Drift verifizieren und synchronisieren |
-| 6 | `/scm` | SCM- und Git-Workflow sowie Unterstützung für Conventional Commits |
+| 0 | `/deepinit` | Erfasst deine bestehende Codebasis in AGENTS.md, ARCHITECTURE.md und docs |
+| 1 | `/brainstorm` | Erkundet Ideen mit dir, bevor du dich aufs Bauen festlegst |
+| 2 | `/architecture` | Wägt deine Design-Trade-offs ab und zieht saubere Modulgrenzen |
+| 2 | `/design` | Baut dein Design-System mit Tokens, Barrierefreiheit und responsiven Layouts |
+| 2 | `/plan` | Zerlegt dein Feature in priorisierte Aufgaben |
+| 3 | `/work` | Baut dein Feature Schritt für Schritt über mehrere Agenten hinweg |
+| 3 | `/orchestrate` | Lässt mehrere Agenten parallel laufen, um dein Feature schneller zu bauen |
+| 3 | `/ultrawork` | Baut dein Feature durch fünf Qualitätsphasen und elf Review-Gates |
+| 3 | `/ralph` | Wiederholt `/ultrawork`, bis ein unabhängiger Prüfer jedes Kriterium besteht |
+| 4 | `/review` | Prüft deinen Code auf Sicherheits-, Performance- und Barrierefreiheits-Probleme |
+| 4 | `/deepsec` | Führt einen tiefen Security-Scan durch und blockiert riskante Pull Requests |
+| 5 | `/debug` | Findet die Ursache, behebt den Bug und schreibt einen Regressionstest |
+| 5 | `/docs` | Prüft deine Docs auf kaputte Verweise und patcht die, die deine Code-Änderungen betreffen |
+| 6 | `/scm` | Verwaltet deine Branches, Merges und Conventional Commits |
+| - | `/schedule` | Plant einen Agenten-Job, der in einem wiederkehrenden Intervall läuft |
 
 **Auto-Erkennung**: Du brauchst nicht mal Slash Commands. Schlüsselwörter wie "Architektur", "plan", "review" und "debug" in deiner Nachricht (in 11 Sprachen!) aktivieren automatisch den richtigen Workflow.
 
