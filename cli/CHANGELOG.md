@@ -1,5 +1,24 @@
 # Changelog
 
+## [10.1.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.0.1...cli-v10.1.0) (2026-06-18)
+
+
+### Features
+
+* **docs:** cut oma docs verify noise via docs.exclude + gitignore-aware skip ([b584773](https://github.com/first-fluke/oh-my-agent/commit/b584773d360e7587f6d07841aa794555220ccb13))
+
+
+### Refactoring
+
+* **cli:** collapse planDispatch duplicate dispatch tails ([e09fcb4](https://github.com/first-fluke/oh-my-agent/commit/e09fcb47ebd2b6ad4d02022fd6bd4bbcdf7157b2))
+* **cli:** route buildExternalInvocation via vendor dispatch table ([f058c7e](https://github.com/first-fluke/oh-my-agent/commit/f058c7ef2b001129579d4021b1f440ee81e89ab9))
+
+
+### Documentation
+
+* align README multi-vendor list with actual model presets ([8c30344](https://github.com/first-fluke/oh-my-agent/commit/8c3034470f2fdcc819a4ef6f4e196f58fa68892b))
+* fix stale doc references found by oma docs verify ([932bd2c](https://github.com/first-fluke/oh-my-agent/commit/932bd2ceec4caa6cd9e261f70f5e9e6b06c639b6))
+
 ## [10.0.1](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.0.0...cli-v10.0.1) (2026-06-18)
 
 
