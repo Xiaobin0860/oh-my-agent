@@ -1,6 +1,16 @@
 import { spawnSync } from "node:child_process";
+import type { RuntimeVendor } from "@cli/io/runtime-dispatch/types.ts";
 
-export type AgentVendor = "claude" | "codex" | "qwen";
+// Headless-print vendors this util supports. A deliberate subset, but validated
+// against the canonical RuntimeVendor SSOT via `satisfies` — if one of these is
+// renamed/removed from the vendor set, this fails to compile (no silent drift).
+const AGENT_VENDORS = [
+  "claude",
+  "codex",
+  "qwen",
+] as const satisfies readonly RuntimeVendor[];
+
+export type AgentVendor = (typeof AGENT_VENDORS)[number];
 
 const HEADLESS_COMMANDS: Record<AgentVendor, (prompt: string) => string[]> = {
   claude: (prompt) => ["claude", "-p", prompt],
