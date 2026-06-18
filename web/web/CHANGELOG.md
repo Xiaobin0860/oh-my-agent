@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.0](https://github.com/first-fluke/oh-my-agent/compare/web-v3.16.0...web-v3.17.0) (2026-06-18)
+
+
+### Features
+
+* **workflows:** replace pdf workflow with category-routed convert ([e3dca07](https://github.com/first-fluke/oh-my-agent/commit/e3dca0770441f22f7e2567b4066776c40fa96ae8))
+
 ## [3.16.0](https://github.com/first-fluke/oh-my-agent/compare/web-v3.15.0...web-v3.16.0) (2026-06-17)
 
 
