@@ -33,6 +33,7 @@ docs/generated/
 .qwen/
 .kiro/
 .commandcode/
+.kimi-code/
 
 # pi (Earendil pi-coding-agent) extension bridge (generated)
 .pi/
