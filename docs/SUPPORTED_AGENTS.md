@@ -78,4 +78,4 @@ For each planned agent:
 
 - [AGENTS_SPEC.md](./AGENTS_SPEC.md)
 - [README.md](../README.md)
-- [web/content/en/guide/integration.md](../web/content/en/guide/integration.md)
+- [web/docs/guide/integration.md](../web/docs/guide/integration.md)
