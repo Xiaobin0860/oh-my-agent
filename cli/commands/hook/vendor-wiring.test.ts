@@ -86,7 +86,7 @@ describe("vendor wiring contract (variant JSON ↔ dispatch)", () => {
   it("every variant vendor has an embedded route in VARIANT_ROUTES", () => {
     for (const v of variants) {
       expect(
-        VARIANT_ROUTES[v.vendor],
+        VARIANT_ROUTES[v.vendor as keyof typeof VARIANT_ROUTES],
         `${v.vendor}: import the variant JSON in dispatch.ts and add it to ` +
           `VARIANT_ROUTES — without it the installer registers hooks but ` +
           `\`oma hook\` dispatches an empty chain`,

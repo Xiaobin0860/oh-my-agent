@@ -1,25 +1,19 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { CLI_SKILLS_DIR, EXTENSION_VENDORS } from "../../constants/index.js";
+import {
+  CLI_SKILLS_DIR,
+  EXTENSION_VENDORS,
+  VENDORS,
+} from "../../constants/index.js";
 import type { CliTool, CliVendor, VendorType } from "../../types/index.js";
 import { safeGetInstallMode } from "../install-context.js";
 
 /**
- * Vendors with a hook bridge (settings, prompt hooks, agent variants).
- * Vendors NOT in this set (e.g., copilot, hermes) are skill-symlink-only
- * and must NOT be passed to `installVendorAdaptations`.
+ * Vendors with a hook bridge (settings, prompt hooks, agent variants) — exactly
+ * the canonical VENDORS set. Vendors NOT here (copilot, hermes = install-only;
+ * pi, opencode = extension composers) are excluded by construction.
  */
-const HOOK_VENDORS: ReadonlySet<VendorType> = new Set([
-  "antigravity",
-  "claude",
-  "codex",
-  "commandcode",
-  "cursor",
-  "grok",
-  "kimi",
-  "kiro",
-  "qwen",
-]);
+const HOOK_VENDORS: ReadonlySet<VendorType> = new Set(VENDORS);
 
 /**
  * Type guard: narrows a `CliVendor` to `VendorType` if it supports
