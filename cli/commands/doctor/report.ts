@@ -29,7 +29,6 @@ import type {
   SkillEvalCoverage,
 } from "./types.js";
 
-export { AUTH_CHECKERS } from "./environment-checks.js";
 export { serializeReportAsJson } from "./report-json.js";
 
 /**

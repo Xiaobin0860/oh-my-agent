@@ -6,16 +6,6 @@ import {
   INSTALLED_SKILLS_DIR,
 } from "../../platform/skills-installer.js";
 import type { CLICheck, SkillCheck } from "../../types/index.js";
-import {
-  isAntigravityAuthenticated,
-  isClaudeAuthenticated,
-  isCodexAuthenticated,
-  isGrokAuthenticated,
-  isKimiAuthenticated,
-  isKiroAuthenticated,
-  isPiAuthenticated,
-  isQwenAuthenticated,
-} from "../../vendors/index.js";
 import type { VendorDocCheck } from "./types.js";
 
 const OMA_DOCTOR_PROBE_TIMEOUT_MS = Number(
@@ -37,17 +27,6 @@ export const CLI_DEFINITIONS: Array<[string, string, string]> = [
   ["kimi", "kimi", "Follow instructions at https://www.kimi.com/code"],
   ["pi", "pi", "bun install --global @earendil-works/pi-coding-agent"],
 ];
-
-export const AUTH_CHECKERS: Record<string, () => boolean> = {
-  claude: isClaudeAuthenticated,
-  codex: isCodexAuthenticated,
-  qwen: isQwenAuthenticated,
-  antigravity: () => isAntigravityAuthenticated(),
-  grok: isGrokAuthenticated,
-  kiro: isKiroAuthenticated,
-  kimi: isKimiAuthenticated,
-  pi: isPiAuthenticated,
-};
 
 /** Vendor context files checked when their CLI is installed. */
 const VENDOR_DOC_SPECS: Array<{

@@ -78,16 +78,45 @@ vi.mock("../../platform/skills-installer.js", () => ({
   INSTALLED_SKILLS_DIR: ".agents/skills",
 }));
 
-vi.mock("../../vendors/index.js", () => ({
-  isAntigravityAuthenticated: vi.fn(() => false),
-  isClaudeAuthenticated: vi.fn(() => false),
-  isCodexAuthenticated: vi.fn(() => false),
-  isGrokAuthenticated: vi.fn(() => false),
-  isKimiAuthenticated: vi.fn(() => false),
-  isKiroAuthenticated: vi.fn(() => false),
-  isPiAuthenticated: vi.fn(() => false),
-  isQwenAuthenticated: vi.fn(() => false),
-}));
+vi.mock("../../vendors/index.js", () => {
+  const isAntigravityAuthenticated = vi.fn(() => false);
+  const isClaudeAuthenticated = vi.fn(() => false);
+  const isCodexAuthenticated = vi.fn(() => false);
+  const isCommandCodeAuthenticated = vi.fn(() => false);
+  const isCursorAuthenticated = vi.fn(() => false);
+  const isGrokAuthenticated = vi.fn(() => false);
+  const isKimiAuthenticated = vi.fn(() => false);
+  const isKiroAuthenticated = vi.fn(() => false);
+  const isOpencodeAuthenticated = vi.fn(() => false);
+  const isPiAuthenticated = vi.fn(() => false);
+  const isQwenAuthenticated = vi.fn(() => false);
+  return {
+    isAntigravityAuthenticated,
+    isClaudeAuthenticated,
+    isCodexAuthenticated,
+    isCommandCodeAuthenticated,
+    isCursorAuthenticated,
+    isGrokAuthenticated,
+    isKimiAuthenticated,
+    isKiroAuthenticated,
+    isOpencodeAuthenticated,
+    isPiAuthenticated,
+    isQwenAuthenticated,
+    AUTH_CHECKERS: {
+      claude: isClaudeAuthenticated,
+      codex: isCodexAuthenticated,
+      commandcode: isCommandCodeAuthenticated,
+      cursor: isCursorAuthenticated,
+      qwen: isQwenAuthenticated,
+      antigravity: isAntigravityAuthenticated,
+      grok: isGrokAuthenticated,
+      kimi: isKimiAuthenticated,
+      kiro: isKiroAuthenticated,
+      pi: isPiAuthenticated,
+      opencode: isOpencodeAuthenticated,
+    },
+  };
+});
 
 vi.mock("node:fs", async (importOriginal) => {
   const original = await importOriginal<typeof import("node:fs")>();

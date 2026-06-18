@@ -92,6 +92,16 @@ export const VENDORS: readonly Vendor[] = [
   },
 ];
 
+/**
+ * Vendor id → auth checker, derived from the single VENDORS descriptor so the
+ * doctor (environment + profile) auth surfaces share one source. Keyed loosely
+ * by string for ergonomic lookup by an arbitrary cli name; callers guard with
+ * `?.()` for ids absent here.
+ */
+export const AUTH_CHECKERS: Record<string, () => boolean> = Object.fromEntries(
+  VENDORS.map((v) => [v.id, v.isAuthenticated]),
+);
+
 export {
   isAntigravityAuthenticated,
   isClaudeAuthenticated,

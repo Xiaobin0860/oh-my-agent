@@ -1,4 +1,4 @@
-import { AUTH_CHECKERS } from "./environment-checks.js";
+import { AUTH_CHECKERS } from "../../vendors/index.js";
 import type { DoctorReport } from "./types.js";
 
 export function serializeReportAsJson(report: DoctorReport): string {
