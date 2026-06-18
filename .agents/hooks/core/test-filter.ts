@@ -3,9 +3,9 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { resolveGitRoot } from "./fs-utils.ts";
 import { makePreToolOutput } from "./hook-output.ts";
 import type { HandlerCtx, HandlerResult, HookInput, Vendor } from "./types.ts";
+import { getHookDir, getProjectDir } from "./vendor-detect.ts";
 
 // --- Vendor detection (same logic as keyword-detector.ts) ---
 
@@ -28,83 +28,6 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   }
   if (process.env.QWEN_PROJECT_DIR) return "qwen";
   return "claude";
-}
-
-function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
-  let dir: string;
-  switch (vendor) {
-    case "codex":
-      dir = (input.cwd as string) || process.cwd();
-      break;
-    case "antigravity":
-      dir =
-        (input.cwd as string) ||
-        process.env.ANTIGRAVITY_PROJECT_DIR ||
-        process.env.AGY_PROJECT_DIR ||
-        process.cwd();
-      break;
-    case "qwen":
-      dir = process.env.QWEN_PROJECT_DIR || process.cwd();
-      break;
-    case "grok":
-      dir =
-        process.env.GROK_WORKSPACE_ROOT ||
-        (input.cwd as string) ||
-        process.cwd();
-      break;
-    case "kiro":
-      dir =
-        process.env.KIRO_PROJECT_DIR || (input.cwd as string) || process.cwd();
-      break;
-    default:
-      dir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-      break;
-  }
-  return resolveGitRoot(dir);
-}
-
-/**
- * Vendor → hooks directory (relative to the project root) where
- * `filter-test-output.sh` is materialized by the installer.
- *
- * MUST mirror the `hookDir` field of `.agents/hooks/variants/<vendor>.json`.
- * This switch cannot import the variant JSONs (pi spawns this script as a
- * standalone subprocess from a directory where variants are not copied), so
- * the mapping is duplicated here and locked by a contract test
- * (`cli/commands/hook/vendor-wiring.test.ts`).
- */
-export function getHookDir(vendor: Vendor): string {
-  switch (vendor) {
-    case "claude":
-      return ".claude/hooks";
-    case "codex":
-      return ".codex/hooks";
-    case "commandcode":
-      return ".commandcode/hooks";
-    case "cursor":
-      return ".cursor/hooks";
-    case "antigravity":
-      // agy has no project hook dir — its `.agents/hooks.json` runs handlers
-      // straight from the SSOT core dir, where filter-test-output.sh lives.
-      return ".agents/hooks/core";
-    case "qwen":
-      return ".qwen/hooks";
-    case "grok":
-      return ".grok/hooks";
-    case "kiro":
-      return ".kiro/hooks";
-    case "kimi":
-      // Kimi Code CLI is global-only (homeOnly variant): its runtime hooks live
-      // in ~/.kimi-code/hooks, so there is no project hook dir to join with
-      // projectDir. Mirror antigravity and point at the SSOT core dir (where
-      // filter-test-output.sh lives in a project install); otherwise the
-      // rewrite no-ops gracefully (test-filter is advisory).
-      return ".agents/hooks/core";
-    case "pi":
-      // pi keeps the core scripts (and filter-test-output.sh) inside the
-      // bridge's directory extension, not a dedicated hooks dir.
-      return join(".pi", "extensions", "oma");
-  }
 }
 
 // --- Test runner patterns ---

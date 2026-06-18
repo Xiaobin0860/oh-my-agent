@@ -21,8 +21,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { agyConversationId, agyProjectDir, isAgyInput } from "./agy-input.ts";
-import { resolveGitRoot } from "./fs-utils.ts";
+import { agyConversationId, isAgyInput } from "./agy-input.ts";
 import { makeBlockOutput } from "./hook-output.ts";
 import { isDeactivationRequest } from "./keyword-detector.ts";
 // triggers.json is imported statically: bundler inlines it into the oma binary;
@@ -35,6 +34,7 @@ import type {
   ModeState,
   Vendor,
 } from "./types.ts";
+import { getProjectDir } from "./vendor-detect.ts";
 
 const MAX_REINFORCEMENTS = 5;
 const STALE_HOURS = 2;
@@ -95,41 +95,6 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   }
   if (process.env.QWEN_PROJECT_DIR) return "qwen";
   return "claude";
-}
-
-function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
-  let dir: string;
-  switch (vendor) {
-    case "codex":
-      dir = (input.cwd as string) || process.cwd();
-      break;
-    case "antigravity":
-      dir =
-        agyProjectDir(input) ||
-        (input.cwd as string) ||
-        process.env.ANTIGRAVITY_PROJECT_DIR ||
-        process.env.AGY_PROJECT_DIR ||
-        process.env.GEMINI_PROJECT_DIR ||
-        process.cwd();
-      break;
-    case "qwen":
-      dir = process.env.QWEN_PROJECT_DIR || process.cwd();
-      break;
-    case "grok":
-      dir =
-        process.env.GROK_WORKSPACE_ROOT ||
-        (input.cwd as string) ||
-        process.cwd();
-      break;
-    case "kiro":
-      dir =
-        process.env.KIRO_PROJECT_DIR || (input.cwd as string) || process.cwd();
-      break;
-    default:
-      dir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-      break;
-  }
-  return resolveGitRoot(dir);
 }
 
 function getSessionId(input: Record<string, unknown>): string {
