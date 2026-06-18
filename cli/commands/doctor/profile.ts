@@ -19,14 +19,8 @@ import {
   BUILT_IN_PRESET_ALIASES,
   BUILT_IN_PRESETS,
 } from "../../platform/built-in-presets.js";
-import { getModelSpec } from "../../platform/model-registry.js";
-import {
-  isAntigravityAuthenticated,
-  isClaudeAuthenticated,
-  isCodexAuthenticated,
-  isGeminiAuthenticated,
-  isQwenAuthenticated,
-} from "../../vendors/index.js";
+import { getModelSpec, ownerToVendor } from "../../platform/model-registry.js";
+import { AUTH_CHECKERS } from "../../vendors/index.js";
 import {
   type DeprecatedOAuthSessionResult,
   detectDeprecatedOAuthSession,
@@ -73,18 +67,10 @@ const IMPL_ROLES: readonly string[] = [
 // Auth checkers (file-state heuristics — no CLI binary calls)
 // ---------------------------------------------------------------------------
 
-export const CLI_AUTH_CHECKERS: Record<string, () => boolean> = {
-  claude: isClaudeAuthenticated,
-  codex: isCodexAuthenticated,
-  gemini: isGeminiAuthenticated,
-  qwen: isQwenAuthenticated,
-  antigravity: () => isAntigravityAuthenticated(),
-};
-
 export type AuthStatus = "logged_in" | "not_logged_in" | "unknown";
 
 function checkAuthStatus(cli: string): AuthStatus {
-  const checker = CLI_AUTH_CHECKERS[cli];
+  const checker = AUTH_CHECKERS[cli];
   if (!checker) return "unknown";
   try {
     return checker() ? "logged_in" : "not_logged_in";
@@ -175,18 +161,9 @@ function resolvePreset(
 // Model slug → CLI vendor
 // ---------------------------------------------------------------------------
 
-const OWNER_TO_CLI: Record<string, string> = {
-  anthropic: "claude",
-  openai: "codex",
-  google: "gemini",
-  qwen: "qwen",
-  cursor: "cursor",
-  antigravity: "antigravity",
-};
-
 function cliFromModelSlug(slug: string): string {
   const owner = slug.split("/")[0] ?? "";
-  return OWNER_TO_CLI[owner] ?? "unknown";
+  return ownerToVendor(owner) ?? "unknown";
 }
 
 // ---------------------------------------------------------------------------

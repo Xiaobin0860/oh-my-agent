@@ -78,17 +78,45 @@ vi.mock("../../platform/skills-installer.js", () => ({
   INSTALLED_SKILLS_DIR: ".agents/skills",
 }));
 
-vi.mock("../../vendors/index.js", () => ({
-  isAntigravityAuthenticated: vi.fn(() => false),
-  isClaudeAuthenticated: vi.fn(() => false),
-  isCodexAuthenticated: vi.fn(() => false),
-  isGeminiAuthenticated: vi.fn(() => false),
-  isGrokAuthenticated: vi.fn(() => false),
-  isKimiAuthenticated: vi.fn(() => false),
-  isKiroAuthenticated: vi.fn(() => false),
-  isPiAuthenticated: vi.fn(() => false),
-  isQwenAuthenticated: vi.fn(() => false),
-}));
+vi.mock("../../vendors/index.js", () => {
+  const isAntigravityAuthenticated = vi.fn(() => false);
+  const isClaudeAuthenticated = vi.fn(() => false);
+  const isCodexAuthenticated = vi.fn(() => false);
+  const isCommandCodeAuthenticated = vi.fn(() => false);
+  const isCursorAuthenticated = vi.fn(() => false);
+  const isGrokAuthenticated = vi.fn(() => false);
+  const isKimiAuthenticated = vi.fn(() => false);
+  const isKiroAuthenticated = vi.fn(() => false);
+  const isOpencodeAuthenticated = vi.fn(() => false);
+  const isPiAuthenticated = vi.fn(() => false);
+  const isQwenAuthenticated = vi.fn(() => false);
+  return {
+    isAntigravityAuthenticated,
+    isClaudeAuthenticated,
+    isCodexAuthenticated,
+    isCommandCodeAuthenticated,
+    isCursorAuthenticated,
+    isGrokAuthenticated,
+    isKimiAuthenticated,
+    isKiroAuthenticated,
+    isOpencodeAuthenticated,
+    isPiAuthenticated,
+    isQwenAuthenticated,
+    AUTH_CHECKERS: {
+      claude: isClaudeAuthenticated,
+      codex: isCodexAuthenticated,
+      commandcode: isCommandCodeAuthenticated,
+      cursor: isCursorAuthenticated,
+      qwen: isQwenAuthenticated,
+      antigravity: isAntigravityAuthenticated,
+      grok: isGrokAuthenticated,
+      kimi: isKimiAuthenticated,
+      kiro: isKiroAuthenticated,
+      pi: isPiAuthenticated,
+      opencode: isOpencodeAuthenticated,
+    },
+  };
+});
 
 vi.mock("node:fs", async (importOriginal) => {
   const original = await importOriginal<typeof import("node:fs")>();
@@ -141,14 +169,14 @@ describe("checkCLI via collectDoctorReport", () => {
 
     // Let the Promise constructors run so spawn() is called for all CLIs
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(9);
+    expect(spawnState.lastProcs).toHaveLength(8);
 
     settleProcs(0, "1.2.3\n");
     await vi.advanceTimersByTimeAsync(0);
 
     const report = await reportPromise;
 
-    expect(report.clis).toHaveLength(9);
+    expect(report.clis).toHaveLength(8);
     for (const cli of report.clis) {
       expect(cli.installed).toBe(true);
       expect(cli.version).toBe("1.2.3");
@@ -159,7 +187,7 @@ describe("checkCLI via collectDoctorReport", () => {
     const reportPromise = collectDoctorReport();
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(9);
+    expect(spawnState.lastProcs).toHaveLength(8);
 
     settleProcs(1);
     await vi.advanceTimersByTimeAsync(0);
@@ -175,7 +203,7 @@ describe("checkCLI via collectDoctorReport", () => {
     const reportPromise = collectDoctorReport();
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(9);
+    expect(spawnState.lastProcs).toHaveLength(8);
 
     errorProcs();
     await vi.advanceTimersByTimeAsync(0);
@@ -192,7 +220,7 @@ describe("checkCLI via collectDoctorReport", () => {
     const reportPromise = collectDoctorReport();
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(spawnState.lastProcs).toHaveLength(9);
+    expect(spawnState.lastProcs).toHaveLength(8);
 
     // Advance past the 5000ms probe timeout + 200ms SIGKILL grace
     await vi.advanceTimersByTimeAsync(5200);
@@ -267,30 +295,6 @@ describe("vendor doc OMA block checks", () => {
       hasOmaBlock: false,
     });
     expect(report.totalIssues).toBeGreaterThanOrEqual(1);
-  });
-
-  it("requires GEMINI.md when gemini is installed", async () => {
-    vi.mocked(existsSync).mockImplementation((p) =>
-      String(p).endsWith("GEMINI.md"),
-    );
-    vi.mocked(readFileSync).mockImplementation((p) =>
-      String(p).endsWith("GEMINI.md")
-        ? "<!-- OMA:START -->\n<!-- OMA:END -->\n"
-        : "",
-    );
-
-    const reportPromise = collectDoctorReport();
-    await vi.advanceTimersByTimeAsync(0);
-    await settleInstalledClis(["gemini"]);
-
-    const report = await reportPromise;
-    const gemini = report.vendorDocs.find((d) => d.fileName === "GEMINI.md");
-
-    expect(gemini).toEqual({
-      fileName: "GEMINI.md",
-      required: true,
-      hasOmaBlock: true,
-    });
   });
 
   it("does not require AGENTS.md when only claude is installed", async () => {

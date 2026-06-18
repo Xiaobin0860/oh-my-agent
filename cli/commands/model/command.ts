@@ -1,7 +1,7 @@
 import type { Command } from "commander";
 import pc from "picocolors";
 import type { ModelSpec } from "../../platform/model-registry.js";
-import { CORE_REGISTRY } from "../../platform/model-registry.js";
+import { CORE_REGISTRY, ownerToVendor } from "../../platform/model-registry.js";
 import { runAction } from "../../utils/cli-framework.js";
 import { computeDiff, formatHumanReadable, formatJson } from "./check.js";
 import { describeProbeStatus, probeSlug } from "./probe.js";
@@ -216,14 +216,7 @@ export function registerModelCommands(program: Command): void {
           const slashIndex = (slug as string).indexOf("/");
           const owner = slashIndex >= 0 ? slug.slice(0, slashIndex) : "";
           const cliModel = slashIndex >= 0 ? slug.slice(slashIndex + 1) : slug;
-          const cliName =
-            {
-              anthropic: "claude",
-              openai: "codex",
-              google: "gemini",
-              qwen: "qwen",
-              cursor: "cursor",
-            }[owner] ?? owner;
+          const cliName = ownerToVendor(owner) ?? owner;
 
           if (!options.json) {
             process.stderr.write(

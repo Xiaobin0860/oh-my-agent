@@ -2,6 +2,7 @@
 // Probes a model slug against its vendor CLI to verify whether it is accepted.
 
 import { spawnSync } from "node:child_process";
+import { ownerToVendor } from "../../platform/model-registry.js";
 
 export type ProbeStatus =
   | "accepted"
@@ -20,21 +21,6 @@ export type ProbeResult = {
 };
 
 // ---------------------------------------------------------------------------
-// Owner → CLI mapping
-// ---------------------------------------------------------------------------
-
-const OWNER_TO_CLI: Record<string, string> = {
-  anthropic: "claude",
-  openai: "codex",
-  google: "gemini",
-  qwen: "qwen",
-  cursor: "cursor",
-  opencode: "opencode",
-  "opencode-go": "opencode",
-  "opencode-zen": "opencode",
-};
-
-// ---------------------------------------------------------------------------
 // CLI → ping command factory
 // ---------------------------------------------------------------------------
 
@@ -49,8 +35,6 @@ function buildPingCommand(cli: string, cliModel: string): CliArgs | null {
       return { bin: "claude", args: ["-p", "ping", "--model", cliModel] };
     case "codex":
       return { bin: "codex", args: ["exec", "-m", cliModel, "ping"] };
-    case "gemini":
-      return { bin: "gemini", args: ["-p", "ping", "--model", cliModel] };
     case "qwen":
       return { bin: "qwen", args: ["-p", "ping", "-m", cliModel] };
     case "cursor":
@@ -182,7 +166,7 @@ export async function probeSlug(
   const slashIndex = slug.indexOf("/");
   const owner = slashIndex >= 0 ? slug.slice(0, slashIndex) : "";
   const cliModel = slashIndex >= 0 ? slug.slice(slashIndex + 1) : slug;
-  const cli = OWNER_TO_CLI[owner] ?? owner;
+  const cli = ownerToVendor(owner) ?? owner;
 
   // ---------------------------------------------------------------------------
   // opencode: list-membership probe — runs `opencode models <owner>`

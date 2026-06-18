@@ -27,8 +27,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { VENDORS } from "../../../.agents/hooks/core/constants.js";
-import { getHookDir } from "../../../.agents/hooks/core/test-filter.js";
 import type { Vendor } from "../../../.agents/hooks/core/types.js";
+import { getHookDir } from "../../../.agents/hooks/core/vendor-detect.js";
 import { nativeEventToKind } from "./adapters.js";
 import { VARIANT_ROUTES } from "./dispatch.js";
 import { PROBE_VENDORS } from "./probe.js";
@@ -86,7 +86,7 @@ describe("vendor wiring contract (variant JSON ↔ dispatch)", () => {
   it("every variant vendor has an embedded route in VARIANT_ROUTES", () => {
     for (const v of variants) {
       expect(
-        VARIANT_ROUTES[v.vendor],
+        VARIANT_ROUTES[v.vendor as keyof typeof VARIANT_ROUTES],
         `${v.vendor}: import the variant JSON in dispatch.ts and add it to ` +
           `VARIANT_ROUTES — without it the installer registers hooks but ` +
           `\`oma hook\` dispatches an empty chain`,

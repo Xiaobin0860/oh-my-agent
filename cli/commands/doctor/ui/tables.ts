@@ -1,6 +1,6 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { AUTH_CHECKERS } from "../report.js";
+import { AUTH_CHECKERS } from "../../../vendors/index.js";
 import type { DoctorReport } from "../types.js";
 import { visualPadEnd } from "./visual-width.js";
 

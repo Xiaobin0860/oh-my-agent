@@ -147,13 +147,35 @@ export function hasModelSpec(slug: string): boolean {
   return getMergedRegistry().has(slug);
 }
 
-const OWNER_TO_CLI: Record<string, RuntimeId> = {
+/**
+ * Canonical model-slug owner-prefix → CLI vendor map. Single source of truth
+ * for the owner-prefix fallback heuristic used when a slug is not a registered
+ * ModelSpec. Consumed by vendor-resolution, doctor/profile, and model probe so
+ * the mapping is defined exactly once (registered slugs always resolve via
+ * getModelSpec(...).cli first; this is only the unregistered-slug fallback).
+ */
+export const OWNER_TO_CLI: Record<string, RuntimeId> = {
   anthropic: "claude",
   openai: "codex",
-  google: "gemini",
+  antigravity: "antigravity",
   cursor: "cursor",
   qwen: "qwen",
+  kiro: "kiro",
+  opencode: "opencode",
 };
+
+/**
+ * Resolve a model-slug owner-prefix to its CLI vendor (unregistered-slug
+ * fallback). Beyond the literal OWNER_TO_CLI lookup, opencode provider tiers
+ * (`opencode-go`, `opencode-zen`, …) all dispatch through the single `opencode`
+ * CLI, handled by one prefix rule rather than a key per tier. Returns undefined
+ * when the owner maps to no known vendor.
+ */
+export function ownerToVendor(owner: string): RuntimeId | undefined {
+  if (owner in OWNER_TO_CLI) return OWNER_TO_CLI[owner];
+  if (owner.startsWith("opencode-")) return "opencode";
+  return undefined;
+}
 
 /**
  * List built-in slugs grouped by owner. Used by buildUnknownSlugError to show

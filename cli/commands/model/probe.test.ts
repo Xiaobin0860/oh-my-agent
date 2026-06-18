@@ -139,14 +139,6 @@ describe("probeSlug", () => {
     expect(result.cliModel).toBe("gpt-5");
   });
 
-  it("maps google owner to gemini CLI", async () => {
-    mockSpawn({ status: 0 });
-
-    const result = await probeSlug("google/gemini-3-pro");
-    expect(result.cli).toBe("gemini");
-    expect(result.cliModel).toBe("gemini-3-pro");
-  });
-
   it("maps qwen owner to qwen CLI", async () => {
     mockSpawn({ status: 0 });
 
@@ -263,16 +255,6 @@ describe("probeSlug spawnSync argv", () => {
     expect(childProcess.spawnSync).toHaveBeenLastCalledWith(
       "codex",
       ["exec", "-m", "gpt-x", "ping"],
-      expect.objectContaining({ encoding: "utf-8" }),
-    );
-  });
-
-  it("invokes gemini with correct argv for google slug", async () => {
-    mockSpawn({ status: 0 });
-    await probeSlug("google/gemini-x");
-    expect(childProcess.spawnSync).toHaveBeenLastCalledWith(
-      "gemini",
-      ["-p", "ping", "--model", "gemini-x"],
       expect.objectContaining({ encoding: "utf-8" }),
     );
   });

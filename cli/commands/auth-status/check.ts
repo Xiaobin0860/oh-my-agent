@@ -3,17 +3,9 @@ import pc from "picocolors";
 import { isGhAuthenticated } from "../../io/github.js";
 import { VENDORS } from "../../vendors/index.js";
 
-const AUTH_HINTS: Record<string, string> = {
-  github: "gh auth login",
-  claude: "claude auth",
-  gemini: "gemini auth",
-  codex: "codex login",
-  cursor: "cursor agent login",
-  qwen: "qwen /auth",
-  antigravity: "agy auth",
-  kiro: "kiro-cli login",
-  opencode: "opencode auth login",
-};
+// GitHub is not a vendor (separate gh CLI); its hint lives here. Per-vendor
+// login hints are co-located on each Vendor descriptor (vendors/index.ts).
+const GITHUB_AUTH_HINT = "gh auth login";
 
 export async function checkAuthStatus(jsonMode = false): Promise<void> {
   const github = isGhAuthenticated();
@@ -51,13 +43,13 @@ export async function checkAuthStatus(jsonMode = false): Promise<void> {
   const missing = rows
     .filter(([, auth]) => !auth)
     .map(([name]) => {
-      const id =
+      const hint =
         name === "GitHub"
-          ? "github"
-          : VENDORS.find((v) => v.label === name)?.id;
-      return id == null ? undefined : ([name, AUTH_HINTS[id]] as const);
+          ? GITHUB_AUTH_HINT
+          : VENDORS.find((v) => v.label === name)?.authHint;
+      return hint ? ([name, hint] as const) : undefined;
     })
-    .filter((hint): hint is readonly [string, string] => !!hint?.[1]);
+    .filter((hint): hint is readonly [string, string] => !!hint);
 
   if (missing.length === 0) {
     p.outro(pc.green("All configured CLIs are authenticated."));

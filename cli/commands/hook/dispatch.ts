@@ -32,9 +32,6 @@ import commandcodeVariant from "../../../.agents/hooks/variants/commandcode.json
 import cursorVariant from "../../../.agents/hooks/variants/cursor.json" with {
   type: "json",
 };
-import geminiVariant from "../../../.agents/hooks/variants/gemini.json" with {
-  type: "json",
-};
 import grokVariant from "../../../.agents/hooks/variants/grok.json" with {
   type: "json",
 };
@@ -47,6 +44,7 @@ import kiroVariant from "../../../.agents/hooks/variants/kiro.json" with {
 import qwenVariant from "../../../.agents/hooks/variants/qwen.json" with {
   type: "json",
 };
+import type { VendorType } from "../../types/vendors.js";
 import { nativeEventToKind, normalizeInput } from "./adapters.js";
 import type {
   HandlerCtx,
@@ -107,13 +105,15 @@ interface VariantJson {
  * exactly how commandcode shipped broken). `vendor-wiring.test.ts` fails
  * when this table and `.agents/hooks/variants/*.json` drift.
  */
-export const VARIANT_ROUTES: Readonly<Record<string, VariantJson>> = {
+// Exhaustive over hook vendors (VendorType): adding a vendor to VENDORS without
+// a variant route here is a compile error. `pi`/`opencode` use extension
+// composers, not settings-file variants, so they are intentionally absent.
+export const VARIANT_ROUTES: Readonly<Record<VendorType, VariantJson>> = {
   antigravity: antigravityVariant as VariantJson,
   claude: claudeVariant as VariantJson,
   codex: codexVariant as VariantJson,
   commandcode: commandcodeVariant as VariantJson,
   cursor: cursorVariant as VariantJson,
-  gemini: geminiVariant as VariantJson,
   grok: grokVariant as VariantJson,
   kimi: kimiVariant as VariantJson,
   kiro: kiroVariant as VariantJson,
@@ -122,7 +122,8 @@ export const VARIANT_ROUTES: Readonly<Record<string, VariantJson>> = {
 
 /** Look up the embedded variant config for a vendor (null if unknown). */
 function loadVariant(vendor: Vendor): VariantJson | null {
-  return VARIANT_ROUTES[vendor] ?? null;
+  // Vendor includes pi (extension-based, no settings variant) → undefined → null.
+  return VARIANT_ROUTES[vendor as VendorType] ?? null;
 }
 
 // ---------------------------------------------------------------------------

@@ -6,17 +6,6 @@ import {
   INSTALLED_SKILLS_DIR,
 } from "../../platform/skills-installer.js";
 import type { CLICheck, SkillCheck } from "../../types/index.js";
-import {
-  isAntigravityAuthenticated,
-  isClaudeAuthenticated,
-  isCodexAuthenticated,
-  isGeminiAuthenticated,
-  isGrokAuthenticated,
-  isKimiAuthenticated,
-  isKiroAuthenticated,
-  isPiAuthenticated,
-  isQwenAuthenticated,
-} from "../../vendors/index.js";
 import type { VendorDocCheck } from "./types.js";
 
 const OMA_DOCTOR_PROBE_TIMEOUT_MS = Number(
@@ -25,7 +14,6 @@ const OMA_DOCTOR_PROBE_TIMEOUT_MS = Number(
 const OMA_DOCTOR_PROBE_SIGKILL_GRACE_MS = 200;
 
 export const CLI_DEFINITIONS: Array<[string, string, string]> = [
-  ["gemini", "gemini", "bun install --global @google/gemini-cli"],
   ["claude", "claude", "bun install --global @anthropic-ai/claude-code"],
   ["codex", "codex", "bun install --global @openai/codex"],
   ["qwen", "qwen", "bun install --global @qwen-code/qwen-code"],
@@ -40,18 +28,6 @@ export const CLI_DEFINITIONS: Array<[string, string, string]> = [
   ["pi", "pi", "bun install --global @earendil-works/pi-coding-agent"],
 ];
 
-export const AUTH_CHECKERS: Record<string, () => boolean> = {
-  gemini: isGeminiAuthenticated,
-  claude: isClaudeAuthenticated,
-  codex: isCodexAuthenticated,
-  qwen: isQwenAuthenticated,
-  antigravity: () => isAntigravityAuthenticated(),
-  grok: isGrokAuthenticated,
-  kiro: isKiroAuthenticated,
-  kimi: isKimiAuthenticated,
-  pi: isPiAuthenticated,
-};
-
 /** Vendor context files checked when their CLI is installed. */
 const VENDOR_DOC_SPECS: Array<{
   fileName: string;
@@ -59,7 +35,6 @@ const VENDOR_DOC_SPECS: Array<{
 }> = [
   { fileName: "CLAUDE.md", cliNames: ["claude"] },
   { fileName: "AGENTS.md", cliNames: ["codex", "qwen"] },
-  { fileName: "GEMINI.md", cliNames: ["gemini"] },
 ];
 
 const OMA_START_MARKER = "<!-- OMA:START";
@@ -132,7 +107,6 @@ export function checkMCPConfig(cliName: string): {
     string,
     { path: string; type: "json" | "yaml" | "toml" }
   > = {
-    gemini: { path: `${homeDir}/.gemini/settings.json`, type: "json" },
     claude: { path: `${homeDir}/.claude.json`, type: "json" },
     codex: { path: `${homeDir}/.codex/config.toml`, type: "toml" },
   };
