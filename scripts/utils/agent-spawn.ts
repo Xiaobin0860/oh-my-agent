@@ -1,22 +1,13 @@
 import { spawnSync } from "node:child_process";
+import { buildExternalInvocation } from "@cli/io/runtime-dispatch/invocations/external.ts";
 import type { RuntimeVendor } from "@cli/io/runtime-dispatch/types.ts";
+import {
+  resolvePromptFlag,
+  resolveVendor,
+} from "@cli/platform/agent-config.ts";
 
-// Headless-print vendors this util supports. A deliberate subset, but validated
-// against the canonical RuntimeVendor SSOT via `satisfies` — if one of these is
-// renamed/removed from the vendor set, this fails to compile (no silent drift).
-const AGENT_VENDORS = [
-  "claude",
-  "codex",
-  "qwen",
-] as const satisfies readonly RuntimeVendor[];
-
-export type AgentVendor = (typeof AGENT_VENDORS)[number];
-
-const HEADLESS_COMMANDS: Record<AgentVendor, (prompt: string) => string[]> = {
-  claude: (prompt) => ["claude", "-p", prompt],
-  codex: (prompt) => ["codex", "exec", prompt],
-  qwen: (prompt) => ["qwen", "-p", prompt],
-};
+/** Any dispatchable vendor (excludes the "unknown" runtime sentinel). */
+export type AgentVendor = Exclude<RuntimeVendor, "unknown">;
 
 export interface RunAgentOptions {
   vendor?: AgentVendor;
@@ -25,21 +16,32 @@ export interface RunAgentOptions {
   timeoutMs?: number;
 }
 
-function resolveVendor(explicit?: AgentVendor): AgentVendor {
-  if (explicit) return explicit;
-  const envVendor = process.env.OMA_DEFAULT_AGENT as AgentVendor | undefined;
-  if (envVendor && envVendor in HEADLESS_COMMANDS) return envVendor;
-  return "claude";
-}
-
+/**
+ * Run a vendor CLI headlessly and return its stdout.
+ *
+ * Reuses the cli's single source of truth — `resolveVendor` (cli-config.yaml +
+ * defaults), `resolvePromptFlag`, and `buildExternalInvocation` — instead of a
+ * hand-maintained per-vendor command map, so every vendor the cli can dispatch
+ * works here too and there is no parallel list to drift.
+ */
 export function runAgent(options: RunAgentOptions): string {
-  const vendor = resolveVendor(options.vendor);
-  const [command, ...args] = HEADLESS_COMMANDS[vendor](options.prompt);
-  if (!command) throw new Error(`Unsupported vendor: ${vendor}`);
+  const override =
+    options.vendor ??
+    (process.env.OMA_DEFAULT_AGENT as AgentVendor | undefined);
+  const { vendor, config } = resolveVendor("explore", override);
+  const vendorConfig = config?.vendors?.[vendor] ?? {};
+  const promptFlag = resolvePromptFlag(vendor, vendorConfig.prompt_flag);
+  const { command, args, env } = buildExternalInvocation(
+    vendor,
+    vendorConfig,
+    promptFlag,
+    options.prompt,
+  );
 
   const result = spawnSync(command, args, {
     encoding: "utf8",
     cwd: options.cwd,
+    env,
     timeout: options.timeoutMs ?? 5 * 60 * 1000,
     maxBuffer: 32 * 1024 * 1024,
     stdio: ["ignore", "pipe", "inherit"],
