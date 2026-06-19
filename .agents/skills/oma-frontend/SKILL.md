@@ -91,7 +91,7 @@ Build, modify, and verify React/Next.js/TypeScript user interfaces that follow p
 
 ### Tools and instruments
 - React, Next.js, TypeScript, TailwindCSS v4, shadcn/ui
-- `ahooks`, `es-toolkit`, `nuqs`, TanStack Query, Jotai, TanStack React Form, `zod`
+- `ahooks`, `es-toolkit`, `nuqs`, TanStack Query, Jotai/Zustand, TanStack React Form, `zod`
 - Lint, typecheck, tests, and browser inspection when applicable
 
 ### Canonical workflow path
@@ -139,7 +139,7 @@ Then run the project's frontend verification commands, typically lint, typecheck
 | Utils | `es-toolkit` (first choice) |
 | State (URL) | `nuqs` |
 | State (Server) | `TanStack Query` |
-| State (Client) | `Jotai` (minimize use) |
+| State (Client) | `Jotai` or `Zustand` (intent-based, no default; minimize use — see `resources/tech-stack.md`) |
 | Forms | `@tanstack/react-form` + `zod` |
 | Auth | `better-auth` (client SDK only; never import server library or database adapters) |
 | Animation | `motion`; import from `motion/react`. `framer-motion` (legacy package name) is BANNED. |

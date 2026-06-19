@@ -69,6 +69,27 @@ Forbidden actions (any of these is a fatal self-error; retract immediately):
 
 Reference: https://nextjs.org/docs/messages/middleware-to-proxy
 
+## Client State — Jotai vs Zustand
+
+Client state has **no project default**; pick per intent. Both are allowed, but **only one
+per project** unless there is a strong reason to mix. The overriding rule is to *minimize
+client state* in the first place: server state belongs in **TanStack Query**, URL state in
+**nuqs**. Reach for a client-state library only for genuine client-owned state.
+
+| Pick | When |
+|---|---|
+| **Jotai** | Atomic / bottom-up. Fine-grained, derived, or near-local shared state; many small independent atoms; state that maps onto React's render graph and RSC-split boundaries. |
+| **Zustand** | Store / top-down. A single cohesive global store with action methods; needs non-React access (`store.getState()` / `subscribe` outside render); simpler mental model for app-wide state. |
+
+Guidance:
+
+1. **State the choice** in the project (e.g. a short note in the app README or DESIGN.md) so
+   contributors don't introduce the other library ad hoc.
+2. **Don't mix** Jotai and Zustand in one app without justification — two client-state models
+   fragment the codebase.
+3. **Default-free does not mean optional analysis**: if neither atomic nor single-store clearly
+   fits, the state probably belongs in TanStack Query (server) or nuqs (URL), not here.
+
 ## Serena MCP Shortcuts
 - `find_symbol("ComponentName")`: locate existing component
 - `get_symbols_overview("src/components")`: list all components
