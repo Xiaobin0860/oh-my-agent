@@ -54,6 +54,10 @@ export function registerVideoCommand(program: Command): void {
     .option("--timeout <seconds>", "Timeout in seconds")
     .option("-y, --yes", "Skip cost confirmation")
     .option("--dry-run", "Emit script/render-spec/manifest, skip rendering")
+    .option(
+      "--script <path>",
+      "Agent-authored script.json to inject (overrides the skeleton; controls narration, on-screen text, and per-scene visual prompts)",
+    )
     .option("--format <format>", "CLI output format: text | json", "text")
     .option(
       "--no-brief-in-manifest",
