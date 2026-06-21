@@ -43,6 +43,7 @@ export {
   createVendorWorkflowSymlinks,
   getInstalledWorkflowNames,
   installCopilotWorkflowPrompts,
+  installZcodeWorkflowCommands,
 } from "./skills-installer/workflow-links.js";
 export * from "./vendor-adapter.js";
 

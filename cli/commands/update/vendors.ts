@@ -30,6 +30,7 @@ const VENDOR_ROOTS: Record<CliVendor, string[]> = {
   opencode: [".opencode"],
   pi: [".pi"],
   qwen: [".qwen"],
+  zcode: [".zcode"],
 };
 
 const UPDATE_VENDORS = [...ALL_CLI_VENDORS, ...EXTENSION_VENDORS].sort();

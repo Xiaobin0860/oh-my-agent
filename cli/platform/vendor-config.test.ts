@@ -49,6 +49,7 @@ describe("readVendorsFromConfig", () => {
       "kimi",
       "kiro",
       "qwen",
+      "zcode",
     ]);
   });
 
@@ -67,6 +68,7 @@ describe("readVendorsFromConfig", () => {
       "kimi",
       "kiro",
       "qwen",
+      "zcode",
     ]);
   });
 

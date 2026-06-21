@@ -24,6 +24,7 @@ import {
   getInstalledWorkflowNames,
   installCopilotWorkflowPrompts,
   installVendorAdaptations,
+  installZcodeWorkflowCommands,
   isExtensionVendor,
   isHookVendor,
   readVendorsFromConfig,
@@ -165,8 +166,16 @@ export function link(opts: LinkOptions = {}): LinkResult {
   const extensionVendors = (configuredVendors as readonly string[]).filter(
     isExtensionVendor,
   );
+  // Workflow-only vendors (zcode) have no hook bridge and no skill symlinks —
+  // they receive only `.zcode/commands/*.md` workflow links, installed below
+  // alongside the extension vendors and ahead of the hook-vendor pipeline.
+  const zcodeConfigured = configuredVendors.includes("zcode");
 
-  if (hookVendors.length === 0 && extensionVendors.length === 0) {
+  if (
+    hookVendors.length === 0 &&
+    extensionVendors.length === 0 &&
+    !zcodeConfigured
+  ) {
     if (!quiet) {
       console.log(`${pc.yellow("⚠")} No vendors to link.`);
     }
@@ -211,8 +220,18 @@ export function link(opts: LinkOptions = {}): LinkResult {
     }
   }
 
+  // Install workflow-only vendor: zcode. Runs regardless of whether any
+  // hook/extension vendors are configured, since zcode has no hook bridge.
+  if (zcodeConfigured) {
+    const { created } = installZcodeWorkflowCommands(cwd);
+    if (!quiet && created.length > 0) {
+      console.log(`${pc.green("✓")} zcode (.zcode/commands/)`);
+    }
+  }
+
   if (hookVendors.length === 0) {
-    // Only extension vendors were configured; the bridge/prompts are installed above.
+    // Only extension / workflow-only vendors were configured; their
+    // bridge / prompts / commands are installed above.
     return { ...empty, mergedDocs: piMergedDocs ? ["AGENTS.md"] : [] };
   }
 

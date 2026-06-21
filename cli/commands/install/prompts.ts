@@ -186,6 +186,11 @@ export async function promptVendors(
         ]
       : []),
     { value: "qwen", label: "Qwen Code", hint: "hooks + settings" },
+    {
+      value: "zcode",
+      label: "ZCode",
+      hint: "workflow slash-commands",
+    },
   ];
 
   // Infer default vendor selection from the chosen preset. Single-vendor

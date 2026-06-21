@@ -135,6 +135,92 @@ export function createVendorWorkflowSymlinks(
 }
 
 /**
+ * Expose each `.agents/workflows/<name>.md` to ZCode as a workspace slash-command
+ * by symlinking it at `.zcode/commands/<name>.md`. ZCode reads workspace commands
+ * as flat `.md` files under `.zcode/commands/` (user-level: `~/.zcode/commands`),
+ * so — unlike Claude/Codex/Qwen, which symlink at `<skills>/<name>/SKILL.md` —
+ * the link is a flat file, not a nested skill manifest. The workflow file is its
+ * own command body (its frontmatter is inert to ZCode's plain-markdown reader).
+ *
+ * Idempotent. Replaces stale oma-owned links (symlinks resolving into the
+ * workflows dir) and prunes commands whose workflow no longer exists in SSOT.
+ * Never touches a user-authored real `.md` command.
+ */
+export function installZcodeWorkflowCommands(installRoot: string): {
+  created: string[];
+  skipped: string[];
+} {
+  const created: string[] = [];
+  const skipped: string[] = [];
+  const workflowsDir = resolve(installRoot, ".agents", "workflows");
+  const commandsDir = resolve(installRoot, ".zcode", "commands");
+  const names = listWorkflowNames(workflowsDir);
+
+  // Prune oma-owned command symlinks whose workflow no longer exists in SSOT.
+  // Ownership = a `.md` symlink resolving directly into the workflows dir; user
+  // commands (real files, or links elsewhere) are left untouched.
+  if (fs.existsSync(commandsDir)) {
+    for (const entry of fs.readdirSync(commandsDir, { withFileTypes: true })) {
+      if (!entry.isSymbolicLink() || !entry.name.endsWith(".md")) continue;
+      const linkPath = join(commandsDir, entry.name);
+      let target: string;
+      try {
+        target = resolve(commandsDir, fs.readlinkSync(linkPath));
+      } catch {
+        continue;
+      }
+      if (resolve(target, "..") !== workflowsDir) continue;
+      const name = entry.name.slice(0, -".md".length);
+      if (!names.includes(name)) fs.rmSync(linkPath, { force: true });
+    }
+  }
+
+  if (names.length === 0) return { created, skipped };
+
+  fs.mkdirSync(commandsDir, { recursive: true });
+  for (const name of names) {
+    const source = join(workflowsDir, `${name}.md`);
+    const commandFile = join(commandsDir, `${name}.md`);
+
+    let stat: fs.Stats | undefined;
+    try {
+      stat = fs.lstatSync(commandFile);
+    } catch {
+      stat = undefined;
+    }
+
+    if (stat?.isSymbolicLink()) {
+      const existing = resolve(commandsDir, fs.readlinkSync(commandFile));
+      if (existing === resolve(source)) {
+        skipped.push(`.zcode/commands/${name} (already linked)`);
+        continue;
+      }
+      fs.rmSync(commandFile, { force: true }); // stale link → rewrite
+    } else if (stat) {
+      skipped.push(`.zcode/commands/${name} (real file exists)`);
+      continue;
+    }
+
+    const relativePath = relative(commandsDir, source);
+    try {
+      createLink(relativePath, commandFile, "file", workflowsDir);
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        err.message.startsWith("createLink: target")
+      ) {
+        skipped.push(`.zcode/commands/${name} (workflow escapes base)`);
+        continue;
+      }
+      throw err;
+    }
+    created.push(`.zcode/commands/${name}`);
+  }
+
+  return { created, skipped };
+}
+
+/**
  * Generate `.github/prompts/<name>.prompt.md` wrappers so GitHub Copilot Chat
  * can invoke workflows via slash commands. Copilot's `.prompt.md` format
  * requires `mode: agent` frontmatter and a markdown-link body that cannot be

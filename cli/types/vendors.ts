@@ -3,6 +3,7 @@ import type {
   INSTALL_ONLY_VENDORS,
   NO_SKILL_VENDORS,
   VENDORS,
+  WORKFLOW_ONLY_VENDORS,
 } from "../constants/vendors.js";
 
 /**
@@ -14,6 +15,7 @@ import type {
 export type VendorType = (typeof VENDORS)[number];
 export type ExtensionVendorType = (typeof EXTENSION_VENDORS)[number];
 export type InstallOnlyVendor = (typeof INSTALL_ONLY_VENDORS)[number];
+export type WorkflowOnlyVendor = (typeof WORKFLOW_ONLY_VENDORS)[number];
 
 /**
  * CLI tools that support skill symlinking: every hook vendor except the
@@ -26,8 +28,12 @@ export type CliTool =
   | Exclude<VendorType, (typeof NO_SKILL_VENDORS)[number]>
   | InstallOnlyVendor;
 
-/** All CLI tools including non-hook and extension-model vendors. */
-export type CliVendor = VendorType | ExtensionVendorType | InstallOnlyVendor;
+/** All CLI tools including non-hook, extension-model, and workflow-only vendors. */
+export type CliVendor =
+  | VendorType
+  | ExtensionVendorType
+  | InstallOnlyVendor
+  | WorkflowOnlyVendor;
 
 export interface CLICheck {
   name: string;

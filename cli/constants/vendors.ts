@@ -52,6 +52,21 @@ export type ExtensionVendor = (typeof EXTENSION_VENDORS)[number];
 export const INSTALL_ONLY_VENDORS = ["copilot", "hermes"] as const;
 
 /**
+ * Vendors that receive ONLY workflow slash-commands (no skill symlinks, no
+ * hook detection, no runtime adapter). Source of truth for the
+ * `WorkflowOnlyVendor` type and the workflow-only tail of `ALL_CLI_VENDORS` /
+ * `CliVendor`.
+ *
+ * `zcode` (Z.ai ZCode) reads workspace slash-commands as flat `.md` files under
+ * `.zcode/commands/` (user-level: `~/.zcode/commands`). It is deliberately kept
+ * OUT of `VENDORS`, `CliTool`, and `CLI_SKILLS_DIR`: it has no skills concept,
+ * so its workflows are exposed via flat command symlinks
+ * (`installZcodeWorkflowCommands`) rather than `<skills>/<name>/SKILL.md`.
+ */
+export const WORKFLOW_ONLY_VENDORS = ["zcode"] as const;
+export type WorkflowOnlyVendor = (typeof WORKFLOW_ONLY_VENDORS)[number];
+
+/**
  * Hook vendors that have no skill-symlink target (no `CLI_SKILLS_DIR`
  * entry). Excluded from `CliTool` via type-level `Exclude`.
  */
@@ -65,6 +80,7 @@ export const NO_SKILL_VENDORS = ["grok"] as const;
 export const ALL_CLI_VENDORS: CliVendor[] = [
   ...VENDORS,
   ...INSTALL_ONLY_VENDORS,
+  ...WORKFLOW_ONLY_VENDORS,
 ].sort() as CliVendor[];
 
 export interface SkillTargetSpec {
