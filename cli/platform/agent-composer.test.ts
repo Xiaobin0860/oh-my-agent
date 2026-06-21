@@ -669,4 +669,38 @@ describe("installVendorAgents — opencode variant", () => {
     expect(content).not.toContain("effort");
     warnSpy.mockRestore();
   });
+
+  // Regression (issue #571): an empty toolsDefault must NOT emit `tools: []`.
+  // opencode types `tools` as an object map, so an empty array is the wrong
+  // shape and fails bootstrap with ConfigInvalidError.
+  it("omits tools entirely when no tools resolve (no `tools: []`)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const sourceDir = makeOpencodeSourceDir();
+    const targetDir = makeTargetDir();
+
+    installVendorAgents(sourceDir, targetDir, "opencode");
+
+    const content = readFileSync(
+      join(targetDir, ".opencode", "agents", "backend-engineer.md"),
+      "utf-8",
+    );
+    expect(content).not.toContain("tools: []");
+    expect(content).not.toMatch(/^tools:/m);
+    warnSpy.mockRestore();
+  });
+
+  it("still emits tools when the agent declares a non-empty tool list", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const sourceDir = makeOpencodeSourceDir({ tools: ["read", "edit"] });
+    const targetDir = makeTargetDir();
+
+    installVendorAgents(sourceDir, targetDir, "opencode");
+
+    const content = readFileSync(
+      join(targetDir, ".opencode", "agents", "backend-engineer.md"),
+      "utf-8",
+    );
+    expect(content).toMatch(/^tools:/m);
+    warnSpy.mockRestore();
+  });
 });

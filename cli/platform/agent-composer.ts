@@ -188,10 +188,18 @@ function buildMarkdownAgentFile(
     ? resolvedTools
     : resolvedTools.join(", ");
 
+  // Only emit `tools` when at least one tool resolved. opencode's agent schema
+  // types `tools` as an object map (`{name: boolean}`), so an empty array
+  // (`tools: []`) is the wrong shape and triggers ConfigInvalidError at
+  // bootstrap. Omitting it when empty keeps the frontmatter schema-valid for
+  // every vendor (an empty tool list carries no meaning anyway).
+  const hasTools = Array.isArray(finalTools)
+    ? finalTools.length > 0
+    : finalTools.trim().length > 0;
   const fm: Record<string, unknown> = {
     name: (frontmatter.name as string) || agentKey,
     description: config.description || frontmatter.description,
-    tools: finalTools,
+    tools: hasTools ? finalTools : undefined,
     model: config.model || frontmatter.model || variant.modelDefault,
   };
 

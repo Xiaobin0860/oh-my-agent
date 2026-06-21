@@ -5,7 +5,10 @@ import { VENDORS } from "../../constants/vendors.js";
 import { ensureOmaProjectGitignore } from "../../io/gitignore.js";
 import { installVendorAgents } from "../../platform/agent-composer.js";
 import { getInstallMode } from "../../platform/install-context.js";
-import { installOpencodePlugin } from "../../platform/opencode-plugin-composer.js";
+import {
+  installOpencodePlugin,
+  registerOpencodePlugin,
+} from "../../platform/opencode-plugin-composer.js";
 import { installPiExtension } from "../../platform/pi-extension-composer.js";
 import { installPiPromptTemplates } from "../../platform/pi-prompts.js";
 import {
@@ -187,8 +190,10 @@ export function link(opts: LinkOptions = {}): LinkResult {
   }
 
   // Install in-process extension vendor: opencode (Sst opencode). opencode
-  // auto-loads `.opencode/plugins/oma/` as a plugin directory and dispatches
-  // plugin event handlers rather than settings-file hook registrations.
+  // loads in-process plugins (event handlers) from `.opencode/plugins/` rather
+  // than settings-file hook registrations. The bridge is materialized under a
+  // nested `oma/` subdir and registered explicitly in opencode.jsonc, since
+  // opencode's auto-discovery only scans `.opencode/plugins/*` flatly.
   const opencodeConfigured = extensionVendors.includes("opencode");
   if (opencodeConfigured) {
     installOpencodePlugin(cwd, cwd);
@@ -196,6 +201,9 @@ export function link(opts: LinkOptions = {}): LinkResult {
     // (`.agents/agents/variants/opencode.json`). Extension vendors are skipped
     // by installVendorAdaptations (hook-vendor only), so generate them here.
     installVendorAgents(cwd, cwd, "opencode");
+    // The bridge lives in a nested subdir that opencode's flat plugin
+    // auto-discovery skips, so register it explicitly in opencode.jsonc.
+    registerOpencodePlugin(cwd);
     if (!quiet) {
       console.log(
         `${pc.green("✓")} opencode (.opencode/plugins/oma/, .opencode/agents/)`,
