@@ -18,7 +18,7 @@
  * Job line format inside the marker block:
  *   <cron> <absOma> schedule:run <id> # oma:<label>
  *
- * Per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §2
+ * Per docs/plans/contracts/schedule-scheduler-port.md §2
  */
 
 import { execFileSync } from "node:child_process";

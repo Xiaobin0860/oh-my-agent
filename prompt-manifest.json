@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.3.3",
-  "releaseDate": "2026-06-21T03:35:04.588Z",
+  "releaseDate": "2026-06-22T02:57:54.979Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -41,8 +41,8 @@
     },
     {
       "path": ".agents/agents/pm-planner.md",
-      "sha256": "c2f0dfd1437a1f83415f052bb842fff2a06d820a2b2a301bf69e9eea64aa1744",
-      "size": 1849
+      "sha256": "4e495a2e5219f009b6876bdddc52a6bd1ab597f779abde6c47c071a8e25a7df6",
+      "size": 1987
     },
     {
       "path": ".agents/agents/qa-reviewer.md",
@@ -386,13 +386,8 @@
     },
     {
       "path": ".agents/skills/_shared/core/api-contracts/README.md",
-      "sha256": "92ef7427089a37133eb3c72ae6c987ef57e366eca9ad158b59bed9e5e22638ed",
-      "size": 2102
-    },
-    {
-      "path": ".agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md",
-      "sha256": "66bbce9e72f12eb03630cd51db683e3fc0a325604b4463c1056627917afd0813",
-      "size": 7306
+      "sha256": "7006a1c24ec3da4e8e7c9c1e47ebe73c1104c96dfcbeba959a4867cb093c08f2",
+      "size": 2956
     },
     {
       "path": ".agents/skills/_shared/core/api-contracts/template.md",
@@ -1431,8 +1426,8 @@
     },
     {
       "path": ".agents/skills/oma-orchestrator/SKILL.md",
-      "sha256": "eba6f4494513edcf28a609fd184a0fd33456a5bcad80b9bbec9f3a4a00c931db",
-      "size": 13818
+      "sha256": "41d6eefb8eab1f5f9b18e2d8ad88a359e0f6c04ed02876bcd195a9545877048e",
+      "size": 13965
     },
     {
       "path": ".agents/skills/oma-orchestrator/config/cli-config.yaml",
@@ -1511,8 +1506,8 @@
     },
     {
       "path": ".agents/skills/oma-pm/SKILL.md",
-      "sha256": "b14c96cba563f754089ea2ac55c69956490215a2315f9e70eebd41468e19728f",
-      "size": 7158
+      "sha256": "3168f09fa940bd79ca5f161cd6ae326a00b5bafc946d538a1b16826bba21e4f1",
+      "size": 7304
     },
     {
       "path": ".agents/skills/oma-pm/resources/error-playbook.md",
@@ -2046,13 +2041,13 @@
     },
     {
       "path": ".agents/workflows/orchestrate.md",
-      "sha256": "72124b5dfe3d2731e67a2df8ce87f4f891caa80cd5ca40dd10b3a2fcfaa1e698",
-      "size": 9943
+      "sha256": "53efc3190962bc0f6c3f6ef05fb0f992eae7963fbe2c1402bf7cda744012b5ce",
+      "size": 9990
     },
     {
       "path": ".agents/workflows/plan.md",
-      "sha256": "38b9792edbbc654190d8c6439149dea41c896a7647ae004d1ab8eeca836099b5",
-      "size": 8350
+      "sha256": "0a745ce628b6f75c687489c52cd7a2479e5712e9389fcbea4c0cab22926ac5bd",
+      "size": 8562
     },
     {
       "path": ".agents/workflows/ralph/resources/judge-protocol.md",
@@ -2126,6 +2121,6 @@
   "metadata": {
     "skillCount": 32,
     "workflowCount": 23,
-    "totalFiles": 423
+    "totalFiles": 422
   }
 }

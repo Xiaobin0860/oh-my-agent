@@ -6,7 +6,7 @@
  * Commands: schedule:add, schedule:list, schedule:remove, schedule:run, schedule:sync
  * No --global flag — schedule is always user-global by design.
  *
- * Per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §4
+ * Per docs/plans/contracts/schedule-scheduler-port.md §4
  */
 
 import * as fs from "node:fs";

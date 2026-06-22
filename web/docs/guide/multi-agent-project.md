@@ -36,7 +36,7 @@ What happens:
 
 1. **Gather requirements**: The PM agent asks about target users, core features, constraints, and deployment targets.
 2. **Analyze technical feasibility**: Uses MCP code analysis tools (`get_symbols_overview`, `find_symbol`, `search_for_pattern`) to scan the existing codebase for reusable code and architecture patterns.
-3. **Define API contracts**: Designs endpoint contracts (method, path, request/response schemas, auth, error responses) and saves them to `.agents/skills/_shared/core/api-contracts/`.
+3. **Define API contracts**: Designs endpoint contracts (method, path, request/response schemas, auth, error responses) and saves them to `.agents/results/api-contracts/` (run artifacts), promoting durable specs to `docs/plans/contracts/` when committed.
 4. **Decompose into tasks**: Breaks the project into actionable tasks, each with assigned agent, title, acceptance criteria, priority (P0-P3), and dependencies.
 5. **Review plan with user**: Presents the full plan for confirmation. The workflow will not proceed without explicit user approval.
 6. **Save plan**: Writes the approved plan to `.agents/results/plan-{sessionId}.json` and records a summary in memory.
@@ -196,7 +196,7 @@ oma agent:spawn frontend "Build landing page" session-id -w ./packages/web-app
 
 API contracts are the synchronization mechanism between agents. The contract-first rule means:
 
-1. **Contracts are defined before implementation begins.** The `/plan` workflow's Step 3 produces API contracts that are saved to `.agents/skills/_shared/core/api-contracts/`.
+1. **Contracts are defined before implementation begins.** The `/plan` workflow's Step 3 produces API contracts that are saved to `.agents/results/api-contracts/` (or `docs/plans/contracts/` for durable specs).
 
 2. **Every agent receives its relevant contracts as context.** When `/orchestrate` spawns agents in Step 3, each agent gets "task description, API contracts, relevant context."
 

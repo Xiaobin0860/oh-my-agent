@@ -13,7 +13,7 @@
  * ExecStart always uses an absolute oma binary path so systemd (which runs
  * with a minimal PATH for user units) can locate the binary.
  *
- * Per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §2
+ * Per docs/plans/contracts/schedule-scheduler-port.md §2
  */
 
 import { execFileSync } from "node:child_process";

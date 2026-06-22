@@ -11,7 +11,7 @@
  * plist ProgramArguments is always ["oma","schedule:run","<id>"]
  * cron → StartCalendarInterval conversion included.
  *
- * Per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §2
+ * Per docs/plans/contracts/schedule-scheduler-port.md §2
  */
 
 import { execFileSync } from "node:child_process";

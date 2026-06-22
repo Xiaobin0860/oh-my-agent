@@ -7,7 +7,7 @@
  * win32→Schtasks; other→Crontab fallback.
  * S1 implements LaunchdAdapter; S2 adds SystemdAdapter, CrontabAdapter, SchtasksAdapter.
  *
- * Per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §2
+ * Per docs/plans/contracts/schedule-scheduler-port.md §2
  */
 
 // ---------------------------------------------------------------------------

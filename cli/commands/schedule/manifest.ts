@@ -5,7 +5,7 @@
  * Storage: ~/.agents/schedule/schedules.json (global-only, 0600)
  * Directory: ~/.agents/schedule/ (0700)
  *
- * Schema per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §1
+ * Schema per docs/plans/contracts/schedule-scheduler-port.md §1
  */
 
 import { execSync } from "node:child_process";

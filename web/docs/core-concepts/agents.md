@@ -111,7 +111,7 @@ When a workflow maps an agent to the same vendor as the current runtime, it shou
 
 **Output:** `.agents/results/plan-{sessionId}.json`, `.agents/results/result-pm.md`, memory write for orchestrator.
 
-**Resources:** `execution-protocol.md`, `examples.md`, `iso-planning.md`, `task-template.json`, `../_shared/core/api-contracts/`.
+**Resources:** `execution-protocol.md`, `examples.md`, `iso-planning.md`, `task-template.json`, `../_shared/core/api-contracts/template.md` (contracts are written to `.agents/results/api-contracts/`).
 
 **Turn limits:** Default 10, max 15.
 

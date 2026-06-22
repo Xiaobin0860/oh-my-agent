@@ -12,7 +12,7 @@
  * /TR always uses the absolute oma binary path because schtasks runs jobs
  * without a user shell; a bare "oma" would not be found in the system PATH.
  *
- * Per .agents/skills/_shared/core/api-contracts/schedule-scheduler-port.md §2
+ * Per docs/plans/contracts/schedule-scheduler-port.md §2
  */
 
 import { execFileSync } from "node:child_process";
