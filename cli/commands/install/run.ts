@@ -381,6 +381,14 @@ export async function install(options: InstallOptions = {}): Promise<void> {
         p.log.warn(`agy: ${linkResult.agySkipReason}`);
       }
 
+      // No vendor selected: the .agents/ SSOT is installed but nothing is wired
+      // into a runtime, so oma won't trigger anywhere until the user links one.
+      if (vendors.length === 0) {
+        p.log.warn(
+          "No CLI vendor configured — .agents/ is installed but no runtime is wired. Run `oma link <vendor>` (e.g. `oma link claude`) to activate one.",
+        );
+      }
+
       // --- Serena Project Setup ---
       {
         const serenaLangs = resolveSerenaLanguages(

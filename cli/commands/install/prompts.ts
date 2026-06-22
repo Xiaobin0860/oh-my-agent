@@ -162,6 +162,11 @@ export async function promptVendors(
       hint: "hooks + Serena MCP + .kiro/agents/",
     },
     {
+      value: "opencode",
+      label: "OpenCode",
+      hint: "in-process plugin bridge — .opencode/plugins/oma/, .opencode/agents/",
+    },
+    {
       value: "pi",
       label: "pi (Earendil)",
       hint: "in-process extension bridge — .pi/extensions/oma/",
@@ -223,10 +228,10 @@ export async function promptVendors(
   const selectedVendors = nonInteractive
     ? defaultVendorValues
     : await p.multiselect({
-        message: "CLI tools to configure:",
+        message: "CLI tools to configure (deselect all to skip):",
         options: vendorOptions,
         initialValues: defaultVendorValues,
-        required: true,
+        required: false,
       });
 
   if (p.isCancel(selectedVendors)) {

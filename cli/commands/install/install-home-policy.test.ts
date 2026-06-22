@@ -310,11 +310,11 @@ describe("install home policy", () => {
 
   // --- Prompt option list: Antigravity replaces Gemini (deprecation cutover) ---
 
-  it("offers Antigravity (not Gemini) in the 'CLI tools to configure:' prompt", async () => {
+  it("offers Antigravity (not Gemini) and OpenCode in the CLI tools prompt", async () => {
     await install();
 
-    const cliToolsCall = promptState.multiselect.mock.calls.find(
-      (call) => call[0]?.message === "CLI tools to configure:",
+    const cliToolsCall = promptState.multiselect.mock.calls.find((call) =>
+      call[0]?.message?.startsWith("CLI tools to configure"),
     );
     expect(cliToolsCall).toBeDefined();
 
@@ -324,6 +324,12 @@ describe("install home policy", () => {
 
     expect(optionValues).toContain("antigravity");
     expect(optionValues).not.toContain("gemini");
+    // OpenCode is selectable from the install picker (issue #575) so users no
+    // longer need a follow-up `oma link opencode` step.
+    expect(optionValues).toContain("opencode");
+    // The CLI selection step is skippable — clack multiselect must allow an
+    // empty selection (required: false).
+    expect(cliToolsCall?.[0].required).toBe(false);
   });
 });
 
