@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.17.1](https://github.com/first-fluke/oh-my-agent/compare/web-v3.17.0...web-v3.17.1) (2026-06-22)
+
+
+### Refactoring
+
+* **contracts:** relocate generated API contracts out of skill SSOT ([275a475](https://github.com/first-fluke/oh-my-agent/commit/275a475cbc1602bf8a548e264287d4fdfdde932a))
+
+
+### Documentation
+
+* **guide:** document ZCode vendor integration ([3f2b85d](https://github.com/first-fluke/oh-my-agent/commit/3f2b85d4ce645ba1b8be43b6541ea4034eab56e0))
+
 ## [3.17.0](https://github.com/first-fluke/oh-my-agent/compare/web-v3.16.0...web-v3.17.0) (2026-06-18)
 
 
