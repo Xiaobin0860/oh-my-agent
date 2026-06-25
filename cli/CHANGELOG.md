@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.4.2](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.4.1...cli-v10.4.2) (2026-06-25)
+
+
+### Bug Fixes
+
+* **agents:** raise maxTurns to prevent orchestrate mid-task cutoff ([0ed9556](https://github.com/first-fluke/oh-my-agent/commit/0ed955690f4c06c761744c3288dc6d538f10cd13))
+
+
+### Documentation
+
+* **oma-scm:** add explicit user override guardrail ([50aab2f](https://github.com/first-fluke/oh-my-agent/commit/50aab2f7b81d6208759d3b73d989d7888990398c))
+
 ## [10.4.1](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.4.0...cli-v10.4.1) (2026-06-22)
 
 
