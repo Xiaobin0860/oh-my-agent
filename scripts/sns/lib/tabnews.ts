@@ -2,8 +2,22 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type AgentVendor, runAgent } from "../../utils/agent-spawn.ts";
-import { parseAgentJson } from "./agent-json.ts";
+import { parseAgentJson, withParseRetry } from "./agent-json.ts";
 import type { EnglishDraft, PortugueseDraft, SkipPayload } from "./types.ts";
+
+/** Retry a translator/reviewer agent when its output is unparseable. */
+function generatePortugueseWithRetry(
+  label: string,
+  run: () => string,
+): PortugueseDraft | SkipPayload {
+  return withParseRetry(run, parsePortugueseDraft, {
+    attempts: 3,
+    onRetry: (n, total, err) =>
+      console.warn(
+        `[pt/tabnews] ${label} output unparseable (attempt ${n}/${total}): ${err.message}; retrying`,
+      ),
+  });
+}
 
 const GITHUB_URL = "https://github.com/first-fluke/oh-my-agent";
 const TABNEWS_BASE = "https://www.tabnews.com.br";
@@ -124,8 +138,9 @@ export function translateToPortuguese(
   prompt?: string,
 ): PortugueseDraft | SkipPayload {
   const resolved = prompt ?? prepareTranslatePrompt(english);
-  const raw = runAgent({ vendor, prompt: resolved, timeoutMs: 10 * 60 * 1000 });
-  return parsePortugueseDraft(raw);
+  return generatePortugueseWithRetry("translate", () =>
+    runAgent({ vendor, prompt: resolved, timeoutMs: 10 * 60 * 1000 }),
+  );
 }
 
 export function buildSyncReviewPrompt(
@@ -180,8 +195,9 @@ export function reviewPortugueseDraft(
       "reviewPortugueseDraft requires a pre-built review prompt.",
     );
   }
-  const raw = runAgent({ vendor, prompt, timeoutMs: 10 * 60 * 1000 });
-  return parsePortugueseDraft(raw);
+  return generatePortugueseWithRetry("review", () =>
+    runAgent({ vendor, prompt, timeoutMs: 10 * 60 * 1000 }),
+  );
 }
 
 export async function publishToTabnews(

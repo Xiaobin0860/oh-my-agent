@@ -6,8 +6,22 @@ import {
   collectGitContext,
   formatContextForPrompt,
 } from "../../utils/git-context.ts";
-import { parseAgentJson } from "./agent-json.ts";
+import { parseAgentJson, withParseRetry } from "./agent-json.ts";
 import type { EnglishDraft, JapaneseDraft, SkipPayload } from "./types.ts";
+
+/** Retry an author/translator/reviewer agent when its output is unparseable. */
+function generateJapaneseWithRetry(
+  label: string,
+  run: () => string,
+): JapaneseDraft | SkipPayload {
+  return withParseRetry(run, parseJapaneseDraft, {
+    attempts: 3,
+    onRetry: (n, total, err) =>
+      console.warn(
+        `[ja/qiita] ${label} output unparseable (attempt ${n}/${total}): ${err.message}; retrying`,
+      ),
+  });
+}
 
 const GITHUB_URL = "https://github.com/first-fluke/oh-my-agent";
 const QIITA_ITEMS = "https://qiita.com/api/v2/items";
@@ -79,12 +93,9 @@ export function generateWeeklyJapanese(
 ): JapaneseDraft | SkipPayload {
   const prepared = prompt ? { prompt } : prepareWeeklyJapanesePrompt(since);
   if ("skip" in prepared) return prepared;
-  const raw = runAgent({
-    vendor,
-    prompt: prepared.prompt,
-    timeoutMs: 10 * 60 * 1000,
-  });
-  return parseJapaneseDraft(raw);
+  return generateJapaneseWithRetry("author", () =>
+    runAgent({ vendor, prompt: prepared.prompt, timeoutMs: 10 * 60 * 1000 }),
+  );
 }
 
 export function buildTranslatePrompt(
@@ -156,8 +167,9 @@ export function translateToJapanese(
   prompt?: string,
 ): JapaneseDraft | SkipPayload {
   const resolved = prompt ?? prepareTranslatePrompt(english);
-  const raw = runAgent({ vendor, prompt: resolved, timeoutMs: 10 * 60 * 1000 });
-  return parseJapaneseDraft(raw);
+  return generateJapaneseWithRetry("translate", () =>
+    runAgent({ vendor, prompt: resolved, timeoutMs: 10 * 60 * 1000 }),
+  );
 }
 
 export function buildWeeklyReviewPrompt(
@@ -254,8 +266,9 @@ export function reviewJapaneseDraft(
   if (!prompt) {
     throw new Error("reviewJapaneseDraft requires a pre-built review prompt.");
   }
-  const raw = runAgent({ vendor, prompt, timeoutMs: 10 * 60 * 1000 });
-  return parseJapaneseDraft(raw);
+  return generateJapaneseWithRetry("review", () =>
+    runAgent({ vendor, prompt, timeoutMs: 10 * 60 * 1000 }),
+  );
 }
 
 export async function publishToQiita(

@@ -6,7 +6,7 @@ import {
   collectGitContext,
   formatContextForPrompt,
 } from "../../utils/git-context.ts";
-import { parseAgentJson } from "./agent-json.ts";
+import { parseAgentJson, withParseRetry } from "./agent-json.ts";
 import type { EnglishDraft, SkipPayload } from "./types.ts";
 
 const GITHUB_URL = "https://github.com/first-fluke/oh-my-agent";
@@ -153,8 +153,19 @@ export function generateWeeklyEnglish(
 ): EnglishDraft | SkipPayload {
   const prepared = prompt ? { prompt } : prepareWeeklyEnglishPrompt(since);
   if ("skip" in prepared) return prepared;
-  const raw = runAgent({ vendor, prompt: prepared.prompt });
-  return parseEnglishDraft(raw);
+  // The author agent occasionally returns non-JSON; retry before giving up so a
+  // single flaky response does not silently drop the whole weekly publish.
+  return withParseRetry(
+    () => runAgent({ vendor, prompt: prepared.prompt }),
+    parseEnglishDraft,
+    {
+      attempts: 3,
+      onRetry: (n, total, err) =>
+        console.warn(
+          `[en/dev.to] author output unparseable (attempt ${n}/${total}): ${err.message}; retrying`,
+        ),
+    },
+  );
 }
 
 export async function publishToDevto(
