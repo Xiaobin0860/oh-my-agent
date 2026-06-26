@@ -196,11 +196,23 @@ function buildMarkdownAgentFile(
   const hasTools = Array.isArray(finalTools)
     ? finalTools.length > 0
     : finalTools.trim().length > 0;
+  // opencode's model catalog is login/subscription-gated and varies per install,
+  // so oma must not pin a hardcoded opencode slug (see
+  // web/docs/guide/per-agent-models.md — "oma does not hardcode opencode model
+  // slugs"). The "inherit" sentinel (also used by cursor/kiro/commandcode) means
+  // "don't pin a model": for opencode we omit the `model` field so it falls back
+  // to the user's configured default. An explicit per-agent override (config.model
+  // or a frontmatter model) still wins.
+  const resolvedModel =
+    config.model || frontmatter.model || variant.modelDefault;
   const fm: Record<string, unknown> = {
     name: (frontmatter.name as string) || agentKey,
     description: config.description || frontmatter.description,
     tools: hasTools ? finalTools : undefined,
-    model: config.model || frontmatter.model || variant.modelDefault,
+    model:
+      vendor === "opencode" && resolvedModel === "inherit"
+        ? undefined
+        : resolvedModel,
   };
 
   if (variant.maxTurnsDefault || config.maxTurns || frontmatter.maxTurns) {

@@ -576,7 +576,7 @@ describe("installVendorAgents — opencode variant", () => {
       JSON.stringify({
         vendor: "opencode",
         destDir: ".opencode/agents",
-        modelDefault: "opencode-go/deepseek-v4-flash",
+        modelDefault: "inherit",
         toolsDefault: [],
         protocolPath:
           ".agents/skills/_shared/runtime/execution-protocols/opencode.md",
@@ -620,7 +620,12 @@ describe("installVendorAgents — opencode variant", () => {
     warnSpy.mockRestore();
   });
 
-  it("generated frontmatter includes mode:subagent and modelDefault", () => {
+  // Regression (issue #580): opencode's model catalog is login/subscription-gated
+  // and varies per install, so the variant must NOT pin a hardcoded opencode slug.
+  // With the "inherit" sentinel (no per-agent override), the generated frontmatter
+  // emits `mode: subagent` but omits `model` entirely so opencode falls back to the
+  // user's configured default model.
+  it("emits mode:subagent and omits model when modelDefault is the inherit sentinel", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const sourceDir = makeOpencodeSourceDir();
     const targetDir = makeTargetDir();
@@ -632,7 +637,9 @@ describe("installVendorAgents — opencode variant", () => {
       "utf-8",
     );
     expect(content).toContain("mode: subagent");
-    expect(content).toContain("opencode-go/deepseek-v4-flash");
+    expect(content).not.toMatch(/^model:/m);
+    expect(content).not.toContain("inherit");
+    expect(content).not.toContain("opencode-go/");
     warnSpy.mockRestore();
   });
 
@@ -702,5 +709,21 @@ describe("installVendorAgents — opencode variant", () => {
     );
     expect(content).toMatch(/^tools:/m);
     warnSpy.mockRestore();
+  });
+
+  // Regression (issue #580): the real opencode variant SSOT must not hardcode a
+  // provider-gated opencode slug (e.g. opencode-go/deepseek-v4-flash). Such slugs
+  // are invalid on stock opencode installs (the opencode-go provider is absent)
+  // and contradict the documented rule that "oma does not hardcode opencode model
+  // slugs" (web/docs/guide/per-agent-models.md).
+  it("real opencode variant SSOT does not hardcode a provider-gated model slug", () => {
+    const variant = JSON.parse(
+      readFileSync(
+        new URL("../../.agents/agents/variants/opencode.json", import.meta.url),
+        "utf-8",
+      ),
+    ) as { modelDefault: string };
+    expect(variant.modelDefault).toBe("inherit");
+    expect(variant.modelDefault).not.toMatch(/^opencode-go\//);
   });
 });
