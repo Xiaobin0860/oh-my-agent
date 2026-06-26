@@ -23,6 +23,7 @@ import { migrateUnifyWorkflowSkills } from "./011-unify-workflow-skills.js";
 import { migrateVersionInstallMode } from "./012-version-install-mode.js";
 import { migrateWorkflowDirectSymlinks } from "./013-workflow-direct-symlinks.js";
 import { migrateRenameAgentExplore } from "./014-rename-agent-explore.js";
+import { migrateSerenaProjectFromCwd } from "./015-serena-project-from-cwd.js";
 
 const migrations: Migration[] = [
   migrateToAgents,
@@ -38,6 +39,7 @@ const migrations: Migration[] = [
   migrateVersionInstallMode,
   migrateWorkflowDirectSymlinks,
   migrateRenameAgentExplore,
+  migrateSerenaProjectFromCwd,
 ];
 
 export function runMigrations(cwd: string): string[] {

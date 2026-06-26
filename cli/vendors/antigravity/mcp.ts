@@ -6,6 +6,7 @@ import { safeWriteJson } from "../../utils/safe-write.js";
 import {
   withSerenaContext,
   withSerenaDashboardOpenDisabled,
+  withSerenaProjectFromCwd,
 } from "../serena.js";
 
 /**
@@ -92,9 +93,11 @@ function transformForAgy(entry: Record<string, unknown>): McpServerEntry {
   } else if (typeof entry.url === "string") {
     out.serverUrl = entry.url;
   }
-  return withSerenaContext(
-    withSerenaDashboardOpenDisabled(out),
-    ANTIGRAVITY_SERENA_CONTEXT,
+  return withSerenaProjectFromCwd(
+    withSerenaContext(
+      withSerenaDashboardOpenDisabled(out),
+      ANTIGRAVITY_SERENA_CONTEXT,
+    ),
   );
 }
 

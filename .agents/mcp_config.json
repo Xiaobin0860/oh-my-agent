@@ -22,8 +22,7 @@
         "start-mcp-server",
         "--context",
         "antigravity",
-        "--project",
-        ".",
+        "--project-from-cwd",
         "--open-web-dashboard",
         "false"
       ],

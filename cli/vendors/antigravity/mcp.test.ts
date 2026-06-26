@@ -90,6 +90,7 @@ describe("applyAntigravityMcpConfig", () => {
       "antigravity",
       "--open-web-dashboard",
       "false",
+      "--project-from-cwd",
     ]);
     expect(written.mcpServers.serena.env).toEqual({ LOG: "info" });
   });
@@ -123,6 +124,9 @@ describe("applyAntigravityMcpConfig", () => {
     const args: string[] = written.mcpServers.serena.args;
     expect(args[args.indexOf("--context") + 1]).toBe("antigravity");
     expect(args).not.toContain("claude-code");
+    // The derived config is also normalized to --project-from-cwd (never both).
+    expect(args).toContain("--project-from-cwd");
+    expect(args).not.toContain("--project");
   });
 
   it("inserts --context antigravity when the SSOT serena entry omits it", () => {

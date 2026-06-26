@@ -32,8 +32,7 @@ export function serenaStartMcpArgs(context: string): string[] {
     "start-mcp-server",
     "--context",
     context,
-    "--project",
-    ".",
+    "--project-from-cwd",
     ...DISABLE_DASHBOARD_OPEN_ARGS,
   ];
 }
@@ -90,5 +89,35 @@ export function withSerenaContext<T extends SerenaMcpServerLike>(
 
   const nextArgs = [...server.args];
   nextArgs[idx + 1] = context;
+  return { ...server, args: nextArgs } as T;
+}
+
+/**
+ * Force a serena entry to resolve its project from the working directory.
+ *
+ * `--project .` pins the literal cwd as the project (no walk-up), whereas
+ * `--project-from-cwd` searches upward for `.serena/project.yml` or `.git`
+ * (graceful CWD fallback) — the form serena's own `client_setup` ships for
+ * Claude Code / Codex. The two flags are mutually exclusive (serena raises a
+ * UsageError when both are present), so this strips any `--project <value>`
+ * before inserting `--project-from-cwd`. No-op for non-serena entries or when
+ * `--project-from-cwd` is already set.
+ */
+export function withSerenaProjectFromCwd<T extends SerenaMcpServerLike>(
+  server: T,
+): T {
+  if (server.command !== "serena" || !Array.isArray(server.args)) return server;
+  if (server.args.includes("--project-from-cwd")) return server;
+
+  const idx = server.args.indexOf("--project");
+  if (idx === -1) {
+    return { ...server, args: [...server.args, "--project-from-cwd"] } as T;
+  }
+
+  const nextArgs = [...server.args];
+  // Drop `--project` plus its value when the next token is a value (not a flag).
+  const hasValue =
+    idx + 1 < nextArgs.length && !String(nextArgs[idx + 1]).startsWith("--");
+  nextArgs.splice(idx, hasValue ? 2 : 1, "--project-from-cwd");
   return { ...server, args: nextArgs } as T;
 }
