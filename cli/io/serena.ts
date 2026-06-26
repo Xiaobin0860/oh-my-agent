@@ -405,7 +405,8 @@ ${languages.map((l) => `- ${l}`).join("\n")}
 
 encoding: "utf-8"
 ignore_all_files_in_gitignore: true
-ignored_paths: []
+ignored_paths:
+- .serena/cache
 read_only: false
 excluded_tools: []
 initial_prompt: ""
