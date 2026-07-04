@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.9.0",
-  "releaseDate": "2026-07-04T07:49:12.501Z",
+  "releaseDate": "2026-07-04T08:02:37.620Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -171,8 +171,8 @@
     },
     {
       "path": ".agents/hooks/core/serena-primer.ts",
-      "sha256": "9a1d22deccd1799ce1fe295098a3272d39f1be8c31da4f78f9897b04bd558ee2",
-      "size": 7852
+      "sha256": "3f1c922cbe396fcbd4af60f85f8a877210200b7089c74399564fc2f3ed116691",
+      "size": 8228
     },
     {
       "path": ".agents/hooks/core/skill-injector.ts",
@@ -296,8 +296,8 @@
     },
     {
       "path": ".agents/oma-config.yaml",
-      "sha256": "e5640288ca5cc1f9367ac86b5dec28303ac0654ff92732b4b3bc97b25e8cc9c2",
-      "size": 13153
+      "sha256": "2c3469c3ee24217f7241e7121bd03b1e923ba2a85a286056cc73eef797341a1b",
+      "size": 13161
     },
     {
       "path": ".agents/rules/backend.md",
@@ -501,8 +501,8 @@
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/opencode.md",
-      "sha256": "26122148a303e0d4a220de38793c2db34abab26caacb895c80807a0488ccd7e2",
-      "size": 2968
+      "sha256": "54164afd0c1b697f5af0e282b14aa38aa5745fb99352042f895cb89aba5b0872",
+      "size": 4077
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/pi.md",
