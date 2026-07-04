@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.4](https://github.com/first-fluke/oh-my-agent/compare/web-v3.17.3...web-v3.17.4) (2026-07-04)
+
+
+### Documentation
+
+* **web:** add pi extension recipe for unregistered zai GLM models ([a7dae2c](https://github.com/first-fluke/oh-my-agent/commit/a7dae2c87dc3efa14fcd1348ed341a2fb953150f))
+
 ## [3.17.3](https://github.com/first-fluke/oh-my-agent/compare/web-v3.17.2...web-v3.17.3) (2026-07-04)
 
 
