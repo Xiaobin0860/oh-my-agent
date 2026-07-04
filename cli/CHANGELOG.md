@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.9.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.8.0...cli-v10.9.0) (2026-07-04)
+
+
+### Features
+
+* **skills:** expand oma-design audit rules and workflow protocols ([1a2882f](https://github.com/first-fluke/oh-my-agent/commit/1a2882f76716524cbdc16297d2a762bfe2fb6566))
+
 ## [10.8.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.7.2...cli-v10.8.0) (2026-07-02)
 
 
