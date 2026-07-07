@@ -1,5 +1,24 @@
 # Changelog
 
+## [10.12.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.11.0...cli-v10.12.0) (2026-07-07)
+
+
+### Features
+
+* **schedule:** validate --model vendor on schedule:add ([8a15d14](https://github.com/first-fluke/oh-my-agent/commit/8a15d147f5d0e84c9da82752eb49aa1943833531))
+
+
+### Bug Fixes
+
+* **market:** correct --diversity-threshold help and drop dead stub helper ([2326d05](https://github.com/first-fluke/oh-my-agent/commit/2326d050815bb07c44657d0351f7771024123781))
+* **schedule:** support day-of-week ranges and lists in schtasks adapter ([2ad7794](https://github.com/first-fluke/oh-my-agent/commit/2ad7794eec14e5d70aa8948f8b8e41adbccc6487))
+
+
+### Documentation
+
+* **market:** align skill and rules with actual CLI behavior ([622864e](https://github.com/first-fluke/oh-my-agent/commit/622864ecb17b52c08b760332a07a25d2b2f29694))
+* **schedule:** fix rounding example and document windows cron shapes ([a1f00bd](https://github.com/first-fluke/oh-my-agent/commit/a1f00bd08af8057851006bed0467f077f4916ae4))
+
 ## [10.11.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.10.0...cli-v10.11.0) (2026-07-07)
 
 
