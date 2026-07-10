@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.6](https://github.com/first-fluke/oh-my-agent/compare/web-v3.17.5...web-v3.17.6) (2026-07-10)
+
+
+### Bug Fixes
+
+* **web:** inline docusaurus tsconfig to drop removed baseUrl ([160afe8](https://github.com/first-fluke/oh-my-agent/commit/160afe865889d7d5c259de31c4ae84bbfd54420d))
+
 ## [3.17.5](https://github.com/first-fluke/oh-my-agent/compare/web-v3.17.4...web-v3.17.5) (2026-07-07)
 
 
