@@ -118,9 +118,19 @@ describe("pi bridge handlers", () => {
   let extDir: string;
   // biome-ignore lint/suspicious/noExplicitAny: test captures pi handlers
   let handlers: Record<string, any>;
+  let sent: string[];
 
   function fakeScript(json: object): string {
     return `console.log(${JSON.stringify(JSON.stringify(json))});\n`;
+  }
+
+  /** Minimal pi ExtensionContext stub for handlers that read ctx. */
+  function ctx(overrides: Record<string, unknown> = {}) {
+    return {
+      hasPendingMessages: () => false,
+      sessionManager: { getSessionId: () => "sess-1" },
+      ...overrides,
+    };
   }
 
   beforeEach(async () => {
@@ -140,11 +150,14 @@ describe("pi bridge handlers", () => {
       join(extDir, "test-filter.ts"),
       fakeScript({ updatedInput: { command: "FILTERED" } }),
     );
+    // Default: no active workflow (persistent-mode allows the stop).
+    writeFileSync(join(extDir, "persistent-mode.ts"), fakeScript({}));
 
     // Reset the once-guard so the freshly imported module registers handlers.
     (globalThis as Record<string, unknown>).__OMA_PI_EXT_REGISTERED = undefined;
 
     handlers = {};
+    sent = [];
     const mod = await import(
       `${pathToFileURL(join(extDir, "index.ts")).href}?t=${target}`
     );
@@ -152,15 +165,27 @@ describe("pi bridge handlers", () => {
       on: (event: string, handler: unknown) => {
         handlers[event] = handler;
       },
+      sendUserMessage: (content: string) => {
+        sent.push(content);
+      },
     });
   });
 
   it("before_agent_start appends keyword + skill context to the system prompt", async () => {
-    const out = await handlers.before_agent_start({
-      prompt: "anything",
-      systemPrompt: "BASE",
-    });
+    const out = await handlers.before_agent_start(
+      { prompt: "anything", systemPrompt: "BASE" },
+      ctx(),
+    );
     expect(out).toEqual({ systemPrompt: "BASE\n\n[FAKE KD]\n\n[FAKE SI]" });
+    rmSync(target, { recursive: true, force: true });
+  });
+
+  it("before_agent_start skips injection for its own re-entry turns", async () => {
+    const out = await handlers.before_agent_start(
+      { prompt: "[OMA PERSISTENT MODE: WORK] continue", systemPrompt: "BASE" },
+      ctx(),
+    );
+    expect(out).toBeUndefined();
     rmSync(target, { recursive: true, force: true });
   });
 
@@ -176,6 +201,56 @@ describe("pi bridge handlers", () => {
     const event = { toolName: "edit", input: { command: "noop" } };
     await handlers.tool_call(event);
     expect(event.input.command).toBe("noop");
+    rmSync(target, { recursive: true, force: true });
+  });
+
+  it("registers an agent_settled handler", () => {
+    expect(typeof handlers.agent_settled).toBe("function");
+    rmSync(target, { recursive: true, force: true });
+  });
+
+  it("agent_settled re-enters via sendUserMessage on a block decision", async () => {
+    const reason = "[OMA PERSISTENT MODE: WORK] continue";
+    writeFileSync(
+      join(extDir, "persistent-mode.ts"),
+      fakeScript({ decision: "block", reason }),
+    );
+    await handlers.agent_settled({}, ctx());
+    expect(sent).toEqual([reason]);
+    rmSync(target, { recursive: true, force: true });
+  });
+
+  it("agent_settled does not re-enter when no workflow is active", async () => {
+    await handlers.agent_settled({}, ctx());
+    expect(sent).toEqual([]);
+    rmSync(target, { recursive: true, force: true });
+  });
+
+  it("agent_settled skips re-entry when messages are pending", async () => {
+    writeFileSync(
+      join(extDir, "persistent-mode.ts"),
+      fakeScript({ decision: "block", reason: "[OMA PERSISTENT MODE: WORK]" }),
+    );
+    await handlers.agent_settled({}, ctx({ hasPendingMessages: () => true }));
+    expect(sent).toEqual([]);
+    rmSync(target, { recursive: true, force: true });
+  });
+
+  it("agent_settled honors the consecutive re-entry backstop", async () => {
+    writeFileSync(
+      join(extDir, "persistent-mode.ts"),
+      fakeScript({ decision: "block", reason: "[OMA PERSISTENT MODE: WORK]" }),
+    );
+    for (let i = 0; i < 55; i++) await handlers.agent_settled({}, ctx());
+    expect(sent.length).toBe(50);
+
+    // A genuine user turn resets the backstop, allowing re-entry again.
+    await handlers.before_agent_start(
+      { prompt: "new user request", systemPrompt: "BASE" },
+      ctx(),
+    );
+    await handlers.agent_settled({}, ctx());
+    expect(sent.length).toBe(51);
     rmSync(target, { recursive: true, force: true });
   });
 });
