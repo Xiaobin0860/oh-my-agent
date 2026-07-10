@@ -18,7 +18,7 @@ export const SKILLS: SkillsRegistry = {
     },
     {
       name: "oma-frontend",
-      desc: `Frontend specialist for React, Next.js, TypeScript with FSD-lite architecture, shadcn/ui, and design system alignment. Use for UI, component, page, layout, CSS, Tailwind, and shadcn work.`,
+      desc: `Frontend specialist for React, Next.js, Angular, TypeScript with FSD-lite architecture, shadcn/ui, and design system alignment. Use for UI, component, page, layout, CSS, Tailwind, shadcn, Angular, and RxJS work.`,
     },
     {
       name: "oma-mobile",
@@ -80,7 +80,7 @@ export const SKILLS: SkillsRegistry = {
     },
     {
       name: "oma-market",
-      desc: `Market research skill for pain-point extraction, trend detection, competitor positioning, and discovery across community sources (Reddit, HN, Bluesky, Mastodon, GitHub Issues, web). Routes via oma-search transport, deterministic CLI compute, intent-auto SWOT/Porter's 5F/PESTEL frameworks. Use for market research, pain point analysis, trend detection, competitor research, user complaints, voice-of-customer, 시장조사, 사용자 페인, 트렌드, 경쟁구도.`,
+      desc: `Market research skill for pain-point extraction, trend detection, competitor positioning, and discovery across community sources (Reddit, HN, Bluesky, Mastodon, GitHub Issues, web). Built-in harvest fetchers, deterministic CLI compute, intent-auto SWOT/Porter's 5F/PESTEL frameworks. Use for market research, pain point analysis, trend detection, competitor research, user complaints, voice-of-customer, 시장조사, 사용자 페인, 트렌드, 경쟁구도.`,
     },
     {
       name: "oma-pdf",
