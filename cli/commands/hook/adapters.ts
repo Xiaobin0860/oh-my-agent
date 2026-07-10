@@ -27,9 +27,11 @@ import type { HookInput, Vendor } from "./types.js";
 //           (commandcode has NO prompt event — only PreToolUse/PostToolUse/
 //            Stop per commandcode.ai/docs/hooks/reference)
 //
-// pre_tool: PreToolUse  (claude, codex, qwen, antigravity)
+// pre_tool: PreToolUse  (claude, codex, qwen)
 //           BeforeTool  (gemini)
 //           preToolUse  (kiro)
+//           (antigravity has no pre_tool registration — agy's hook output is
+//            allow/deny/ask only, so the test-filter rewrite cannot apply)
 //
 // stop    : Stop        (claude, codex, commandcode, grok, qwen, antigravity)
 //           stop        (kiro — lowercase, per kiro.json)
