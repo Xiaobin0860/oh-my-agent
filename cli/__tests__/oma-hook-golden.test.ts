@@ -133,6 +133,39 @@ describe("hook-output golden — makePromptOutput (context/prompt)", () => {
     const hso = out.hookSpecificOutput as Record<string, unknown>;
     expect(hso.hookEventName).toBe("SessionStart");
   });
+
+  it("claude SessionStart -> hookEventName='SessionStart' + reloadSkills:true", () => {
+    // Claude Code re-scans skill/command dirs after SessionStart hooks when the
+    // output sets reloadSkills (docs: code.claude.com/docs/en/hooks). Emitted
+    // only for claude's SessionStart, and only because makePromptOutput runs
+    // solely when context was injected.
+    const out = JSON.parse(
+      makePromptOutput("claude", ctx, "SessionStart"),
+    ) as Record<string, unknown>;
+    expect(out.additionalContext).toBe(ctx);
+    const hso = out.hookSpecificOutput as Record<string, unknown>;
+    expect(hso.hookEventName).toBe("SessionStart");
+    expect(hso.additionalContext).toBe(ctx);
+    expect(hso.reloadSkills).toBe(true);
+  });
+
+  it("claude UserPromptSubmit -> no reloadSkills (SessionStart-only)", () => {
+    const out = JSON.parse(makePromptOutput("claude", ctx)) as Record<
+      string,
+      unknown
+    >;
+    const hso = out.hookSpecificOutput as Record<string, unknown>;
+    expect(hso.hookEventName).toBe("UserPromptSubmit");
+    expect(hso.reloadSkills).toBeUndefined();
+  });
+
+  it("commandcode SessionStart -> no reloadSkills (claude-only feature)", () => {
+    const out = JSON.parse(
+      makePromptOutput("commandcode", ctx, "SessionStart"),
+    ) as Record<string, unknown>;
+    const hso = out.hookSpecificOutput as Record<string, unknown>;
+    expect(hso.reloadSkills).toBeUndefined();
+  });
 });
 
 describe("hook-output golden — makeBlockOutput (stop/block)", () => {

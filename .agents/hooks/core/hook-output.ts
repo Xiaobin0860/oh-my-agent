@@ -24,7 +24,7 @@ export function makePromptOutput(
         injectSteps: [{ ephemeralMessage: additionalContext }],
       });
     case "claude":
-    case "commandcode":
+    case "commandcode": {
       // Official Claude Code docs (code.claude.com/docs/en/hooks) specify
       // `hookSpecificOutput.additionalContext` — the top-level field is kept
       // for back-compat with older builds that read it.
@@ -32,13 +32,20 @@ export function makePromptOutput(
       // dialect. It has no prompt-submit event, but DOES inject context on
       // SessionStart (additionalContext) — dispatch passes hookEventName
       // "SessionStart" for that path.
-      return JSON.stringify({
+      const hookSpecificOutput: Record<string, unknown> = {
+        hookEventName,
         additionalContext,
-        hookSpecificOutput: {
-          hookEventName,
-          additionalContext,
-        },
-      });
+      };
+      // Claude Code re-scans skill/command directories after SessionStart hooks
+      // complete when the output sets `reloadSkills` (docs: SessionStart
+      // hookSpecificOutput.reloadSkills). It is Claude-only and only meaningful
+      // for SessionStart; this builder is called solely when context was
+      // actually injected, so the "only when injecting" condition is inherent.
+      if (vendor === "claude" && hookEventName === "SessionStart") {
+        hookSpecificOutput.reloadSkills = true;
+      }
+      return JSON.stringify({ additionalContext, hookSpecificOutput });
+    }
     case "codex":
       return JSON.stringify({
         hookSpecificOutput: {

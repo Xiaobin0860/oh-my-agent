@@ -164,3 +164,46 @@ describe("normalizeInput — prompt field shapes", () => {
     expect(input).toEqual({ kind: "prompt", prompt: "hello", cwd: "/tmp/p" });
   });
 });
+
+// ---------------------------------------------------------------------------
+// SessionStart mapping — claude/commandcode/cursor route session-start context
+// injection through the prompt pipeline; HUD-only SessionStart (gemini) stays
+// null. This complements the dynamic coverage test above with explicit,
+// grep-able assertions for the 2026 SessionStart adoption.
+
+describe("nativeEventToKind — SessionStart is vendor-scoped", () => {
+  it("maps claude SessionStart to the prompt kind", () => {
+    expect(nativeEventToKind("claude", "SessionStart")).toBe("prompt");
+  });
+
+  it("keeps commandcode / cursor session-start mappings", () => {
+    expect(nativeEventToKind("commandcode", "SessionStart")).toBe("prompt");
+    expect(nativeEventToKind("cursor", "sessionStart")).toBe("prompt");
+  });
+
+  it("leaves HUD-only gemini SessionStart null (NULL_ALLOWLIST invariant)", () => {
+    expect(nativeEventToKind("gemini" as Vendor, "SessionStart")).toBeNull();
+  });
+
+  it("normalizes a claude SessionStart payload to an empty-prompt input", () => {
+    // Claude's SessionStart stdin has no `prompt` field (source/model instead);
+    // it normalizes to kind:"prompt" with prompt:"" so serena-primer /
+    // state-boundary (both no-op on an empty prompt) run through the chain.
+    const raw = JSON.stringify({
+      session_id: "abc123",
+      cwd: "/tmp/p",
+      hook_event_name: "SessionStart",
+      source: "compact",
+      model: "claude-sonnet-5",
+    });
+    const input = normalizeInput("claude", "SessionStart", raw);
+    // `source` is threaded through so session-once handlers can force
+    // re-injection on post-compaction SessionStart (compact keeps the sid).
+    expect(input).toEqual({
+      kind: "prompt",
+      prompt: "",
+      cwd: "/tmp/p",
+      source: "compact",
+    });
+  });
+});

@@ -137,7 +137,10 @@ export async function run(
   const { cwd: projectDir, sid: sessionId = "unknown" } = ctx;
 
   if (!isSerenaProject(projectDir)) return null;
-  if (!claimSession(projectDir, sessionId)) return null;
+  // Compaction keeps the session id, so the session-once claim would skip
+  // exactly the turn that just lost the primer from context — force re-inject.
+  const forced = input.source === "compact";
+  if (!claimSession(projectDir, sessionId) && !forced) return null;
 
   return { type: "context", additionalContext: primerContext() };
 }

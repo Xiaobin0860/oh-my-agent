@@ -383,7 +383,7 @@ describe("nativeEventToKind", () => {
     ["Stop", "stop"],
     ["AfterAgent", "stop"],
     ["AfterTool", null],
-    ["SessionStart", null],
+    ["SessionStart", "prompt"],
     ["unknown", null],
   ];
 
@@ -393,8 +393,8 @@ describe("nativeEventToKind", () => {
     });
   }
 
-  // Session-start injection is vendor-scoped: only commandcode/cursor route it
-  // through the prompt pipeline; HUD-only SessionStart (e.g. gemini/claude) → null.
+  // Session-start injection is vendor-scoped: commandcode/cursor/claude route
+  // it through the prompt pipeline; HUD-only SessionStart (e.g. gemini) → null.
   it("maps commandcode SessionStart → prompt", () => {
     expect(nativeEventToKind("commandcode", "SessionStart")).toBe("prompt");
   });
@@ -404,7 +404,6 @@ describe("nativeEventToKind", () => {
   });
 
   it("keeps SessionStart null for vendors that do not wire it", () => {
-    expect(nativeEventToKind("claude", "SessionStart")).toBeNull();
     expect(nativeEventToKind("codex", "SessionStart")).toBeNull();
   });
 });

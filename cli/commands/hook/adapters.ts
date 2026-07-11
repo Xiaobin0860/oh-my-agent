@@ -41,8 +41,14 @@ import type { HookInput, Vendor } from "./types.js";
 // session-start (routed through the prompt pipeline so serena-primer /
 // state-boundary — both guarded on kind==="prompt", both no-op on an empty
 // prompt — inject once-per-session context):
-//           SessionStart (commandcode)
+//           SessionStart (claude, commandcode)
 //           sessionStart (cursor)
+//   claude's SessionStart fires on startup|resume|clear|compact and supports
+//   hookSpecificOutput.additionalContext + reloadSkills (code.claude.com/docs/
+//   en/hooks), so it re-primes serena + re-injects the OMA state snapshot when
+//   a session begins. (PostCompact is NOT adopted: the docs list it as "no
+//   decision control", with no additionalContext support — the documented
+//   post-compaction context path is SessionStart's `compact` matcher.)
 //   Other vendors register SessionStart for HUD/status-line only (e.g. gemini),
 //   so the mapping is vendor-scoped and stays null for them.
 // ---------------------------------------------------------------------------
@@ -61,10 +67,15 @@ export function nativeEventToKind(
       return "prompt";
 
     // session-start context injection — only for vendors that wire it as a
-    // handler event (commandcode / cursor). HUD-only SessionStart (gemini) → null.
+    // handler event (claude / commandcode / cursor). HUD-only SessionStart
+    // (gemini) → null.
     case "SessionStart":
     case "sessionStart":
-      return vendor === "commandcode" || vendor === "cursor" ? "prompt" : null;
+      return vendor === "claude" ||
+        vendor === "commandcode" ||
+        vendor === "cursor"
+        ? "prompt"
+        : null;
 
     // pre_tool events
     case "PreToolUse":
@@ -128,7 +139,14 @@ export function normalizeInput(
   switch (kind) {
     case "prompt": {
       const prompt = resolvePrompt(vendor, payload);
-      return { kind: "prompt", prompt, cwd };
+      // SessionStart carries `source` (startup|resume|clear|compact); thread
+      // it through so session-once handlers can force re-injection on compact
+      // (compaction keeps the session id, defeating their normal dedup).
+      const source =
+        typeof payload.source === "string" ? payload.source : undefined;
+      return source
+        ? { kind: "prompt", prompt, cwd, source }
+        : { kind: "prompt", prompt, cwd };
     }
     case "pre_tool": {
       const toolName = resolveToolName(vendor, payload);
