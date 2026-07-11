@@ -145,11 +145,25 @@ function extractPromptText(output: {
   const texts = parts
     .filter((p) => p && p.type === "text" && typeof p.text === "string")
     .map((p) => p.text as string);
-  if (texts.length > 0) return texts.join("\n");
+  if (texts.length > 0) return stripWrappingQuotes(texts.join("\n"));
   // Defensive fallback: some builds may surface text on the message object.
   const msg = output.message as { text?: unknown } | undefined;
-  if (msg && typeof msg.text === "string") return msg.text;
+  if (msg && typeof msg.text === "string") return stripWrappingQuotes(msg.text);
   return "";
+}
+
+/**
+ * `opencode run "<prompt>"` delivers the part text wrapped in literal double
+ * quotes (`"work: …"`), which defeats keyword detection anchored at the prompt
+ * start. A prompt that is entirely enclosed in one matching pair of quotes is
+ * that CLI artifact — unwrap exactly one pair; interior quotes are untouched.
+ */
+function stripWrappingQuotes(text: string): string {
+  const t = text.trim();
+  if (t.length >= 2 && t.startsWith('"') && t.endsWith('"')) {
+    return t.slice(1, -1);
+  }
+  return t;
 }
 
 // ── Per-session bridge state ──────────────────────────────────
