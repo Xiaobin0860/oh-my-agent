@@ -51,12 +51,16 @@ APM поставляет только скилы. Для workflow, правил,
 
 | Пресет | Что получаете |
 |--------|-------------|
-| ✨ All | Все агенты и навыки |
-| 🌐 Fullstack | architecture + frontend + backend + db + pm + qa + debug + brainstorm + scm |
-| 🎨 Frontend | architecture + frontend + pm + qa + debug + brainstorm + scm |
-| ⚙️ Backend | architecture + backend + db + pm + qa + debug + brainstorm + scm |
-| 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
-| 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
+| **All** | **Все агенты и навыки** |
+| Backend | architecture + backend + brainstorm + db + debug + dev-workflow + pm + qa + scm |
+| Content | academic-writer + design + image + scm + translator + voice |
+| DevOps | architecture + brainstorm + debug + dev-workflow + observability + pm + qa + scm + tf-infra |
+| Frontend | architecture + brainstorm + debug + design + frontend + pm + qa + scm |
+| Fullstack | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + mobile + pm + qa + scm + tf-infra |
+| Fullstack Mobile | architecture + backend + brainstorm + db + debug + design + dev-workflow + mobile + pm + qa + scm |
+| Fullstack Web | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + pm + qa + scm |
+| Mobile | architecture + brainstorm + debug + mobile + pm + qa + scm |
+| Research | academic-writer + hwp + market + pdf + scholar + scm + search + translator |
 
 ## Работает с любым агентом
 
@@ -209,7 +213,19 @@ APM поставляет только скилы. Для workflow, правил,
 
 ### Модели по агенту
 
-Каждый агент может указывать собственную модель и `effort` через `.agents/oma-config.yaml`. Доступные runtime profiles: `antigravity`, `claude`, `codex`, `cursor`, `kiro`, `mixed`, `qwen`. Проверьте итоговую auth-матрицу командой `oma doctor --profile`. Полное руководство: [web/docs/guide/per-agent-models.md](../web/docs/guide/per-agent-models.md).
+Задайте `model_preset` в `.agents/oma-config.yaml`, чтобы выбрать, какие AI-модели использует каждый агент:
+
+```yaml
+language: en
+model_preset: mixed   # antigravity | claude | codex | cursor | kiro | mixed | qwen
+
+# Optional per-agent overrides
+agents:
+  backend: { model: openai/gpt-5.5, effort: high }
+```
+
+- `oma doctor --profile` — выводит итоговую матрицу моделей по ролям
+- Полное руководство: [`web/docs/guide/per-agent-models.md`](../web/docs/guide/per-agent-models.md)
 
 ## Почему oh-my-agent?
 
@@ -219,7 +235,7 @@ APM поставляет только скилы. Для workflow, правил,
 - **Ролевой**: агенты смоделированы как настоящая инженерная команда, а не куча промптов
 - **Экономит токены**: двухуровневый дизайн навыков экономит ~75% токенов
 - **Качество прежде всего**: Charter preflight, quality gates и ревью-воркфлоу из коробки:
-  - `oma verify <agent>` — 14 детерминированных проверок на тип агента (TypeScript strict, тесты, raw SQL, захардкоженные секреты, Flutter analyze, inline styles, нарушение scope, charter alignment …)
+  - `oma verify <agent>` — детерминированная батарея проверок на тип агента: общее ядро (нарушение scope, charter alignment, захардкоженные секреты, скан TODO, declared outputs) плюс проверки по типу (TypeScript strict, тесты, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — лимиты токенов / spawn / по вендору на сессию в `oma-config.yaml`; Step 5 `orchestrate` блокирует следующий spawn при превышении
   - workflow `ralph` — независимый JUDGE перепроверяет каждый criterion на каждой итерации, чтобы поймать тихие регрессии; кеширование для тестов >30с
   - Exploration Loop — после 2 retry `orchestrate` параллельно spawn'ит варианты гипотез и оставляет с лучшим скором

@@ -51,12 +51,16 @@ Chọn một preset và bạn đã sẵn sàng:
 
 | Preset | Bạn nhận được |
 |--------|--------------|
-| ✨ All | Tất cả agent và skill |
-| 🌐 Fullstack | architecture + frontend + backend + db + pm + qa + debug + brainstorm + scm |
-| 🎨 Frontend | architecture + frontend + pm + qa + debug + brainstorm + scm |
-| ⚙️ Backend | architecture + backend + db + pm + qa + debug + brainstorm + scm |
-| 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
-| 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
+| **All** | **Tất cả agent và skill** |
+| Backend | architecture + backend + brainstorm + db + debug + dev-workflow + pm + qa + scm |
+| Content | academic-writer + design + image + scm + translator + voice |
+| DevOps | architecture + brainstorm + debug + dev-workflow + observability + pm + qa + scm + tf-infra |
+| Frontend | architecture + brainstorm + debug + design + frontend + pm + qa + scm |
+| Fullstack | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + mobile + pm + qa + scm + tf-infra |
+| Fullstack Mobile | architecture + backend + brainstorm + db + debug + design + dev-workflow + mobile + pm + qa + scm |
+| Fullstack Web | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + pm + qa + scm |
+| Mobile | architecture + brainstorm + debug + mobile + pm + qa + scm |
+| Research | academic-writer + hwp + market + pdf + scholar + scm + search + translator |
 
 ## Tương thích với mọi Agent
 
@@ -209,7 +213,19 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 
 ### Model theo từng agent
 
-Mỗi agent có thể trỏ tới model và `effort` riêng thông qua `.agents/oma-config.yaml`. Có sẵn các runtime profiles: `antigravity`, `claude`, `codex`, `cursor`, `kiro`, `mixed`, `qwen`. Kiểm tra ma trận auth đã resolve bằng `oma doctor --profile`. Hướng dẫn đầy đủ: [web/docs/guide/per-agent-models.md](../web/docs/guide/per-agent-models.md).
+Đặt `model_preset` trong `.agents/oma-config.yaml` để chọn AI model mà mỗi agent sẽ dùng:
+
+```yaml
+language: en
+model_preset: mixed   # antigravity | claude | codex | cursor | kiro | mixed | qwen
+
+# Optional per-agent overrides
+agents:
+  backend: { model: openai/gpt-5.5, effort: high }
+```
+
+- `oma doctor --profile` — in ra ma trận model đã resolve theo từng vai trò
+- Hướng dẫn đầy đủ: [`web/docs/guide/per-agent-models.md`](../web/docs/guide/per-agent-models.md)
 
 ## Tại sao chọn oh-my-agent?
 
@@ -219,7 +235,7 @@ Mỗi agent có thể trỏ tới model và `effort` riêng thông qua `.agents/
 - **Dựa trên vai trò**: agent được mô hình hóa như đội kỹ thuật thực, không phải một đống prompt
 - **Tiết kiệm token**: thiết kế skill 2 lớp tiết kiệm ~75% token
 - **Ưu tiên chất lượng**: Charter preflight, quality gate và review workflow được tích hợp sẵn:
-  - `oma verify <agent>` — 14 kiểm tra xác định theo từng loại agent (TypeScript strict, tests, raw SQL, secret hardcode, Flutter analyze, inline styles, scope violation, charter alignment …)
+  - `oma verify <agent>` — bộ kiểm tra xác định theo từng loại agent: phần core dùng chung (scope violation, charter alignment, secret hardcode, quét TODO, declared outputs) cộng thêm các kiểm tra theo loại (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — giới hạn token / spawn / theo vendor mỗi session trong `oma-config.yaml`; Step 5 của `orchestrate` chặn spawn tiếp theo khi vượt
   - workflow `ralph` — JUDGE độc lập tái xác minh mọi criterion mỗi iteration để bắt regression im lặng; cache cho test >30s
   - Exploration Loop — sau 2 lần retry, `orchestrate` spawn các biến thể hypothesis song song và giữ kết quả điểm cao nhất

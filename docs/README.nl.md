@@ -51,12 +51,16 @@ Kies een preset en je bent klaar:
 
 | Preset | Wat je krijgt |
 |--------|-------------|
-| ✨ All | Alle agents en skills |
-| 🌐 Fullstack | architecture + frontend + backend + db + pm + qa + debug + brainstorm + scm |
-| 🎨 Frontend | architecture + frontend + pm + qa + debug + brainstorm + scm |
-| ⚙️ Backend | architecture + backend + db + pm + qa + debug + brainstorm + scm |
-| 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
-| 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
+| **All** | **Alle agents en skills** |
+| Backend | architecture + backend + brainstorm + db + debug + dev-workflow + pm + qa + scm |
+| Content | academic-writer + design + image + scm + translator + voice |
+| DevOps | architecture + brainstorm + debug + dev-workflow + observability + pm + qa + scm + tf-infra |
+| Frontend | architecture + brainstorm + debug + design + frontend + pm + qa + scm |
+| Fullstack | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + mobile + pm + qa + scm + tf-infra |
+| Fullstack Mobile | architecture + backend + brainstorm + db + debug + design + dev-workflow + mobile + pm + qa + scm |
+| Fullstack Web | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + pm + qa + scm |
+| Mobile | architecture + brainstorm + debug + mobile + pm + qa + scm |
+| Research | academic-writer + hwp + market + pdf + scholar + scm + search + translator |
 
 ## Werkt met elke Agent
 
@@ -209,7 +213,19 @@ Of gebruik slash commands voor gestructureerde workflows:
 
 ### Modellen per agent
 
-Elke agent kan via `.agents/oma-config.yaml` een eigen model en `effort` kiezen. Kant-en-klare runtime profiles: `antigravity`, `claude`, `codex`, `cursor`, `kiro`, `mixed`, `qwen`. Bekijk de opgeloste auth-matrix met `oma doctor --profile`. Volledige gids: [web/docs/guide/per-agent-models.md](../web/docs/guide/per-agent-models.md).
+Stel `model_preset` in `.agents/oma-config.yaml` in om te kiezen welke AI-modellen elke agent gebruikt:
+
+```yaml
+language: en
+model_preset: mixed   # antigravity | claude | codex | cursor | kiro | mixed | qwen
+
+# Optional per-agent overrides
+agents:
+  backend: { model: openai/gpt-5.5, effort: high }
+```
+
+- `oma doctor --profile` — print de per rol opgeloste modelmatrix
+- Volledige gids: [`web/docs/guide/per-agent-models.md`](../web/docs/guide/per-agent-models.md)
 
 ## Waarom oh-my-agent?
 
@@ -219,7 +235,7 @@ Elke agent kan via `.agents/oma-config.yaml` een eigen model en `effort` kiezen.
 - **Rolgebaseerd**: agents gemodelleerd als een echt engineeringteam, niet een stapel prompts
 - **Token-efficient**: tweelaags skill-ontwerp bespaart ~75% tokens
 - **Kwaliteit eerst**: Charter preflight, quality gates en review-workflows ingebouwd:
-  - `oma verify <agent>` — 14 deterministische checks per agent-type (TypeScript strict, tests, raw SQL, hardcoded secrets, Flutter analyze, inline styles, scope violation, charter alignment …)
+  - `oma verify <agent>` — een deterministische check-batterij per agent-type: een gedeelde kern (scope violation, charter alignment, hardcoded secrets, TODO-scan, declared outputs) plus type-specifieke checks (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — token / spawn / per-vendor budgetcaps per sessie in `oma-config.yaml`; `orchestrate` Step 5 blokkeert de volgende spawn bij overschrijding
   - `ralph` workflow — onafhankelijke JUDGE her-verifieert elk criterion per iteratie om stille regressies te vangen; caching voor tests >30s
   - Exploration Loop — na 2 retries spawnt `orchestrate` hypothese-varianten parallel en houdt het hoogst scorende resultaat

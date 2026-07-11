@@ -51,12 +51,16 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 
 | Preset | สิ่งที่คุณจะได้รับ |
 |--------|-------------|
-| ✨ All | Agents และ skills ทั้งหมด |
-| 🌐 Fullstack | architecture + frontend + backend + db + pm + qa + debug + brainstorm + scm |
-| 🎨 Frontend | architecture + frontend + pm + qa + debug + brainstorm + scm |
-| ⚙️ Backend | architecture + backend + db + pm + qa + debug + brainstorm + scm |
-| 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
-| 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
+| **All** | **Agents และ skills ทั้งหมด** |
+| Backend | architecture + backend + brainstorm + db + debug + dev-workflow + pm + qa + scm |
+| Content | academic-writer + design + image + scm + translator + voice |
+| DevOps | architecture + brainstorm + debug + dev-workflow + observability + pm + qa + scm + tf-infra |
+| Frontend | architecture + brainstorm + debug + design + frontend + pm + qa + scm |
+| Fullstack | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + mobile + pm + qa + scm + tf-infra |
+| Fullstack Mobile | architecture + backend + brainstorm + db + debug + design + dev-workflow + mobile + pm + qa + scm |
+| Fullstack Web | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + pm + qa + scm |
+| Mobile | architecture + brainstorm + debug + mobile + pm + qa + scm |
+| Research | academic-writer + hwp + market + pdf + scholar + scm + search + translator |
 
 ## ใช้งานได้กับทุก Agent
 
@@ -209,7 +213,19 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 
 ### โมเดลต่อเอเจนต์
 
-แต่ละเอเจนต์สามารถกำหนดโมเดลและ `effort` ของตัวเองผ่าน `.agents/oma-config.yaml` ได้ มี runtime profiles พร้อมใช้งาน: `antigravity`, `claude`, `codex`, `cursor`, `kiro`, `mixed`, `qwen` ตรวจสอบ auth matrix ที่ resolve แล้วด้วย `oma doctor --profile` คู่มือฉบับเต็ม: [web/docs/guide/per-agent-models.md](../web/docs/guide/per-agent-models.md)
+ตั้งค่า `model_preset` ใน `.agents/oma-config.yaml` เพื่อเลือกว่าแต่ละเอเจนต์จะใช้ AI โมเดลตัวไหน:
+
+```yaml
+language: en
+model_preset: mixed   # antigravity | claude | codex | cursor | kiro | mixed | qwen
+
+# Optional per-agent overrides
+agents:
+  backend: { model: openai/gpt-5.5, effort: high }
+```
+
+- `oma doctor --profile` — แสดงเมทริกซ์โมเดลที่ resolve แล้วตามแต่ละ role
+- คู่มือฉบับเต็ม: [`web/docs/guide/per-agent-models.md`](../web/docs/guide/per-agent-models.md)
 
 ## ทำไมต้อง oh-my-agent?
 
@@ -217,7 +233,7 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 - **Role-based**: เอเจนต์ถูกจำลองตามทีมวิศวกรจริง ไม่ใช่แค่กลุ่มของ prompt
 - **ประหยัด Token**: การออกแบบ Two layer skill ช่วยประหยัด token ได้ประมาณ 75%
 - **Quality-first**: มี Charter preflight, quality gates และรีวิวเวิร์กโฟลว์ในตัว:
-  - `oma verify <agent>` — การตรวจสอบเชิงกำหนด 14 รายการต่อประเภท agent (TypeScript strict, tests, raw SQL, secret ที่ hardcode, Flutter analyze, inline styles, scope violation, charter alignment …)
+  - `oma verify <agent>` — ชุดการตรวจสอบเชิงกำหนดต่อประเภท agent: มี core ที่ใช้ร่วมกัน (scope violation, charter alignment, secret ที่ hardcode, สแกน TODO, declared outputs) บวกกับการตรวจสอบเฉพาะประเภท (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — เพดาน token / spawn / per-vendor ต่อ session ใน `oma-config.yaml`; Step 5 ของ `orchestrate` บล็อก spawn ต่อไปเมื่อเกินเพดาน
   - `ralph` workflow — JUDGE อิสระตรวจสอบทุก criterion ซ้ำในแต่ละ iteration เพื่อจับ regression แบบเงียบ; cache สำหรับ test ที่ใช้เวลา >30 วินาที
   - Exploration Loop — หลังจาก retry 2 ครั้ง `orchestrate` จะ spawn variant ของ hypothesis แบบขนานและเก็บผลที่ได้คะแนนสูงสุด

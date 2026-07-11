@@ -51,12 +51,16 @@ APM 只分发 skill。workflow、规则、`oma-config.yaml`、关键词检测 ho
 
 | 预设 | 包含内容 |
 |------|---------|
-| ✨ All | 所有 agent 和 skill |
-| 🌐 Fullstack | architecture + frontend + backend + db + pm + qa + debug + brainstorm + scm |
-| 🎨 Frontend | architecture + frontend + pm + qa + debug + brainstorm + scm |
-| ⚙️ Backend | architecture + backend + db + pm + qa + debug + brainstorm + scm |
-| 📱 Mobile | architecture + mobile + pm + qa + debug + brainstorm + scm |
-| 🚀 DevOps | architecture + tf-infra + dev-workflow + pm + qa + debug + brainstorm + scm |
+| **All** | **所有 agent 和 skill** |
+| Backend | architecture + backend + brainstorm + db + debug + dev-workflow + pm + qa + scm |
+| Content | academic-writer + design + image + scm + translator + voice |
+| DevOps | architecture + brainstorm + debug + dev-workflow + observability + pm + qa + scm + tf-infra |
+| Frontend | architecture + brainstorm + debug + design + frontend + pm + qa + scm |
+| Fullstack | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + mobile + pm + qa + scm + tf-infra |
+| Fullstack Mobile | architecture + backend + brainstorm + db + debug + design + dev-workflow + mobile + pm + qa + scm |
+| Fullstack Web | architecture + backend + brainstorm + db + debug + design + dev-workflow + frontend + pm + qa + scm |
+| Mobile | architecture + brainstorm + debug + mobile + pm + qa + scm |
+| Research | academic-writer + hwp + market + pdf + scholar + scm + search + translator |
 
 ## 适配所有 Agent
 
@@ -209,7 +213,19 @@ You: "做一个带用户认证的 TODO 应用"
 
 ### 按 agent 配置模型
 
-可在 `.agents/oma-config.yaml` 里为每个 agent 单独指定模型和 `effort`。内置 runtime profiles：`antigravity`、`claude`、`codex`、`cursor`、`kiro`、`mixed`、`qwen`。用 `oma doctor --profile` 查看解析后的 auth 矩阵。完整指南：[web/docs/guide/per-agent-models.md](../web/docs/guide/per-agent-models.md)。
+在 `.agents/oma-config.yaml` 里设置 `model_preset`，即可选择每个 agent 使用哪些 AI 模型：
+
+```yaml
+language: en
+model_preset: mixed   # antigravity | claude | codex | cursor | kiro | mixed | qwen
+
+# Optional per-agent overrides
+agents:
+  backend: { model: openai/gpt-5.5, effort: high }
+```
+
+- `oma doctor --profile` — 输出按角色解析后的模型矩阵
+- 完整指南：[`web/docs/guide/per-agent-models.md`](../web/docs/guide/per-agent-models.md)
 
 ## 为什么选 oh-my-agent？
 
@@ -219,7 +235,7 @@ You: "做一个带用户认证的 TODO 应用"
 - **角色化**：像真正的工程团队一样建模，而不是一堆 prompt 的堆砌
 - **省 token**：双层 skill 设计节省约 75% 的 token
 - **质量优先**：内置 Charter preflight、quality gate 和审查工作流：
-  - `oma verify <agent>` — 按 agent 类型的 14 项确定性检查（TypeScript strict、tests、raw SQL、硬编码密钥、Flutter analyze、inline styles、scope 越界、charter 对齐 …）
+  - `oma verify <agent>` — 按 agent 类型运行的确定性检查组合：共享核心检查（scope 越界、charter alignment、硬编码密钥、TODO 扫描、declared outputs），再加上按类型的检查（TypeScript strict、tests、raw SQL、Flutter analyze、inline styles …）
   - `session.quota_cap` — 在 `oma-config.yaml` 中按会话设定 token / spawn / 单厂商预算上限；`orchestrate` Step 5 在超限时阻断下一次 spawn
   - `ralph` 工作流 — 独立的 JUDGE 每次迭代都重新校验所有 criterion，捕获静默回归；>30s 的重测有缓存
   - Exploration Loop — 重试 2 次后，`orchestrate` 并行 spawn 多个 hypothesis 变体并保留得分最高的
