@@ -52,13 +52,17 @@ oma video generate "product walkthrough" --mode demo --source web --url http://l
 
 Each run prints its run directory. Re-running with the same `--seed` reproduces the same script and render-spec.
 
+Other tools that shell out to `oma video generate --format json` parse a JSON envelope from stdout: `{exitCode, runDir, manifestPath, scriptPath, renderSpecPath, warnings, error}`. There is no `outputs` key — read output/asset paths from the manifest at `manifestPath`.
+
 ---
 
 ## CLI reference
 
 ```
 oma video generate <brief...> [options]
-oma video doctor                 # toolchain readiness
+oma video doctor [--install|--install-mpt|--install-playwright]  # toolchain readiness / provisioning
+oma video render <runDir>        # re-render from render-spec.json (deterministic)
+oma video list-providers         # provider availability + key/fallback status
 ```
 
 ### Key flags
@@ -78,7 +82,9 @@ oma video doctor                 # toolchain readiness
 | `--duration <sec>` | Target length, or `auto`. |
 | `--seed <n>` | Deterministic seed. |
 | `--dry-run` | Emit script / render-spec / manifest, skip rendering. |
+| `--script <path>` | Agent-authored `script.json` to inject (overrides the skeleton; controls narration, on-screen text, and per-scene visual prompts). |
 | `-y, --yes` | Skip the cost-confirmation prompt. |
+| `--format <f>` | CLI output: `text` (default) \| `json`. |
 
 ---
 
@@ -92,22 +98,34 @@ Every capability resolves to a provider with a **real branch** and a **determini
 | voice | `oma-voice` (Voicebox, local) | estimated timing, no audio |
 | visual | `oma-image` / `oma-slide` / stock | placeholder asset |
 | caption | key-free forced alignment | estimated word timing |
-| capture | supervised Playwright web capture | guided "record it yourself" protocol |
+| capture | supervised Playwright web capture (`--source web`) or Cap (`--source file`) | guided "record it yourself" protocol |
 | compositor | Remotion (vendored) or MoneyPrinterTurbo | deterministic placeholder mp4 |
 
 No credential automation: a human performs any on-screen login during capture; URLs and query tokens are masked in logs and the manifest.
+
+Captions render as **static windowed cues** — the single caption line active at the current frame, CSS-wrapped, with no per-word animation.
 
 ---
 
 ## Toolchain and `doctor`
 
-The heavy toolchain (the vendored Remotion project's `node_modules`, the MoneyPrinterTurbo checkout, Playwright browsers, Chrome Headless Shell) is **provisioned on demand**, never shipped in the package. Check readiness with:
+The heavy toolchain (the vendored Remotion project's `node_modules`, the embedded Pretendard font, the MoneyPrinterTurbo checkout, Playwright browsers, Chrome Headless Shell) is **provisioned on demand**, never shipped in the package. Plain `doctor` is report-only — it never installs anything:
 
 ```bash
 oma video doctor
 ```
 
-It reports `node`, `chromium`, `ffmpeg`, `remotion-project`, `mpt-project`, `playwright`, `voicebox`, and `oma-image`, and prints the install hint for anything missing. The key-free baseline (Node + Chromium + FFmpeg + `oma-image`) is enough to produce a real `.mp4`.
+It reports `node`, `chromium`, `ffmpeg`, `remotion-project`, `pretendard-font`, `mpt-project`, `playwright`, `voicebox`, `oma-image`, `pixelle`, and `cap`, and prints the install hint for anything missing. The key-free baseline (Node + Chromium + FFmpeg + `oma-image`) is enough to produce a real `.mp4`.
+
+Use the install flags to provision the toolchain:
+
+```bash
+oma video doctor --install             # vendored Remotion deps + Chrome Headless Shell + Pretendard font fetch
+oma video doctor --install-mpt         # MoneyPrinterTurbo checkout (clone + venv + deps) for --compositor mpt
+oma video doctor --install-playwright  # Playwright + Chromium for web capture
+```
+
+`--install` also fetches the embedded Pretendard font (pinned release) into the vendored project — this is part of the determinism boundary. On a network failure it warns and the render falls back to system fonts; byte-identical output across machines is only guaranteed once the font is present.
 
 ---
 
