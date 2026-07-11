@@ -146,7 +146,7 @@ Prompt composition:
 2. execution-protocol.md
 3. Resources matching task type (see tables above)
 4. error-playbook.md (always include; recovery is essential)
-5. Serena Memory Protocol (CLI mode)
+5. Memory Protocol (CLI mode)
 ```
 
 This approach avoids loading unnecessary resources, maximizing subagent context efficiency.

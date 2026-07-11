@@ -45,8 +45,21 @@ describe("resolveMemoryBasePath", () => {
     rmSync(projectDir, { recursive: true, force: true });
   });
 
-  it("defaults to .serena/memories when mcp.json is absent", () => {
+  it("defaults to .agents/state/memories when mcp.json is absent", () => {
+    expect(resolveMemoryBasePath(projectDir)).toBe(".agents/state/memories");
+  });
+
+  it("falls back to legacy .serena/memories when only it exists", () => {
+    mkdirSync(join(projectDir, ".serena", "memories"), { recursive: true });
     expect(resolveMemoryBasePath(projectDir)).toBe(".serena/memories");
+  });
+
+  it("prefers canonical .agents/state/memories over an existing legacy dir", () => {
+    mkdirSync(join(projectDir, ".serena", "memories"), { recursive: true });
+    mkdirSync(join(projectDir, ".agents", "state", "memories"), {
+      recursive: true,
+    });
+    expect(resolveMemoryBasePath(projectDir)).toBe(".agents/state/memories");
   });
 
   it("reads memoryConfig.basePath from .agents/mcp.json", () => {
@@ -60,7 +73,7 @@ describe("resolveMemoryBasePath", () => {
 
   it("falls back to the default on malformed mcp.json", () => {
     writeArtifact(projectDir, ".agents/mcp.json", "not-json");
-    expect(resolveMemoryBasePath(projectDir)).toBe(".serena/memories");
+    expect(resolveMemoryBasePath(projectDir)).toBe(".agents/state/memories");
   });
 });
 

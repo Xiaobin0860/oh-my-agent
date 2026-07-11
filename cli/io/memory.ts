@@ -36,8 +36,44 @@ export interface MemoryInitResult {
   skipped: string[];
 }
 
+/** Canonical oma-owned coordination-memory dir (progress/result/session artifacts). */
+export const CANONICAL_MEMORIES_REL = join(".agents", "state", "memories");
+/** Pre-move location — Serena's memory dir doubled as the coordination bus. */
+export const LEGACY_MEMORIES_REL = join(".serena", "memories");
+
+/**
+ * Resolve the coordination-memory dir: canonical when present, else an
+ * existing legacy dir (projects created before the move), else canonical
+ * so new projects start on the oma-owned path. Migration 017 moves legacy
+ * coordination artifacts across, after which canonical always wins.
+ */
 export function getMemoriesPath(cwd: string): string {
-  return join(cwd, ".serena", "memories");
+  const canonical = join(cwd, CANONICAL_MEMORIES_REL);
+  if (existsSync(canonical)) return canonical;
+  const legacy = join(cwd, LEGACY_MEMORIES_REL);
+  if (existsSync(legacy)) return legacy;
+  return canonical;
+}
+
+/** Existing memory dirs, canonical first — union reads while legacy files remain. */
+export function getMemoryDirs(cwd: string): string[] {
+  const dirs = [
+    join(cwd, CANONICAL_MEMORIES_REL),
+    join(cwd, LEGACY_MEMORIES_REL),
+  ].filter((dir) => existsSync(dir));
+  return dirs.length > 0 ? dirs : [join(cwd, CANONICAL_MEMORIES_REL)];
+}
+
+/** Locate an existing memory file across canonical + legacy dirs. */
+export function resolveMemoryFile(
+  cwd: string,
+  filename: string,
+): string | null {
+  for (const dir of getMemoryDirs(cwd)) {
+    const candidate = join(dir, filename);
+    if (existsSync(candidate)) return candidate;
+  }
+  return null;
 }
 
 function readFileSafe(filePath: string): string {
@@ -107,17 +143,31 @@ function buildTaskBoardTemplate(sessionId: string): string {
   ].join("\n");
 }
 
-export function listMemoryFiles(cwd: string): string[] {
-  const memoriesDir = getMemoriesPath(cwd);
-  if (!existsSync(memoriesDir)) return [];
+interface MemoryFileEntry {
+  name: string;
+  path: string;
+}
 
-  try {
-    return readdirSync(memoriesDir).filter(
-      (f) => f.endsWith(".md") && f !== ".gitkeep",
-    );
-  } catch {
-    return [];
+/** Union of memory files across dirs; canonical shadows legacy on name clash. */
+function listMemoryFileEntries(cwd: string): MemoryFileEntry[] {
+  const seen = new Map<string, string>();
+  for (const dir of getMemoryDirs(cwd)) {
+    let names: string[] = [];
+    try {
+      names = readdirSync(dir);
+    } catch {
+      continue;
+    }
+    for (const name of names) {
+      if (!name.endsWith(".md") || name === ".gitkeep") continue;
+      if (!seen.has(name)) seen.set(name, join(dir, name));
+    }
   }
+  return [...seen.entries()].map(([name, path]) => ({ name, path }));
+}
+
+export function listMemoryFiles(cwd: string): string[] {
+  return listMemoryFileEntries(cwd).map((entry) => entry.name);
 }
 
 export function parseAgentActivity(
@@ -147,7 +197,6 @@ export function parseAgentActivity(
 }
 
 export function getSessionSummary(cwd: string): SessionSummary {
-  const memoriesDir = getMemoriesPath(cwd);
   const summary: SessionSummary = {
     agents: [],
     activities: [],
@@ -155,14 +204,12 @@ export function getSessionSummary(cwd: string): SessionSummary {
     inProgressTasks: [],
   };
 
-  if (!existsSync(memoriesDir)) return summary;
+  const entries = listMemoryFileEntries(cwd);
 
-  const files = listMemoryFiles(cwd);
-
-  for (const file of files) {
+  for (const { name: file, path: filePath } of entries) {
     if (file === "orchestrator-session.md") {
       try {
-        const content = readFileSync(join(memoriesDir, file), "utf-8");
+        const content = readFileSync(filePath, "utf-8");
         const sessionMatch = content.match(/session[:\s]+(\S+)/i);
         if (sessionMatch) {
           summary.sessionId = sessionMatch[1];
@@ -172,7 +219,7 @@ export function getSessionSummary(cwd: string): SessionSummary {
     }
 
     try {
-      const content = readFileSync(join(memoriesDir, file), "utf-8");
+      const content = readFileSync(filePath, "utf-8");
       const activity = parseAgentActivity(file, content);
 
       if (activity) {
@@ -207,9 +254,8 @@ export function getSessionSummary(cwd: string): SessionSummary {
 }
 
 export function getSessionMeta(cwd: string): SessionMeta {
-  const memoriesDir = getMemoriesPath(cwd);
-  const sessionFile = join(memoriesDir, "orchestrator-session.md");
-  if (!existsSync(sessionFile)) return {};
+  const sessionFile = resolveMemoryFile(cwd, "orchestrator-session.md");
+  if (!sessionFile) return {};
 
   const content = readFileSafe(sessionFile);
   if (!content) return {};
@@ -230,15 +276,12 @@ export function getSessionMeta(cwd: string): SessionMeta {
 }
 
 export function getCompletedTasksCount(cwd: string): number {
-  const memoriesDir = getMemoriesPath(cwd);
-  if (!existsSync(memoriesDir)) return 0;
-
   let completed = 0;
 
-  const files = listMemoryFiles(cwd);
-  for (const file of files) {
+  const entries = listMemoryFileEntries(cwd);
+  for (const { name: file, path: filePath } of entries) {
     if (!file.startsWith("result-")) continue;
-    const content = readFileSafe(join(memoriesDir, file));
+    const content = readFileSafe(filePath);
     if (!content) continue;
 
     const statusLine = content
@@ -254,7 +297,7 @@ export function getCompletedTasksCount(cwd: string): number {
     }
   }
 
-  const taskBoard = readFileSafe(join(memoriesDir, "task-board.md"));
+  const taskBoard = readFileSafe(resolveMemoryFile(cwd, "task-board.md") ?? "");
   if (taskBoard) {
     const taskBoardCompleted = taskBoard
       .split("\n")
@@ -269,7 +312,7 @@ export function getCompletedTasksCount(cwd: string): number {
   }
 
   const sessionFile = readFileSafe(
-    join(memoriesDir, "orchestrator-session.md"),
+    resolveMemoryFile(cwd, "orchestrator-session.md") ?? "",
   );
   if (sessionFile) {
     const summaryCompleted = sessionFile.match(/Completed:\s*(\d+)/i);
@@ -289,18 +332,14 @@ export function getRecentAgentActivities(
   sinceDate?: string,
 ): AgentActivity[] {
   const allActivities: AgentActivity[] = [];
-  const memoriesDir = getMemoriesPath(cwd);
-
-  if (!existsSync(memoriesDir)) return allActivities;
 
   const _cutoffTime = sinceDate ? new Date(sinceDate).getTime() : 0;
-  const files = listMemoryFiles(cwd);
+  const entries = listMemoryFileEntries(cwd);
 
-  for (const file of files) {
+  for (const { name: file, path: filePath } of entries) {
     if (file === "orchestrator-session.md") continue;
 
     try {
-      const filePath = join(memoriesDir, file);
       const content = readFileSync(filePath, "utf-8");
 
       const activity = parseAgentActivity(file, content);
@@ -348,9 +387,11 @@ export function ensureMemorySchema(
   }
 
   const existingSession = readFileSafe(
-    join(memoriesDir, "orchestrator-session.md"),
+    resolveMemoryFile(cwd, "orchestrator-session.md") ?? "",
   );
-  const existingTaskBoard = readFileSafe(join(memoriesDir, "task-board.md"));
+  const existingTaskBoard = readFileSafe(
+    resolveMemoryFile(cwd, "task-board.md") ?? "",
+  );
   const detectedSessionId =
     extractSessionId(existingSession) ||
     extractSessionId(existingTaskBoard) ||
@@ -368,16 +409,18 @@ export function ensureMemorySchema(
   const skipped: string[] = [];
 
   const ensureFile = (filename: string, content: string) => {
-    const targetPath = join(memoriesDir, filename);
-    if (!existsSync(targetPath)) {
-      writeFileSync(targetPath, content, "utf-8");
+    // Respect a file that already lives in the legacy dir — rewrite it in
+    // place rather than forking a second copy in the canonical dir.
+    const existingPath = resolveMemoryFile(cwd, filename);
+    if (!existingPath) {
+      writeFileSync(join(memoriesDir, filename), content, "utf-8");
       created.push(filename);
       return;
     }
 
-    const current = readFileSafe(targetPath);
+    const current = readFileSafe(existingPath);
     if (options.force || isTrivialContent(current)) {
-      writeFileSync(targetPath, content, "utf-8");
+      writeFileSync(existingPath, content, "utf-8");
       updated.push(filename);
       return;
     }

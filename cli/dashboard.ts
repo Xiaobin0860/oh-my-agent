@@ -234,7 +234,7 @@ export function startDashboard(
   });
 
   server.listen(port, DASHBOARD_HOST, () => {
-    console.log(pc.magenta(`\n  🛸 Serena Memory Dashboard`));
+    console.log(pc.magenta(`\n  🛸 OMA Memory Dashboard`));
     console.log(pc.white(`     ${url}`));
     console.log(pc.dim(`     Watching: ${memoriesDir}\n`));
   });

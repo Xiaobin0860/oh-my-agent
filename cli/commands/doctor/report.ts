@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { getMemoriesPath } from "../../io/memory.js";
 import { SERENA_INSTALL_HINT } from "../../io/serena.js";
 import { downloadAndExtract } from "../../io/tarball.js";
 import {
@@ -111,12 +112,14 @@ export async function collectDoctorReport(
 
   const vendorDocs = collectVendorDocChecks(cwd, clis);
 
-  const serenaDir = join(cwd, ".serena", "memories");
-  const hasSerena = existsSync(serenaDir);
+  // Coordination memory store (canonical .agents/state/memories, legacy
+  // .serena/memories fallback) — the dir the dashboards watch.
+  const memoriesDir = getMemoriesPath(cwd);
+  const hasSerena = existsSync(memoriesDir);
   let serenaFileCount = 0;
   if (hasSerena) {
     try {
-      serenaFileCount = readdirSync(serenaDir).length;
+      serenaFileCount = readdirSync(memoriesDir).length;
     } catch {}
   }
 

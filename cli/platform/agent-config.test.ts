@@ -299,27 +299,31 @@ describe("loadExecutionProtocol — execution-protocol parity", () => {
 
   it.each(
     REQUIRED_PROTOCOL_VENDORS,
-  )("%s protocol routes coordination files to the .serena/memories store the readers use", (vendor) => {
+  )("%s protocol routes coordination files to the .agents/state/memories store the readers use", (vendor) => {
     // Path defect found during repro: codex/grok protocols told agents to
     // write `result-{agent-id}.md` under `.agents/results/`, but every reader
     // of those coordination files — checkStatus (spawn-status.ts),
     // findResultFile (verify.ts), and getMemoriesPath (io/memory.ts) — reads
-    // `.serena/memories/`. Files written elsewhere are orphaned → `crashed`.
+    // the canonical store. Files written elsewhere are orphaned → `crashed`.
     const protocol = loadExecutionProtocol(vendor, repoRoot);
-    expect(protocol).toContain(".serena/memories");
+    expect(protocol).toContain(".agents/state/memories");
     // Coordination artifacts must NOT be routed to `.agents/results/`
-    // (that dir is for human-facing deliverables: plans, bug reports, etc.).
+    // (that dir is for human-facing deliverables: plans, bug reports, etc.),
+    // nor to Serena's own memory dir (pinned to `.serena/memories`, which is
+    // now knowledge-only).
     expect(protocol).not.toContain(".agents/results/result-");
     expect(protocol).not.toContain(".agents/results/progress-");
     expect(protocol).not.toContain(".agents/results/task-board");
+    expect(protocol).not.toContain(".serena/memories/result-");
+    expect(protocol).not.toContain(".serena/memories/progress-");
   });
 
-  it("claude (native) protocol also routes coordination files to .serena/memories", () => {
+  it("claude (native) protocol also routes coordination files to .agents/state/memories", () => {
     // claude is exempt from external-dispatch checks, but the result/progress
     // readers (io/memory.ts, verify.ts) are shared, so the same path + status
     // contract applies to the native flow.
     const protocol = loadExecutionProtocol("claude", repoRoot);
-    expect(protocol).toContain(".serena/memories");
+    expect(protocol).toContain(".agents/state/memories");
     expect(protocol).not.toContain(".agents/results/result-");
     expect(protocol).toMatch(/^## Status: completed$/m);
   });

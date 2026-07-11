@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import color from "picocolors";
 import { lookupFinding, recordFinding } from "../../io/findings-cache.js";
+import { getMemoriesPath, resolveMemoryFile } from "../../io/memory.js";
 import {
   createOpencodeSpawnWrapper,
   type OpencodeWrapper,
@@ -76,15 +77,13 @@ export function classifySpawnDifficulty(
 // T11: Findings cache directory pre-creation + handle export
 // ---------------------------------------------------------------------------
 
-const MEMORIES_BASE = ".serena/memories";
-
 /**
  * Ensure the session memories directory exists for the given sessionId.
  * Called before spawn so agent processes can write to it immediately.
  * Non-fatal: logs a warning on failure rather than aborting spawn.
  */
 export function ensureSessionMemoriesDir(cwd: string = process.cwd()): void {
-  const memoriesDir = path.join(cwd, MEMORIES_BASE);
+  const memoriesDir = getMemoriesPath(cwd);
   try {
     if (!fs.existsSync(memoriesDir)) {
       fs.mkdirSync(memoriesDir, { recursive: true });
@@ -181,8 +180,8 @@ export async function spawnAgent(
     `subagent-${sessionId}-${agentId}.status`,
   );
 
-  // T11: Pre-create .serena/memories/ so agent subprocesses can write findings
-  // immediately without having to create the directory themselves.
+  // T11: Pre-create the memory store dir so agent subprocesses can write
+  // findings immediately without having to create the directory themselves.
   ensureSessionMemoriesDir(process.cwd());
 
   const rawPromptContent = resolvePromptContent(prompt);
@@ -439,12 +438,9 @@ export async function checkStatus(
   const results: Record<string, string> = {};
 
   for (const agent of agentIds) {
-    const resultFile = path.join(
-      rootPath,
-      ".serena",
-      "memories",
-      `result-${agent}.md`,
-    );
+    const resultFile =
+      resolveMemoryFile(rootPath, `result-${agent}.md`) ??
+      path.join(getMemoriesPath(rootPath), `result-${agent}.md`);
     const pidFile = path.join(tmpdir(), `subagent-${sessionId}-${agent}.pid`);
     const statusFile = path.join(
       tmpdir(),

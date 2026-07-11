@@ -52,7 +52,7 @@ function renderDashboard(memoriesDir: string) {
 
   console.log(`${purple(`╔${border}╗`)}`);
   console.log(
-    `${purple("║")}  ${bold(purple("Serena Memory Dashboard"))}${safeRepeat(W - 25)}${purple("║")}`,
+    `${purple("║")}  ${bold(purple("OMA Memory Dashboard"))}${safeRepeat(W - 22)}${purple("║")}`,
   );
   const sessionLine = `Session: ${bold(session.id.padEnd(20))} [${statusColor(session.status)}]`;
   console.log(

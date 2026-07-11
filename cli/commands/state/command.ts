@@ -332,7 +332,7 @@ export function registerState(program: Command): void {
     program
       .command("state:mirror [sid]")
       .description(
-        "Mirror a session summary to .serena/memories (post-completion)",
+        "Mirror a session summary to the project memory store (post-completion)",
       )
       .option("--category <category>", "Active category lookup", "main"),
   ).action(

@@ -5,8 +5,9 @@
  * Tracks usage per agent/vendor and checks against configured quota caps
  * so users can be warned before the next agent spawn when a threshold is crossed.
  *
- * Storage: .serena/memories/session-cost-{sessionId}.md via the shared
- * MarkdownRecordStore (see io/markdown-records.ts).
+ * Storage: .agents/state/memories/session-cost-{sessionId}.md (legacy
+ * .serena/memories fallback) via the shared MarkdownRecordStore
+ * (see io/markdown-records.ts).
  *
  * Cap source precedence:
  *   1. .agents/oma-config.yaml               — canonical user config (wins)
@@ -20,9 +21,9 @@ import { parse as parseYaml } from "yaml";
 import { findFileUpwards } from "../utils/fs-utils.js";
 import {
   createMarkdownRecordStore,
-  MEMORIES_BASE,
   readFileContent,
 } from "./markdown-records.js";
+import { getMemoryDirs } from "./memory.js";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -208,22 +209,33 @@ export function estimateUsd(
 }
 
 /**
- * Load usage records from every session-cost-*.md file under
- * {cwd}/.serena/memories. Used by `oma stats` to surface cumulative cost
- * telemetry. Missing directory or unreadable files are skipped silently.
+ * Load usage records from every session-cost-*.md file in the project
+ * memory store (canonical + legacy dirs). Used by `oma stats` to surface
+ * cumulative cost telemetry. Missing directory or unreadable files are
+ * skipped silently.
  */
 export function listAllSessionUsage(
   cwd: string = process.cwd(),
 ): UsageRecord[] {
-  const baseDir = path.join(cwd, MEMORIES_BASE);
-  if (!existsSync(baseDir)) return [];
-
   const all: UsageRecord[] = [];
-  for (const entry of readdirSync(baseDir)) {
-    if (!entry.startsWith("session-cost-") || !entry.endsWith(".md")) continue;
-    const content = readFileContent(path.join(baseDir, entry));
-    if (!content) continue;
-    all.push(...usageStore.parse(content));
+  const seen = new Set<string>();
+  for (const baseDir of getMemoryDirs(cwd)) {
+    if (!existsSync(baseDir)) continue;
+    let entries: string[];
+    try {
+      entries = readdirSync(baseDir);
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      if (!entry.startsWith("session-cost-") || !entry.endsWith(".md"))
+        continue;
+      if (seen.has(entry)) continue;
+      seen.add(entry);
+      const content = readFileContent(path.join(baseDir, entry));
+      if (!content) continue;
+      all.push(...usageStore.parse(content));
+    }
   }
   return all;
 }

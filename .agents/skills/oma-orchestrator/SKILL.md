@@ -153,12 +153,12 @@ Memory provider and tool names are configurable via `mcp.json`:
 ```json
 {
   "memoryConfig": {
-    "provider": "serena",
-    "basePath": ".serena/memories",
+    "provider": "file",
+    "basePath": ".agents/state/memories",
     "tools": {
-      "read": "read_memory",
-      "write": "write_memory",
-      "edit": "edit_memory"
+      "read": "Read",
+      "write": "Write",
+      "edit": "Edit"
     }
   }
 }

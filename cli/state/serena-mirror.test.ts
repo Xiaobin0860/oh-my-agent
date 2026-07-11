@@ -159,17 +159,17 @@ describe("serena-mirror", () => {
     });
 
     it("emits a warning event and never throws when both paths fail", async () => {
-      // Make `.serena/memories` unwritable by making it a read-only file path.
-      const serenaDir = join(projectDir, ".serena");
-      // Create `.serena` as a read-only directory so memories/ cannot be made.
-      mkdirSync(serenaDir, { recursive: true });
-      chmodSync(serenaDir, 0o400);
+      // Route the mirror at the legacy store (the resolver picks it when the
+      // canonical dir is absent), then make it read-only so the write fails.
+      const memoriesDir = join(projectDir, ".serena", "memories");
+      mkdirSync(memoriesDir, { recursive: true });
+      chmodSync(memoriesDir, 0o400);
 
       let result: Awaited<ReturnType<typeof mirrorSessionToSerena>>;
       try {
         result = await mirrorSessionToSerena({ projectDir, sid });
       } finally {
-        chmodSync(serenaDir, 0o700);
+        chmodSync(memoriesDir, 0o700);
       }
 
       expect(result.written).toBe(false);

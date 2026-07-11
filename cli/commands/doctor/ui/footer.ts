@@ -6,13 +6,13 @@ import type { DoctorReport } from "../types.js";
 export function renderFooter(report: DoctorReport): void {
   if (report.hasSerena) {
     p.note(
-      `${pc.green("✅")} Serena memory directory exists\n${pc.dim(`${report.serenaFileCount} memory files found`)}`,
-      "Serena Memory",
+      `${pc.green("✅")} Memory store directory exists\n${pc.dim(`${report.serenaFileCount} memory files found`)}`,
+      "Memory Store",
     );
   } else {
     p.note(
-      `${pc.yellow("⚠️")} Serena memory directory not found\n${pc.dim("Dashboard will show 'No agents detected'")}`,
-      "Serena Memory",
+      `${pc.yellow("⚠️")} Memory store directory not found\n${pc.dim("Dashboard will show 'No agents detected'")}`,
+      "Memory Store",
     );
   }
 

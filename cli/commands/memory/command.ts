@@ -46,7 +46,9 @@ export function registerMemory(program: Command): void {
   addOutputOptions(
     program
       .command("memory:init")
-      .description("Initialize Serena memory schema in .serena/memories")
+      .description(
+        "Initialize the coordination memory schema in .agents/state/memories",
+      )
       .option("--force", "Overwrite empty or existing schema files"),
   ).action(
     runAction(

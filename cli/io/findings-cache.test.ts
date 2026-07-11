@@ -239,7 +239,7 @@ describe("file format", () => {
   it("session file contains YAML frontmatter with session id", () => {
     recordFinding(SESSION, makeRecord());
 
-    const filePath = join(".serena/memories", `findings-${SESSION}.md`);
+    const filePath = join(".agents/state/memories", `findings-${SESSION}.md`);
     const content = mockFs.store[filePath] ?? "";
 
     expect(content).toMatch(/^---\nsession: session-20260423-141500/);

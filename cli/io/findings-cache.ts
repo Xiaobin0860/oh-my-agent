@@ -5,8 +5,9 @@
  * Allows agent B to reuse symbols/patterns/files already discovered by agent A,
  * cutting redundant tool calls and token usage.
  *
- * Storage: .serena/memories/findings-{sessionId}.md via the shared
- * MarkdownRecordStore (see io/markdown-records.ts).
+ * Storage: .agents/state/memories/findings-{sessionId}.md (legacy
+ * .serena/memories fallback) via the shared MarkdownRecordStore
+ * (see io/markdown-records.ts).
  */
 
 import { createMarkdownRecordStore } from "./markdown-records.js";

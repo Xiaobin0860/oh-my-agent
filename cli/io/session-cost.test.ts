@@ -194,7 +194,7 @@ describe("recordUsage + loadSessionUsage", () => {
 
     // mock store keys are normalized to POSIX (see norm() above) so that
     // path.join output on win32 still resolves. Read the same way.
-    const filePath = `.serena/memories/session-cost-${SESSION}.md`;
+    const filePath = `.agents/state/memories/session-cost-${SESSION}.md`;
     const content = mockFs.store[filePath] ?? "";
     expect(content).toMatch(/^---\nsession: session-20260423-141500/);
     expect(content).toContain("created:");

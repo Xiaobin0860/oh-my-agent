@@ -7,6 +7,10 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
+import {
+  CANONICAL_MEMORIES_REL,
+  LEGACY_MEMORIES_REL,
+} from "../../io/memory.js";
 import type {
   MemoryGcConfig,
   MemoryGcOptions,
@@ -16,13 +20,15 @@ import type {
 import { findFileUpwards, resolveProjectRoot } from "../../utils/fs-utils.js";
 
 const SESSIONS_REL = join(".agents", "state", "sessions");
-const SERENA_REL = join(".serena", "memories");
+// Memory-store dirs swept for ephemeral artifacts: the canonical oma store
+// plus the legacy Serena dir (pre-move projects and leftover legacy files).
+const MEMORY_STORE_RELS = [CANONICAL_MEMORIES_REL, LEGACY_MEMORIES_REL];
 
 const DEFAULT_KEEP = 100;
 const DEFAULT_MAX_AGE_DAYS = 50;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Serena memory files safe to prune. Curated knowledge (decisions/, designs/,
+// Memory-store files safe to prune. Curated knowledge (decisions/, designs/,
 // plans/, code_style.md, project_purpose.md, …) is never matched and so always
 // kept — only ephemeral run/cost artifacts are swept.
 //   - ALWAYS: per-session cost records — pure ephemeral, age-independent.
@@ -136,30 +142,32 @@ function gcSerena(
   nowMs: number,
   dryRun: boolean,
 ): { pruned: string[]; kept: number } {
-  const dir = join(baseDir, SERENA_REL);
-  if (!existsSync(dir)) return { pruned: [], kept: 0 };
-
   const pruned: string[] = [];
   let considered = 0;
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    // Directories (decisions/, designs/, plans/, …) are curated — always kept.
-    if (!e.isFile()) continue;
-    const always = SERENA_ALWAYS.some((re) => re.test(e.name));
-    const aged = SERENA_AGED.some((re) => re.test(e.name));
-    if (!always && !aged) continue; // curated / unknown file — keep
+  for (const rel of MEMORY_STORE_RELS) {
+    const dir = join(baseDir, rel);
+    if (!existsSync(dir)) continue;
 
-    considered += 1;
-    const path = join(dir, e.name);
-    // `always` files (session-cost) are pruned regardless of age. `aged`-only
-    // files are pruned only when the age gate is enabled and exceeded; with the
-    // gate disabled (maxAgeMs === null) they are kept.
-    if (!always) {
-      if (maxAgeMs === null) continue; // aged pruning disabled — keep
-      const ageMs = nowMs - statSync(path).mtimeMs;
-      if (ageMs < maxAgeMs) continue; // not old enough — keep
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      // Directories (decisions/, designs/, plans/, …) are curated — always kept.
+      if (!e.isFile()) continue;
+      const always = SERENA_ALWAYS.some((re) => re.test(e.name));
+      const aged = SERENA_AGED.some((re) => re.test(e.name));
+      if (!always && !aged) continue; // curated / unknown file — keep
+
+      considered += 1;
+      const path = join(dir, e.name);
+      // `always` files (session-cost) are pruned regardless of age. `aged`-only
+      // files are pruned only when the age gate is enabled and exceeded; with the
+      // gate disabled (maxAgeMs === null) they are kept.
+      if (!always) {
+        if (maxAgeMs === null) continue; // aged pruning disabled — keep
+        const ageMs = nowMs - statSync(path).mtimeMs;
+        if (ageMs < maxAgeMs) continue; // not old enough — keep
+      }
+      pruned.push(path);
+      if (!dryRun) rmSync(path, { force: true });
     }
-    pruned.push(path);
-    if (!dryRun) rmSync(path, { force: true });
   }
 
   return { pruned, kept: considered - pruned.length };
@@ -167,10 +175,11 @@ function gcSerena(
 
 /**
  * Garbage-collect project-local memory stores that accumulate unbounded:
- *   - L1 `.agents/state/sessions/`  — keep the most-recent `keep` sessions.
- *   - Serena `.serena/memories/`    — prune ephemeral cost/run artifacts only.
+ *   - L1 `.agents/state/sessions/`   — keep the most-recent `keep` sessions.
+ *   - Memory store `.agents/state/memories/` (+ legacy `.serena/memories/`)
+ *     — prune ephemeral cost/run artifacts only.
  *
- * The live session and all curated Serena knowledge are never touched. Pure aside
+ * The live session and all curated knowledge are never touched. Pure aside
  * from filesystem writes; `dryRun` reports the plan without deleting.
  */
 export function garbageCollectLocalState(

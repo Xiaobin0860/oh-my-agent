@@ -12,13 +12,15 @@ import {
 } from "./events.js";
 
 /**
- * Post-completion Serena memory mirror (D25 / D67).
+ * Post-completion session-memory mirror (D25 / D67).
  *
- * On terminal sessions OMA mirrors a human-readable summary into
- * `.serena/memories/session-{workflow}-{sid}.md`. Per D67 the mirror tries a
- * Serena MCP `write_memory` first (when a writer is injected by an MCP-capable
- * caller) and falls back to a direct filesystem write. Both failures emit a
- * local warning event; neither path affects L1 correctness.
+ * On terminal sessions OMA mirrors a human-readable summary into the project
+ * memory store as `session-{workflow}-{sid}.md` (canonical
+ * `.agents/state/memories/`, legacy `.serena/memories/` fallback). Per D67 the
+ * mirror tries a Serena MCP `write_memory` first (when a writer is injected by
+ * an MCP-capable caller — that path lands in `.serena/memories`, which union
+ * readers still cover) and falls back to a direct filesystem write. Both
+ * failures emit a local warning event; neither path affects L1 correctness.
  */
 
 export interface SerenaMirrorWriter {
@@ -146,7 +148,7 @@ export async function mirrorSessionToSerena(args: {
     }
   }
 
-  // D67 fallback: direct filesystem write under `.serena/memories/`.
+  // D67 fallback: direct filesystem write into the resolved memory store.
   try {
     mkdirSync(getMemoriesPath(projectDir), { recursive: true });
     writeFileSync(path, content, "utf-8");

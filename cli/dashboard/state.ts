@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, join } from "node:path";
+import { getMemoriesPath } from "../io/memory.js";
 
 export type DashboardSession = {
   id: string;
@@ -36,10 +37,10 @@ export function resolveMemoriesDir(): string {
 
   const cliArg = process.argv[3];
   if (cliArg) {
-    return join(cliArg, ".serena", "memories");
+    return getMemoriesPath(cliArg);
   }
 
-  return join(process.cwd(), ".serena", "memories");
+  return getMemoriesPath(process.cwd());
 }
 
 function readFileSafe(filePath: string): string {

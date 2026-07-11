@@ -5,26 +5,27 @@ import {
   AGENTS_RESULTS_DIR,
   agentsPathFromRoot,
 } from "../../constants/paths.js";
+import { getMemoryDirs } from "../../io/memory.js";
 import type { VerifyCheck } from "../../types/index.js";
 import { checkClosure } from "../../utils/skill-outputs.js";
 import type { AgentType } from "./agent-types.js";
 import { createCheck, runCommand } from "./check-utils.js";
 
 function findResultFile(workspace: string, agentType: string): string | null {
-  const memoriesDir = join(workspace, ".serena", "memories");
-  if (!existsSync(memoriesDir)) return null;
-
   const pattern = new RegExp(`^result-${agentType}(?:-[\\w-]+)?\\.md$`);
-  const matches = readdirSync(memoriesDir)
-    .filter((f) => pattern.test(f))
-    .sort()
-    .reverse();
+  for (const memoriesDir of getMemoryDirs(workspace)) {
+    if (!existsSync(memoriesDir)) continue;
 
-  if (matches.length === 0) return null;
-  if (!matches[0]) {
-    throw new Error(`No retrospective memory found for agent ${agentType}`);
+    const matches = readdirSync(memoriesDir)
+      .filter((f) => pattern.test(f))
+      .sort()
+      .reverse();
+
+    if (matches.length > 0 && matches[0]) {
+      return join(memoriesDir, matches[0]);
+    }
   }
-  return join(memoriesDir, matches[0]);
+  return null;
 }
 
 export function findLatestPlan(workspace: string): string | null {

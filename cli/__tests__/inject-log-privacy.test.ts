@@ -180,9 +180,9 @@ describe("inject-log privacy (D52/D57)", () => {
         "utf-8",
       );
       expect(logContent).toContain(marker);
-      // Mirror lives under .serena/memories, not inside the inject-log tree.
+      // Mirror lives in the memory store, not inside the inject-log tree.
       expect(existsSync(result.path)).toBe(true);
-      expect(result.path).toContain(join(".serena", "memories"));
+      expect(result.path).toContain(join(".agents", "state", "memories"));
       expect(result.path.startsWith(injectLogDir(projectDir, sid))).toBe(false);
     });
   });

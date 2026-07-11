@@ -10,7 +10,11 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { AGENTS_STATE_DIR, agentsPathFromRoot } from "../../constants/paths.js";
 import { getGitStats } from "../../io/git.js";
-import { getCompletedTasksCount, getSessionMeta } from "../../io/memory.js";
+import {
+  getCompletedTasksCount,
+  getMemoryDirs,
+  getSessionMeta,
+} from "../../io/memory.js";
 import { estimateUsd, listAllSessionUsage } from "../../io/session-cost.js";
 import type { Metrics } from "../../types/index.js";
 
@@ -109,21 +113,25 @@ function saveMetrics(cwd: string, metrics: Metrics): void {
 }
 
 function detectSkillsFromMemories(cwd: string): Record<string, number> {
-  const memoriesDir = join(cwd, ".serena", "memories");
   const skillsUsed: Record<string, number> = {};
+  const seen = new Set<string>();
 
-  if (!existsSync(memoriesDir)) return skillsUsed;
+  for (const memoriesDir of getMemoryDirs(cwd)) {
+    if (!existsSync(memoriesDir)) continue;
 
-  try {
-    const files = readdirSync(memoriesDir);
-    for (const file of files) {
-      const match = file.match(/(?:progress|result)-(\w+)/);
-      if (match?.[1]) {
-        const skill = match[1];
-        skillsUsed[skill] = (skillsUsed[skill] || 0) + 1;
+    try {
+      const files = readdirSync(memoriesDir);
+      for (const file of files) {
+        if (seen.has(file)) continue;
+        seen.add(file);
+        const match = file.match(/(?:progress|result)-(\w+)/);
+        if (match?.[1]) {
+          const skill = match[1];
+          skillsUsed[skill] = (skillsUsed[skill] || 0) + 1;
+        }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
   return skillsUsed;
 }

@@ -6,13 +6,13 @@ export const DASHBOARD_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   ${TW_HEAD}
-  <title>Serena Memory Dashboard</title>
+  <title>OMA Memory Dashboard</title>
   <style>@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}.pulse-dot{animation:pulse-dot 2s ease-in-out infinite}</style>
 </head>
 <body class="bg-bg text-[#e8e0f0] font-mono min-h-screen p-6">
   <div class="flex items-center gap-4 mb-6 pb-4 border-b-2 border-bd">
-    <div class="w-12 h-12 bg-gradient-to-br from-purple to-purple-dark rounded-xl flex items-center justify-center text-2xl font-bold text-white">S</div>
-    <div><h1 class="text-xl text-purple-light">Serena Memory Dashboard</h1><div class="text-xs text-dim">Real-time agent orchestration monitor</div></div>
+    <div class="w-12 h-12 bg-gradient-to-br from-purple to-purple-dark rounded-xl flex items-center justify-center text-2xl font-bold text-white">O</div>
+    <div><h1 class="text-xl text-purple-light">OMA Memory Dashboard</h1><div class="text-xs text-dim">Real-time agent orchestration monitor</div></div>
     <div class="ml-auto px-3 py-1 rounded-xl text-[11px] font-semibold border border-warn/30 bg-warn/15 text-warn" id="connBadge">Connecting...</div>
   </div>
   <div class="bg-surface border border-bd rounded-lg px-5 py-4 mb-5 flex items-center gap-5">
@@ -30,7 +30,7 @@ export const DASHBOARD_HTML = `<!DOCTYPE html>
       <div class="p-4"><ul class="text-xs" id="activityList"><li class="text-dim italic">No activity yet</li></ul></div>
     </div>
   </div>
-  <div class="mt-5 pt-3 border-t border-bd flex justify-between text-[11px] text-dim"><span>Serena Memory Dashboard</span><span id="footerTime">--</span></div>
+  <div class="mt-5 pt-3 border-t border-bd flex justify-between text-[11px] text-dim"><span>OMA Memory Dashboard</span><span id="footerTime">--</span></div>
   <script>
     const $=s=>document.querySelector(s);
     const AUTH_TOKEN=window.__OMA_DASHBOARD_TOKEN__||'';

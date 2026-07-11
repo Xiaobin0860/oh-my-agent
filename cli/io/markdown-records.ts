@@ -2,7 +2,8 @@
  * markdown-records.ts
  *
  * Shared session-scoped record store used by findings-cache and
- * session-cost. One `.md` file per session under `.serena/memories/`:
+ * session-cost. One `.md` file per session under the project memory store
+ * (`.agents/state/memories/`, with a `.serena/memories/` legacy fallback):
  * YAML frontmatter header + one fenced JSON code block per record.
  *
  * Concurrency: append-only via appendFileSync (atomic on POSIX for small
@@ -16,9 +17,15 @@ import {
   readFileSync,
   unlinkSync,
 } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { CANONICAL_MEMORIES_REL, LEGACY_MEMORIES_REL } from "./memory.js";
 
-export const MEMORIES_BASE = ".serena/memories";
+/** Resolved store base relative to the working directory (canonical-first). */
+export function memoriesBase(): string {
+  if (existsSync(CANONICAL_MEMORIES_REL)) return CANONICAL_MEMORIES_REL;
+  if (existsSync(LEGACY_MEMORIES_REL)) return LEGACY_MEMORIES_REL;
+  return CANONICAL_MEMORIES_REL;
+}
 
 // Session IDs are safe filename components. Reject anything that could
 // traverse out of MEMORIES_BASE or embed shell/path metacharacters. The
@@ -64,9 +71,22 @@ export function createMarkdownRecordStore<T>(options: {
   /** Shape check applied to each parsed JSON block. */
   isRecordValid: (value: unknown) => boolean;
 }): MarkdownRecordStore<T> {
+  // All bases a session file may live in, resolved-base first, so records
+  // written before the store moved to `.agents/state/memories` stay readable.
+  const candidatePaths = (sessionId: string): string[] => {
+    assertSafeSessionId(sessionId);
+    const name = `${options.filePrefix}-${sessionId}.md`;
+    const bases = [memoriesBase(), CANONICAL_MEMORIES_REL, LEGACY_MEMORIES_REL];
+    return [...new Set(bases)].map((base) => join(base, name));
+  };
+
   const filePath = (sessionId: string): string => {
     assertSafeSessionId(sessionId);
-    return join(MEMORIES_BASE, `${options.filePrefix}-${sessionId}.md`);
+    const candidates = candidatePaths(sessionId);
+    return (
+      candidates.find((path) => existsSync(path)) ??
+      join(memoriesBase(), `${options.filePrefix}-${sessionId}.md`)
+    );
   };
 
   const buildFrontmatter = (sessionId: string): string =>
@@ -90,10 +110,13 @@ export function createMarkdownRecordStore<T>(options: {
   return {
     filePath,
     append(sessionId: string, record: T): void {
-      if (!existsSync(MEMORIES_BASE)) {
-        mkdirSync(MEMORIES_BASE, { recursive: true });
-      }
+      // filePath prefers an existing session file (possibly in the legacy
+      // base), so appends never fork a second copy across bases.
       const target = filePath(sessionId);
+      const targetDir = dirname(target);
+      if (!existsSync(targetDir)) {
+        mkdirSync(targetDir, { recursive: true });
+      }
       const block = `\`\`\`json\n${JSON.stringify(record)}\n\`\`\`\n\n`;
       appendFileSync(
         target,
@@ -107,8 +130,9 @@ export function createMarkdownRecordStore<T>(options: {
     },
     parse,
     remove(sessionId: string): void {
-      const target = filePath(sessionId);
-      if (existsSync(target)) unlinkSync(target);
+      for (const target of candidatePaths(sessionId)) {
+        if (existsSync(target)) unlinkSync(target);
+      }
     },
   };
 }

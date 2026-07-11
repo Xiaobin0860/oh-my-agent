@@ -1,6 +1,7 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { AGENTS_RESULTS_DIR } from "../constants/paths.js";
+import { CANONICAL_MEMORIES_REL, LEGACY_MEMORIES_REL } from "../io/memory.js";
 import { emitEventWithMemory, getActiveSid, readIndex } from "./events.js";
 
 /**
@@ -31,14 +32,16 @@ export interface RalphArtifactVerificationResult {
   emitted: boolean;
 }
 
-const DEFAULT_MEMORY_BASE = ".serena/memories";
-
 const REMEDIATION =
   "Treat EXEC as NOT performed: record the violation in session memory, then " +
   "STOP and ask the user whether to re-run the iteration with ultrawork in " +
   "full or to explicitly authorize a reduced-scope run (ralph.md Step 1.3).";
 
-/** Resolve memoryConfig.basePath from .agents/mcp.json (default .serena/memories). */
+/**
+ * Resolve memoryConfig.basePath from .agents/mcp.json. Default is the
+ * canonical store `.agents/state/memories`, falling back to an existing
+ * legacy `.serena/memories` for projects created before the move.
+ */
 export function resolveMemoryBasePath(projectDir: string): string {
   try {
     const parsed = JSON.parse(
@@ -49,7 +52,13 @@ export function resolveMemoryBasePath(projectDir: string): string {
   } catch {
     // missing or malformed mcp.json falls back to the default base path
   }
-  return DEFAULT_MEMORY_BASE;
+  if (existsSync(join(projectDir, CANONICAL_MEMORIES_REL))) {
+    return CANONICAL_MEMORIES_REL;
+  }
+  if (existsSync(join(projectDir, LEGACY_MEMORIES_REL))) {
+    return LEGACY_MEMORIES_REL;
+  }
+  return CANONICAL_MEMORIES_REL;
 }
 
 function listMatches(

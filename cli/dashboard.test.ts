@@ -171,7 +171,7 @@ describe("startDashboard", () => {
 
     const page = await httpGet(`http://${dashboard.host}:${dashboard.port}/`);
     expect(page.status).toBe(200);
-    expect(page.body).toContain("Serena Memory Dashboard");
+    expect(page.body).toContain("OMA Memory Dashboard");
     expect(page.body).toContain(
       `window.__OMA_DASHBOARD_TOKEN__=${JSON.stringify(dashboard.token)}`,
     );

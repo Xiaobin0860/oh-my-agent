@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import pc from "picocolors";
+import { getMemoriesPath } from "../io/memory.js";
 import { SKILLS } from "../platform/skills-installer.js";
 
 // ── Types ───────────────────────────────────────────────────────
@@ -197,14 +198,14 @@ export function buildGraph(root: string): Graph {
     if (skill) edge(id, `skill:${skill}`, "implements");
   }
 
-  // Serena Memories
-  const memDir = join(root, ".serena", "memories");
+  // Project memory store (canonical .agents/state/memories, legacy fallback)
+  const memDir = getMemoriesPath(root);
   for (const f of tryDir(memDir).filter((f) => f.endsWith(".md"))) {
     nodes.push({
       id: `memory:${f.replace(".md", "")}`,
       label: f.replace(".md", ""),
       category: "memory",
-      group: "Serena Memories",
+      group: "Memories",
     });
   }
 
@@ -434,9 +435,9 @@ export function renderAscii(graph: Graph): string {
   }
   o.push("");
 
-  // Detail: Serena Memories
+  // Detail: project memory store
   const mems = graph.nodes.filter((n) => n.category === "memory");
-  o.push(pc.bold(`Serena Memories (${mems.length})`));
+  o.push(pc.bold(`Memories (${mems.length})`));
   if (!mems.length) {
     o.push(`└─ ${pc.dim("(none)")}`);
   } else {

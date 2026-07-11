@@ -13,7 +13,7 @@ disable-model-invocation: true
 - **Web capture: human-driven, no credential automation, masked.** For `demo --source web`, the tool only opens a headed browser and records — a **human** performs the entire on-screen flow and any login. **NEVER** script, type, or automate credentials of any kind. The `--url` and any query tokens are **masked** in logs and the manifest; credentials are never stored or printed; all outputs stay in the run dir. The skill provides only the mechanism — assume and prescribe **nothing** about what the flow is or what the recording is for, and bake in **no** platform- or policy-specific guidance.
 - **The `oma video` CLI owns the pipeline. This workflow owns the brief, the agent-authored script, the QA loop, and decision checkpoints.** Do NOT reimplement orchestration, provider selection, or rendering in the workflow.
 - **You MUST use MCP tools where the project provides them.**
-  - Use memory tools (read/write/edit) for run tracking. Memory path: configurable via `memoryConfig.basePath` (default: `.serena/memories`).
+  - Use memory tools (read/write/edit) for run tracking. Memory path: configurable via `memoryConfig.basePath` (default: `.agents/state/memories`).
   - Tool names: configurable via `memoryConfig.tools` in `.agents/mcp.json`.
 - **Read the oma-video skill BEFORE starting.** Read `.agents/skills/oma-video/SKILL.md` and follow its Core Rules and execution protocol, including `resources/execution-protocol.md`. If the skill is not installed, stop and ask the user to run `oma install` first.
 
