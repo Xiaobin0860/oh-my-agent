@@ -7,7 +7,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import {
   parseFrontmatter,
   serializeFrontmatter,
@@ -27,6 +27,16 @@ const OPTIONAL_FIELDS = [
 
 /** Recommended (not enforced) body length before overflow to references/. */
 const RECOMMENDED_MAX_BODY_LINES = 500;
+
+/** Names never copied from a skill's resources/ tree, at any directory depth. */
+const EXCLUDED_RESOURCE_NAMES = new Set([
+  "node_modules",
+  ".DS_Store",
+  ".git",
+  "package-lock.json",
+  "bun.lock",
+  "yarn.lock",
+]);
 
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
@@ -180,16 +190,24 @@ export function discoverSkillDirs(repoRoot: string): string[] {
     .sort();
 }
 
-/** Recursively copy a directory's contents, skipping `SKILL.md` (handled separately). */
+/**
+ * Recursively copy a directory's contents, skipping `SKILL.md` (handled
+ * separately) and `EXCLUDED_RESOURCE_NAMES` at every directory level.
+ */
 function copySkillAssets(sourceDir: string, destDir: string): void {
   if (!existsSync(sourceDir)) return;
   for (const entry of readdirSync(sourceDir, { withFileTypes: true })) {
     if (entry.name === "SKILL.md") continue;
+    if (EXCLUDED_RESOURCE_NAMES.has(entry.name)) continue;
     const src = join(sourceDir, entry.name);
     const dest = join(destDir, entry.name);
     if (entry.isDirectory()) {
       mkdirSync(dest, { recursive: true });
-      cpSync(src, dest, { recursive: true, force: true });
+      cpSync(src, dest, {
+        recursive: true,
+        force: true,
+        filter: (source) => !EXCLUDED_RESOURCE_NAMES.has(basename(source)),
+      });
     } else {
       mkdirSync(destDir, { recursive: true });
       cpSync(src, dest, { force: true });

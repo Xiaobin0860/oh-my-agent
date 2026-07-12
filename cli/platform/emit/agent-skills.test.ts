@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -171,6 +171,16 @@ describe("emitAgentSkills", () => {
 
     const oversized = results.find((r) => r.skill === "oversized-skill");
     expect(oversized?.overflowed).toBe(true);
+  });
+
+  it("excludes junk resource entries while keeping legitimate resource files", () => {
+    outDir = mkdtempSync(path.join(tmpdir(), "oma-emit-agent-skills-"));
+    emitAgentSkills(FIXTURES_REPO, outDir);
+
+    const resourcesDir = path.join(outDir, "valid-skill", "resources");
+    expect(existsSync(path.join(resourcesDir, "node_modules"))).toBe(false);
+    expect(existsSync(path.join(resourcesDir, ".DS_Store"))).toBe(false);
+    expect(existsSync(path.join(resourcesDir, "reference.txt"))).toBe(true);
   });
 
   it("writes a conformant SKILL.md for the valid fixture", () => {
