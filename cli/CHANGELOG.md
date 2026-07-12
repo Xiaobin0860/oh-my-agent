@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.17.1](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.17.0...cli-v10.17.1) (2026-07-12)
+
+
+### Documentation
+
+* refresh README for emit portability and measured trigger accuracy ([50f2a8d](https://github.com/first-fluke/oh-my-agent/commit/50f2a8defd7734b1536f7b83b7e2bbeb76f54e23))
+* sync 12 translated READMEs with refreshed English README ([6039860](https://github.com/first-fluke/oh-my-agent/commit/603986014173faf07decb06c0051c03c173d08e0))
+
 ## [10.17.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.16.0...cli-v10.17.0) (2026-07-12)
 
 
