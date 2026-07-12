@@ -17,6 +17,7 @@ import {
 } from "../../io/memory.js";
 import { estimateUsd, listAllSessionUsage } from "../../io/session-cost.js";
 import type { Metrics } from "../../types/index.js";
+import { resolveProjectRoot } from "../../utils/fs-utils.js";
 
 interface CostSummary {
   totalTokens: number;
@@ -140,7 +141,7 @@ export async function stats(
   jsonMode = false,
   resetMode = false,
 ): Promise<void> {
-  const cwd = process.cwd();
+  const cwd = resolveProjectRoot(process.cwd());
   const metricsPath = getMetricsPath(cwd);
 
   if (resetMode) {

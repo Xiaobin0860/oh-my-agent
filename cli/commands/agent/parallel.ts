@@ -18,6 +18,7 @@ import {
   resolvePromptFlag,
   resolveVendor,
 } from "../../platform/agent-config.js";
+import { resolveProjectRoot } from "../../utils/fs-utils.js";
 import { registerSignalCleanup } from "../../utils/process-signals.js";
 import { isProcessRunning } from "./common.js";
 import {
@@ -35,12 +36,15 @@ export async function parallelRun(
   } = {},
 ) {
   const cwd = process.cwd();
-  const resultsDir = agentsPathFromRoot(cwd, AGENTS_RESULTS_DIR);
+  // Results must land at the project root's .agents/, not under a workspace
+  // subdir (a raw cwd here seeded stray cli/.agents/ trees that then hijack
+  // resolveProjectRoot for every later command run from that subdir).
+  const resultsDir = agentsPathFromRoot(
+    resolveProjectRoot(cwd),
+    AGENTS_RESULTS_DIR,
+  );
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const runDir = path.join(resultsDir, `parallel-${timestamp}`);
-
-  fs.mkdirSync(runDir, { recursive: true });
-
   const pidListFile = path.join(runDir, "pids.txt");
 
   let tasks: TaskDefinition[];
@@ -71,6 +75,8 @@ export async function parallelRun(
     console.error(color.red(`Error: ${(error as Error).message}`));
     process.exit(1);
   }
+
+  fs.mkdirSync(runDir, { recursive: true });
 
   console.log(color.cyan("======================================"));
   console.log(color.cyan("  Parallel SubAgent Execution"));

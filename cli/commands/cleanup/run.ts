@@ -14,6 +14,7 @@ import {
 } from "../../io/serena-reaper.js";
 import { runPs } from "../../io/serena-reaper-runtime.js";
 import type { CleanupResult } from "../../types/index.js";
+import { resolveProjectRoot } from "../../utils/fs-utils.js";
 
 interface GeminiCleanupConfig {
   shouldCleanupBrain: boolean;
@@ -87,7 +88,10 @@ export async function cleanup(
   skipConfirm = false,
 ): Promise<void> {
   const cwd = process.cwd();
-  const resultsDir = agentsPathFromRoot(cwd, AGENTS_RESULTS_DIR);
+  const resultsDir = agentsPathFromRoot(
+    resolveProjectRoot(cwd),
+    AGENTS_RESULTS_DIR,
+  );
   const tmpDir = tmpdir();
 
   const result: CleanupResult = {
