@@ -13,7 +13,11 @@ import type { ClaudePluginEmitReport } from "./types.js";
 /** Existing hand-authored marketplace manifest — never overwritten by emit. */
 export const EXISTING_MARKETPLACE_PATH = ".claude-plugin/marketplace.json";
 
-const AGENTS_DIR = ".claude/agents";
+// Agent definitions are read from the tracked .agents/ SSOT, NOT from
+// .claude/agents (a gitignored per-machine vendor artifact of `oma install`) —
+// sourcing the latter made the emitted manifest differ between a dev machine
+// and a fresh CI checkout, failing the drift gate.
+const AGENTS_DIR = ".agents/agents";
 
 interface PackageJsonShape {
   name?: string;
@@ -29,7 +33,7 @@ function readPackageJson(repoRoot: string): PackageJsonShape {
   return JSON.parse(readFileSync(pkgPath, "utf-8")) as PackageJsonShape;
 }
 
-/** List `.claude/agents/*.md` basenames (sans extension), or `[]` if absent. */
+/** List `.agents/agents/*.md` basenames (sans extension), or `[]` if absent. */
 function discoverClaudeAgents(repoRoot: string): string[] {
   const dir = join(repoRoot, AGENTS_DIR);
   if (!existsSync(dir)) return [];

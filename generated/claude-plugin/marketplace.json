@@ -50,18 +50,18 @@
         "./.agents/skills/oma-voice"
       ],
       "agents": [
-        "./.claude/agents/architecture-reviewer.md",
-        "./.claude/agents/backend-engineer.md",
-        "./.claude/agents/db-engineer.md",
-        "./.claude/agents/debug-investigator.md",
-        "./.claude/agents/docs-curator.md",
-        "./.claude/agents/frontend-engineer.md",
-        "./.claude/agents/mobile-engineer.md",
-        "./.claude/agents/pm-planner.md",
-        "./.claude/agents/qa-reviewer.md",
-        "./.claude/agents/refactor-engineer.md",
-        "./.claude/agents/research-explorer.md",
-        "./.claude/agents/tf-infra-engineer.md"
+        "./.agents/agents/architecture-reviewer.md",
+        "./.agents/agents/backend-engineer.md",
+        "./.agents/agents/db-engineer.md",
+        "./.agents/agents/debug-investigator.md",
+        "./.agents/agents/docs-curator.md",
+        "./.agents/agents/frontend-engineer.md",
+        "./.agents/agents/mobile-engineer.md",
+        "./.agents/agents/pm-planner.md",
+        "./.agents/agents/qa-reviewer.md",
+        "./.agents/agents/refactor-engineer.md",
+        "./.agents/agents/research-explorer.md",
+        "./.agents/agents/tf-infra-engineer.md"
       ]
     }
   ]

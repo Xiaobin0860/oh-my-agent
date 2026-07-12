@@ -23,10 +23,10 @@ describe("buildMarketplaceManifest", () => {
     ]);
   });
 
-  it("lists .claude/agents/*.md as the agents extension field", () => {
+  it("lists .agents/agents/*.md as the agents extension field", () => {
     const manifest = buildMarketplaceManifest(FIXTURES_REPO);
     const plugins = manifest.plugins as Array<{ agents: string[] }>;
-    expect(plugins[0]?.agents).toEqual(["./.claude/agents/fixture-agent.md"]);
+    expect(plugins[0]?.agents).toEqual(["./.agents/agents/fixture-agent.md"]);
   });
 
   it("pulls name/description/version from package.json", () => {
