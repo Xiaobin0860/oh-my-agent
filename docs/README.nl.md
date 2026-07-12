@@ -146,7 +146,6 @@ Kies een preset en je bent klaar:
 | **oma-architecture** | Weegt architectuurafwegingen af en bepaalt modulegrenzen met ADR/ATAM/CBAM-analyse |
 | **oma-backend** | Bouwt en beveiligt je API's in Python, Node.js of Rust |
 | **oma-brainstorm** | Verkent ideeën samen met jou voordat je begint met bouwen |
-| **oma-coordination** | Begeleidt stap voor stap de handmatige coördinatie van PM-, frontend-, backend-, mobile- en QA-agents |
 | **oma-db** | Ontwerpt je schema, migraties, indexes en vector stores |
 | **oma-debug** | Zoekt de root cause, lost de bug op en schrijft een regressietest |
 | **oma-deepsec** | Scant je code op beveiligingslekken en blokkeert riskante pull requests |
@@ -168,12 +167,21 @@ Kies een preset en je bent klaar:
 | **oma-scholar** | Doorzoekt academische literatuur en helpt je bij peer review |
 | **oma-scm** | Beheert je branches, merges, worktrees en Conventional Commits |
 | **oma-search** | Routeert elke zoekopdracht naar de beste bron en geeft een vertrouwensscore |
-| **oma-skill-creator** | Schrijft en auditeert nieuwe OMA-skills in het SSL-lite-formaat |
 | **oma-slide** | Genereert onderscheidende, animatierijke HTML-presentatiedecks en exporteert naar PDF/PNG/PPTX |
 | **oma-tf-infra** | Provisioneert multi-cloud infrastructuur met Terraform |
 | **oma-translator** | Vertaalt tussen talen zodat het klinkt alsof een native het heeft geschreven |
 | **oma-video** | Genereert korte video's, uitlegvideo's en demo's via een Remotion-pijplijn die ook zonder sleutels werkt |
 | **oma-voice** | Genereert voice-overs en transcribeert audio lokaal, zonder cloud |
+
+<details>
+<summary>Interne &amp; meta-tools</summary>
+
+| Agent | Wat ze doen |
+|-------|-------------|
+| **oma-coordination** | Begeleidt stap voor stap de handmatige coördinatie van PM-, frontend-, backend-, mobile- en QA-agents |
+| **oma-skill-creator** | Schrijft en auditeert nieuwe OMA-skills in het SSL-lite-formaat |
+
+</details>
 
 ## Hoe het werkt
 
@@ -200,7 +208,7 @@ Of gebruik slash commands voor gestructureerde workflows:
 | 2 | `/plan` | Splitst je feature op in geprioriteerde taken |
 | 3 | `/work` | Bouwt je feature stap voor stap over meerdere agents |
 | 3 | `/orchestrate` | Draait meerdere agents parallel om je feature sneller te bouwen |
-| 3 | `/ultrawork` | Bouwt je feature door vijf kwaliteitsfasen en elf review gates |
+| 3 | `/ultrawork` | Bouwt je feature door vijf gated kwaliteitsfasen; elke review draait in een verse, geïsoleerde reviewer-sessie (cross-context review) |
 | 3 | `/ralph` | Herhaalt `/ultrawork` tot een onafhankelijke verificator elk criterium goedkeurt |
 | 4 | `/review` | Bekijkt je code op beveiligings-, performance- en toegankelijkheidsproblemen |
 | 4 | `/deepsec` | Draait een diepe security scan en blokkeert riskante pull requests |
@@ -209,7 +217,7 @@ Of gebruik slash commands voor gestructureerde workflows:
 | 6 | `/scm` | Beheert je branches, merges en Conventional Commits |
 | - | `/schedule` | Plant een agent-job in om met een terugkerend interval te draaien |
 
-**Autodetectie**: Je hebt de slash commands niet eens nodig. Woorden als "architectuur", "plan", "review" en "debug" in je bericht (in 11 talen!) activeren automatisch de juiste workflow.
+**Autodetectie**: Je hebt de slash commands niet eens nodig. Woorden als "architectuur", "plan", "review" en "debug" in je bericht (in 11 talen!) activeren automatisch de juiste workflow. Detectienauwkeurigheid wordt gemeten, niet aangenomen: `oma verify triggers` scoort de detector tegen een gelabeld corpus van 171 prompts (momenteel **0% missed-fire**, onder de 10% false-fire) en gebruikt dat als CI-gate.
 
 ### Modellen per agent
 
@@ -229,11 +237,9 @@ agents:
 
 ## Waarom oh-my-agent?
 
-> [Meer lezen →](https://github.com/first-fluke/oh-my-agent/issues/155#issuecomment-4142133589)
-
-- **Draagbaar**: `.agents/` reist mee met je project, niet opgesloten in een IDE
+- **Draagbaar**: `.agents/` reist mee met je project, niet opgesloten in één IDE. `oma emit` projecteert dezelfde SSOT naar open-standaard artefacten — [Agent Skills](https://agentskills.io/specification)-conforme skill-mappen, een `.claude-plugin/marketplace.json` en `AGENTS.md` — zodat oma-skills werken in elke tool die de open spec leest, met een drift-check in CI die de gegenereerde output eerlijk houdt
 - **Rolgebaseerd**: agents gemodelleerd als een echt engineeringteam, niet een stapel prompts
-- **Token-efficient**: tweelaags skill-ontwerp bespaart ~75% tokens
+- **Token-efficient**: tweelaags skill-ontwerp bespaart ~75% tokens ([hoe het werkt](../web/docs/guide/usage.md))
 - **Kwaliteit eerst**: Charter preflight, quality gates en review-workflows ingebouwd:
   - `oma verify <agent>` — een deterministische check-batterij per agent-type: een gedeelde kern (scope violation, charter alignment, hardcoded secrets, TODO-scan, declared outputs) plus type-specifieke checks (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — token / spawn / per-vendor budgetcaps per sessie in `oma-config.yaml`; `orchestrate` Step 5 blokkeert de volgende spawn bij overschrijding

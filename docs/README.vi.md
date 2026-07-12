@@ -146,7 +146,6 @@ Chọn một preset và bạn đã sẵn sàng:
 | **oma-architecture** | Phân tích đánh đổi kiến trúc và vạch ranh giới module theo hướng ADR/ATAM/CBAM |
 | **oma-backend** | Xây dựng và bảo mật API bằng Python, Node.js hoặc Rust |
 | **oma-brainstorm** | Cùng bạn khám phá ý tưởng trước khi bắt tay vào xây dựng |
-| **oma-coordination** | Hướng dẫn phối hợp thủ công từng bước các agent PM, frontend, backend, mobile và QA |
 | **oma-db** | Thiết kế schema, migration, index và vector store cho dự án của bạn |
 | **oma-debug** | Tìm nguyên nhân gốc rễ, sửa lỗi và viết regression test |
 | **oma-deepsec** | Quét lỗ hổng bảo mật trong code và chặn pull request rủi ro |
@@ -168,12 +167,21 @@ Chọn một preset và bạn đã sẵn sàng:
 | **oma-scholar** | Tìm kiếm tài liệu học thuật và hỗ trợ bình duyệt khoa học |
 | **oma-scm** | Quản lý nhánh, merge, worktree và Conventional Commits |
 | **oma-search** | Định tuyến mỗi truy vấn đến nguồn tốt nhất và chấm điểm độ tin cậy của kết quả |
-| **oma-skill-creator** | Soạn và kiểm tra skill OMA mới theo định dạng SSL-lite |
 | **oma-slide** | Tạo các deck trình bày HTML đặc trưng giàu hoạt hình và xuất sang PDF/PNG/PPTX |
 | **oma-tf-infra** | Triển khai hạ tầng đa đám mây bằng Terraform |
 | **oma-translator** | Dịch giữa các ngôn ngữ tự nhiên như thể bản ngữ viết |
 | **oma-video** | Tạo video ngắn, video giải thích và video demo qua pipeline Remotion dùng được cả khi không có khóa |
 | **oma-voice** | Tạo lồng tiếng và gỡ băng âm thanh ngay trên thiết bị, không cần đám mây |
+
+<details>
+<summary>Công cụ nội bộ & meta</summary>
+
+| Agent | Chức năng |
+|-------|----------|
+| **oma-coordination** | Hướng dẫn phối hợp thủ công từng bước các agent PM, frontend, backend, mobile và QA |
+| **oma-skill-creator** | Soạn và kiểm tra skill OMA mới theo định dạng SSL-lite |
+
+</details>
 
 ## Cách hoạt động
 
@@ -200,7 +208,7 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 | 2 | `/plan` | Phân tách tính năng của bạn thành các task được ưu tiên |
 | 3 | `/work` | Xây dựng tính năng của bạn từng bước qua nhiều agent |
 | 3 | `/orchestrate` | Chạy nhiều agent song song để xây tính năng của bạn nhanh hơn |
-| 3 | `/ultrawork` | Xây dựng tính năng của bạn qua năm giai đoạn chất lượng và mười một cổng đánh giá |
+| 3 | `/ultrawork` | Xây dựng tính năng của bạn qua năm giai đoạn chất lượng có cổng kiểm soát; mọi lượt đánh giá đều chạy trong một phiên đánh giá mới, tách biệt (cross-context review) |
 | 3 | `/ralph` | Lặp lại `/ultrawork` cho đến khi một trình kiểm chứng độc lập đạt mọi tiêu chí |
 | 4 | `/review` | Rà soát code của bạn về các vấn đề bảo mật, hiệu suất và accessibility |
 | 4 | `/deepsec` | Quét bảo mật chuyên sâu và chặn các pull request rủi ro |
@@ -209,7 +217,7 @@ Hoặc sử dụng slash command cho các workflow có cấu trúc:
 | 6 | `/scm` | Quản lý branch, merge và Conventional Commits của bạn |
 | - | `/schedule` | Lên lịch một job agent chạy theo chu kỳ lặp lại |
 
-**Tự động phát hiện**: Bạn không nhất thiết cần slash command. Các từ khóa như "kiến trúc", "kế hoạch", "đánh giá", "debug" trong tin nhắn (hỗ trợ 11 ngôn ngữ!) sẽ tự động kích hoạt workflow phù hợp.
+**Tự động phát hiện**: Bạn không nhất thiết cần slash command. Các từ khóa như "kiến trúc", "kế hoạch", "đánh giá", "debug" trong tin nhắn (hỗ trợ 11 ngôn ngữ!) sẽ tự động kích hoạt workflow phù hợp. Độ chính xác phát hiện được đo lường chứ không phải phỏng đoán: `oma verify triggers` chấm điểm bộ phát hiện dựa trên một corpus 171 prompt đã gán nhãn (hiện tại **0% bỏ sót**, dưới 10% kích hoạt nhầm) và dùng nó làm cổng gác CI.
 
 ### Model theo từng agent
 
@@ -229,11 +237,9 @@ agents:
 
 ## Tại sao chọn oh-my-agent?
 
-> [Đọc thêm lý do →](https://github.com/first-fluke/oh-my-agent/issues/155#issuecomment-4142133589)
-
-- **Di động**: `.agents/` đi cùng dự án, không bị ràng buộc vào một IDE
+- **Di động**: `.agents/` đi cùng dự án, không bị ràng buộc vào một IDE. `oma emit` chiếu cùng một SSOT thành các artifact theo chuẩn mở — các thư mục skill tuân thủ [Agent Skills](https://agentskills.io/specification), một `.claude-plugin/marketplace.json` và `AGENTS.md` — nhờ đó các skill oma hoạt động trong bất kỳ công cụ nào đọc được chuẩn mở, với kiểm tra drift trong CI giữ cho đầu ra được sinh ra luôn chính xác
 - **Dựa trên vai trò**: agent được mô hình hóa như đội kỹ thuật thực, không phải một đống prompt
-- **Tiết kiệm token**: thiết kế skill 2 lớp tiết kiệm ~75% token
+- **Tiết kiệm token**: thiết kế skill 2 lớp tiết kiệm ~75% token ([cách hoạt động](../web/docs/guide/usage.md))
 - **Ưu tiên chất lượng**: Charter preflight, quality gate và review workflow được tích hợp sẵn:
   - `oma verify <agent>` — bộ kiểm tra xác định theo từng loại agent: phần core dùng chung (scope violation, charter alignment, secret hardcode, quét TODO, declared outputs) cộng thêm các kiểm tra theo loại (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — giới hạn token / spawn / theo vendor mỗi session trong `oma-config.yaml`; Step 5 của `orchestrate` chặn spawn tiếp theo khi vượt

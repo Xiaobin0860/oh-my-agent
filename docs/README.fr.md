@@ -146,7 +146,6 @@ Choisis un preset et c'est parti :
 | **oma-architecture** | Évalue les arbitrages d'architecture et trace les frontières de modules avec une analyse ADR/ATAM/CBAM |
 | **oma-backend** | Construit et sécurise tes APIs en Python, Node.js ou Rust |
 | **oma-brainstorm** | Explore les idées avec toi avant de te lancer dans le code |
-| **oma-coordination** | Guide la coordination manuelle pas à pas des agents PM, frontend, backend, mobile et QA |
 | **oma-db** | Conçoit tes schémas, migrations, index et vector stores |
 | **oma-debug** | Identifie la cause racine, corrige le bug et écrit un test de régression |
 | **oma-deepsec** | Scanne ton code pour détecter les failles de sécurité et bloque les pull requests à risque |
@@ -168,12 +167,21 @@ Choisis un preset et c'est parti :
 | **oma-scholar** | Explore la littérature académique et t'aide à mener une évaluation par les pairs |
 | **oma-scm** | Gère tes branches, fusions, worktrees et Conventional Commits |
 | **oma-search** | Route chaque requête vers la meilleure source et évalue le niveau de confiance du résultat |
-| **oma-skill-creator** | Rédige et audite les nouveaux skills OMA au format SSL-lite |
 | **oma-slide** | Génère des decks de présentation HTML distinctifs riches en animations et exporte vers PDF/PNG/PPTX |
 | **oma-tf-infra** | Provisionne une infrastructure multi-cloud avec Terraform |
 | **oma-translator** | Traduit entre les langues comme si un natif avait écrit le texte |
 | **oma-video** | Génère des vidéos courtes, explicatives et de démo via un pipeline Remotion utilisable sans clés |
 | **oma-voice** | Génère des voix off et transcrit de l'audio en local, sans cloud |
+
+<details>
+<summary>Outils internes et méta</summary>
+
+| Agent | Ce Qu'il Fait |
+|-------|-------------|
+| **oma-coordination** | Guide la coordination manuelle pas à pas des agents PM, frontend, backend, mobile et QA |
+| **oma-skill-creator** | Rédige et audite les nouveaux skills OMA au format SSL-lite |
+
+</details>
 
 ## Comment Ça Marche
 
@@ -200,7 +208,7 @@ Ou utilise les slash commands pour des workflows structurés :
 | 2 | `/plan` | Découpe ta feature en tâches priorisées |
 | 3 | `/work` | Construit ta feature étape par étape sur plusieurs agents |
 | 3 | `/orchestrate` | Lance plusieurs agents en parallèle pour construire ta feature plus vite |
-| 3 | `/ultrawork` | Construit ta feature à travers cinq phases qualité et onze portes de revue |
+| 3 | `/ultrawork` | Construit ta feature à travers cinq phases qualité à gates ; chaque revue s'exécute dans une session de relecteur neuve et isolée (revue à contexte croisé / cross-context review) |
 | 3 | `/ralph` | Répète `/ultrawork` jusqu'à ce qu'un vérificateur indépendant valide chaque critère |
 | 4 | `/review` | Revoit ton code pour les problèmes de sécurité, de performance et d'accessibilité |
 | 4 | `/deepsec` | Lance un scan de sécurité profond et bloque les pull requests à risque |
@@ -209,7 +217,7 @@ Ou utilise les slash commands pour des workflows structurés :
 | 6 | `/scm` | Gère tes branches, tes merges et les Conventional Commits |
 | - | `/schedule` | Planifie une tâche d'agent à exécuter sur un intervalle récurrent |
 
-**Auto-détection** : Tu n'as même pas besoin des slash commands. Des mots-clés comme "architecture", "plan", "review" et "debug" dans ton message (en 11 langues !) activent automatiquement le bon workflow.
+**Auto-détection** : Tu n'as même pas besoin des slash commands. Des mots-clés comme "architecture", "plan", "review" et "debug" dans ton message (en 11 langues !) activent automatiquement le bon workflow. La précision de détection se mesure, elle ne se suppose pas : `oma verify triggers` évalue le détecteur face à un corpus annoté de 171 prompts (actuellement **0% de missed-fire**, moins de 10% de false-fire) et le verrouille en CI.
 
 ### Modèles par agent
 
@@ -229,11 +237,9 @@ agents:
 
 ## Pourquoi oh-my-agent ?
 
-> [En savoir plus →](https://github.com/first-fluke/oh-my-agent/issues/155#issuecomment-4142133589)
-
-- **Portable** : `.agents/` voyage avec ton projet, pas enfermé dans un IDE
+- **Portable** : `.agents/` voyage avec ton projet, pas enfermé dans un IDE. `oma emit` projette la même SSOT dans des artefacts à standard ouvert : des dossiers de skills conformes à [Agent Skills](https://agentskills.io/specification), un `.claude-plugin/marketplace.json` et `AGENTS.md`, si bien que les skills oma fonctionnent dans tout outil qui lit la spec ouverte, avec un contrôle de drift en CI qui garde la sortie générée honnête
 - **Basé sur les rôles** : des agents modélisés comme une vraie équipe d'ingé, pas un tas de prompts
-- **Économe en tokens** : le design de skills à deux couches économise ~75% de tokens
+- **Économe en tokens** : le design de skills à deux couches économise ~75% de tokens ([comment ça marche](../web/docs/guide/usage.md))
 - **Qualité d'abord** : Charter preflight, quality gates et workflows de revue intégrés :
   - `oma verify <agent>` — une batterie de vérifications déterministes par type d'agent : un socle commun (scope violation, charter alignment, secrets hardcodés, scan des TODO, declared outputs) plus des vérifications propres au type (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — quotas de tokens / spawn / par-vendor par session dans `oma-config.yaml` ; le Step 5 d'`orchestrate` bloque le prochain spawn en cas de dépassement

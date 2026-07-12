@@ -146,7 +146,6 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 | **oma-architecture** | ชั่งน้ำหนัก tradeoffs ด้านสถาปัตยกรรม กำหนดขอบเขตโมดูล พร้อมวิเคราะห์ด้วย ADR/ATAM/CBAM |
 | **oma-backend** | สร้างและเสริมความปลอดภัยให้ API ด้วย Python, Node.js หรือ Rust |
 | **oma-brainstorm** | สำรวจแนวคิดร่วมกับคุณก่อนตัดสินใจลงมือสร้างจริง |
-| **oma-coordination** | แนะนำการประสานงานเอเจนต์ PM, frontend, backend, mobile และ QA ทีละขั้นตอนแบบแมนวล |
 | **oma-db** | ออกแบบ schema, migration, indexes และ vector stores ให้กับโปรเจกต์ของคุณ |
 | **oma-debug** | ค้นหาสาเหตุต้นตอ แก้ไขบัค และเขียน regression test ไว้กันซ้ำ |
 | **oma-deepsec** | สแกนโค้ดหาช่องโหว่ด้านความปลอดภัย และบล็อก pull request ที่มีความเสี่ยง |
@@ -168,12 +167,21 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 | **oma-scholar** | ค้นหาวรรณกรรมเชิงวิชาการ และช่วยดำเนินการทบทวนโดยผู้เชี่ยวชาญ |
 | **oma-scm** | จัดการ branches, merges, worktrees และ Conventional Commits |
 | **oma-search** | ส่งคำค้นหาแต่ละรายการไปยังแหล่งที่ดีที่สุด พร้อมให้คะแนนความน่าเชื่อถือของผลลัพธ์ |
-| **oma-skill-creator** | เขียนและตรวจสอบ OMA skills ใหม่ในรูปแบบ SSL-lite |
 | **oma-slide** | สร้าง HTML presentation deck ที่มีเอกลักษณ์และแอนิเมชันสมบูรณ์ รวมถึงส่งออกเป็น PDF/PNG/PPTX |
 | **oma-tf-infra** | จัดเตรียม multi-cloud infrastructure ด้วย Terraform |
 | **oma-translator** | แปลระหว่างภาษาต่างๆ ให้อ่านแล้วรู้สึกเหมือนเจ้าของภาษาเขียนเอง |
 | **oma-video** | สร้างวิดีโอสั้น วิดีโออธิบาย และวิดีโอเดโมผ่านไปป์ไลน์ Remotion ที่ใช้ได้แม้ไม่มีคีย์ |
 | **oma-voice** | สร้างเสียงพากย์และถอดเสียงบนเครื่อง โดยไม่ต้องพึ่ง cloud |
+
+<details>
+<summary>เครื่องมือภายในและเมตา</summary>
+
+| Agent | หน้าที่ |
+|-------|-------------|
+| **oma-coordination** | แนะนำการประสานงานเอเจนต์ PM, frontend, backend, mobile และ QA ทีละขั้นตอนแบบแมนวล |
+| **oma-skill-creator** | เขียนและตรวจสอบ OMA skills ใหม่ในรูปแบบ SSL-lite |
+
+</details>
 
 ## วิธีการทำงาน
 
@@ -200,7 +208,7 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 | 2 | `/plan` | ย่อยฟีเจอร์ของคุณออกเป็นงานย่อย (tasks) ที่จัดลำดับความสำคัญแล้ว |
 | 3 | `/work` | สร้างฟีเจอร์ของคุณทีละขั้นตอนข้ามเอเจนต์หลายตัว |
 | 3 | `/orchestrate` | รันเอเจนต์หลายตัวแบบขนานเพื่อสร้างฟีเจอร์ของคุณให้เร็วขึ้น |
-| 3 | `/ultrawork` | สร้างฟีเจอร์ของคุณผ่าน 5 ระยะคุณภาพ และจุดตรวจสอบ 11 จุด |
+| 3 | `/ultrawork` | สร้างฟีเจอร์ของคุณผ่าน 5 ระยะคุณภาพที่มีจุดตรวจ (gate); ทุกการรีวิวจะรันในเซสชันผู้รีวิวใหม่ที่แยกอิสระ (cross-context review) |
 | 3 | `/ralph` | ทำ `/ultrawork` ซ้ำจนกว่าผู้ตรวจสอบอิสระจะผ่านทุกเกณฑ์ |
 | 4 | `/review` | ตรวจสอบโค้ดของคุณหาปัญหาด้านความปลอดภัย ประสิทธิภาพ และ accessibility |
 | 4 | `/deepsec` | สแกนความปลอดภัยเชิงลึกและบล็อก pull request ที่มีความเสี่ยง |
@@ -209,7 +217,7 @@ APM แจกแค่ skill เท่านั้น ส่วน workflow, rul
 | 6 | `/scm` | จัดการ branch, การ merge และ Conventional Commits ของคุณ |
 | - | `/schedule` | ตั้งเวลางานเอเจนต์ให้รันซ้ำตามรอบเวลาที่กำหนด |
 
-**การตรวจจับอัตโนมัติ**: คุณไม่จำเป็นต้องใช้คำสั่ง slash ตลอดเวลา คำสำคัญเช่น "architecture", "plan", "review", และ "debug" ในข้อความของคุณ (รองรับ 11 ภาษา!) จะเปิดใช้งานเวิร์กโฟลว์ที่ถูกต้องโดยอัตโนมัติ
+**การตรวจจับอัตโนมัติ**: คุณไม่จำเป็นต้องใช้คำสั่ง slash ตลอดเวลา คำสำคัญเช่น "architecture", "plan", "review", และ "debug" ในข้อความของคุณ (รองรับ 11 ภาษา!) จะเปิดใช้งานเวิร์กโฟลว์ที่ถูกต้องโดยอัตโนมัติ ความแม่นยำในการตรวจจับนั้นวัดผลได้จริง ไม่ใช่แค่สมมติเอา: `oma verify triggers` ให้คะแนนตัวตรวจจับกับชุดข้อมูล 171 prompt ที่ติดป้ายกำกับไว้ (ปัจจุบัน **0% missed-fire** และ false-fire ต่ำกว่า 10%) และใช้เป็นเกณฑ์ gate ของ CI
 
 ### โมเดลต่อเอเจนต์
 
@@ -229,9 +237,9 @@ agents:
 
 ## ทำไมต้อง oh-my-agent?
 
-- **Portable**: ใช้ได้ผ่านโฟลเดอร์ `.agents/` โปรเจกต์ของคุณ โดยไม่ยึดติดกับ IDE ใด IDE หนึ่ง
+- **Portable**: `.agents/` เดินทางไปพร้อมกับโปรเจกต์ของคุณ โดยไม่ยึดติดกับ IDE ใด IDE หนึ่ง `oma emit` ฉาย SSOT ชุดเดียวกันออกไปเป็นอาร์ติแฟกต์ตามมาตรฐานเปิด — โฟลเดอร์ skill ที่สอดคล้องกับ [Agent Skills](https://agentskills.io/specification), ไฟล์ `.claude-plugin/marketplace.json` และ `AGENTS.md` — เพื่อให้ skill ของ oma ทำงานได้ในทุกเครื่องมือที่อ่านสเปกมาตรฐานเปิด พร้อมการตรวจสอบ drift ใน CI ที่คอยรักษาให้เอาต์พุตที่สร้างขึ้นตรงตามจริง
 - **Role-based**: เอเจนต์ถูกจำลองตามทีมวิศวกรจริง ไม่ใช่แค่กลุ่มของ prompt
-- **ประหยัด Token**: การออกแบบ Two layer skill ช่วยประหยัด token ได้ประมาณ 75%
+- **ประหยัด Token**: การออกแบบ Two layer skill ช่วยประหยัด token ได้ประมาณ 75% ([วิธีการทำงาน](../web/docs/guide/usage.md))
 - **Quality-first**: มี Charter preflight, quality gates และรีวิวเวิร์กโฟลว์ในตัว:
   - `oma verify <agent>` — ชุดการตรวจสอบเชิงกำหนดต่อประเภท agent: มี core ที่ใช้ร่วมกัน (scope violation, charter alignment, secret ที่ hardcode, สแกน TODO, declared outputs) บวกกับการตรวจสอบเฉพาะประเภท (TypeScript strict, tests, raw SQL, Flutter analyze, inline styles, …)
   - `session.quota_cap` — เพดาน token / spawn / per-vendor ต่อ session ใน `oma-config.yaml`; Step 5 ของ `orchestrate` บล็อก spawn ต่อไปเมื่อเกินเพดาน

@@ -146,7 +146,6 @@ APM 只分发 skill。workflow、规则、`oma-config.yaml`、关键词检测 ho
 | **oma-architecture** | 权衡架构方案、划定模块边界，提供 ADR/ATAM/CBAM 分析 |
 | **oma-backend** | 用 Python、Node.js 或 Rust 构建并加固你的 API |
 | **oma-brainstorm** | 在动手之前，先和你一起把想法探索清楚 |
-| **oma-coordination** | 指导你逐步手动协调 PM、前端、后端、移动端与 QA 代理 |
 | **oma-db** | 设计 schema、迁移、索引与 vector store |
 | **oma-debug** | 找到根因、修复 bug，并补上回归测试 |
 | **oma-deepsec** | 扫描代码中的安全漏洞，拦截高风险 pull request |
@@ -168,12 +167,21 @@ APM 只分发 skill。workflow、规则、`oma-config.yaml`、关键词检测 ho
 | **oma-scholar** | 检索学术文献，协助开展同行评审 |
 | **oma-scm** | 管理分支、合并、worktree 与 Conventional Commits |
 | **oma-search** | 将每条查询路由至最优来源，并标注结果的可信度评分 |
-| **oma-skill-creator** | 以 SSL-lite 格式编写和审计 OMA skill |
 | **oma-slide** | 生成特色鲜明、动画丰富的 HTML 演示文稿卡片，并导出至 PDF/PNG/PPTX |
 | **oma-tf-infra** | 使用 Terraform 完成多云基础设施的自动化编排 |
 | **oma-translator** | 将内容翻译成目标语言，读来如同母语写就 |
 | **oma-video** | 通过可免密钥的 Remotion 流水线生成短视频、讲解视频和演示视频 |
 | **oma-voice** | 在本地完成语音合成与转写，无需任何云服务 |
+
+<details>
+<summary>内部与元工具</summary>
+
+| Agent | 职责 |
+|-------|------|
+| **oma-coordination** | 指导你逐步手动协调 PM、前端、后端、移动端与 QA 代理 |
+| **oma-skill-creator** | 以 SSL-lite 格式编写和审计 OMA skill |
+
+</details>
 
 ## 工作原理
 
@@ -200,7 +208,7 @@ You: "做一个带用户认证的 TODO 应用"
 | 2 | `/plan` | 把你的功能拆解成按优先级排好的任务 |
 | 3 | `/work` | 跨多个 agent，一步步帮你把功能做出来 |
 | 3 | `/orchestrate` | 并行调度多个 agent，更快地把你的功能做出来 |
-| 3 | `/ultrawork` | 用五个质量阶段、十一道审查门禁，把你的功能做扎实 |
+| 3 | `/ultrawork` | 用五个带门禁的质量阶段把你的功能做扎实；每次审查都在全新、隔离的审查者会话中进行（cross-context review） |
 | 3 | `/ralph` | 反复跑 `/ultrawork`，直到一个独立校验器确认每条标准都过关 |
 | 4 | `/review` | 审查你的代码，排查安全、性能和无障碍问题 |
 | 4 | `/deepsec` | 运行深度安全扫描，拦下有风险的 pull request |
@@ -209,7 +217,7 @@ You: "做一个带用户认证的 TODO 应用"
 | 6 | `/scm` | 管理你的分支、合并和 Conventional Commits |
 | - | `/schedule` | 安排一个 agent 任务，按固定周期反复运行 |
 
-**自动检测**：不用斜杠命令也行，消息里出现“架构”“计划”“审查”“调试”等关键词（支持 11 种语言！）就会自动激活对应工作流。
+**自动检测**：不用斜杠命令也行，消息里出现“架构”“计划”“审查”“调试”等关键词（支持 11 种语言！）就会自动激活对应工作流。检测准确率是实测的，不是假设的：`oma verify triggers` 会用一个带标注的 171 条提示语料给检测器打分（当前 **漏检 0%**，误检低于 10%），并以此作为 CI 门禁。
 
 ### 按 agent 配置模型
 
@@ -229,11 +237,9 @@ agents:
 
 ## 为什么选 oh-my-agent？
 
-> [深入了解 →](https://github.com/first-fluke/oh-my-agent/issues/155#issuecomment-4142133589)
-
-- **可移植**：`.agents/` 跟着项目走，不被任何 IDE 绑定
+- **可移植**：`.agents/` 跟着项目走，不被任何 IDE 绑定。`oma emit` 会把同一份 SSOT 投影成开放标准产物——符合 [Agent Skills](https://agentskills.io/specification) 规范的技能文件夹、一个 `.claude-plugin/marketplace.json` 以及 `AGENTS.md`——因此 oma 技能能在任何读取该开放规范的工具中运行，而 CI 中的漂移检查会让生成结果始终保持一致
 - **角色化**：像真正的工程团队一样建模，而不是一堆 prompt 的堆砌
-- **省 token**：双层 skill 设计节省约 75% 的 token
+- **省 token**：双层 skill 设计节省约 75% 的 token（[原理](../web/docs/guide/usage.md)）
 - **质量优先**：内置 Charter preflight、quality gate 和审查工作流：
   - `oma verify <agent>` — 按 agent 类型运行的确定性检查组合：共享核心检查（scope 越界、charter alignment、硬编码密钥、TODO 扫描、declared outputs），再加上按类型的检查（TypeScript strict、tests、raw SQL、Flutter analyze、inline styles …）
   - `session.quota_cap` — 在 `oma-config.yaml` 中按会话设定 token / spawn / 单厂商预算上限；`orchestrate` Step 5 在超限时阻断下一次 spawn
