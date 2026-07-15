@@ -153,6 +153,15 @@ vi.mock("../../platform/rules.js", () => ({
   applyCursorRules: miscState.applyCursorRules,
   mergeRulesIndexForVendor: miscState.mergeRulesIndexForVendor,
 }));
+vi.mock("../../io/git-recommended.js", () => ({
+  maybeApplyRecommendedGitConfig: vi.fn(async () => ({
+    available: true,
+    applied: [],
+    skipped: [],
+    alreadyOk: ["rerere.enabled", "init.defaultBranch"],
+  })),
+}));
+
 vi.mock("../../io/serena.js", () => ({
   ensureSerenaProject: miscState.ensureSerenaProject,
   resolveSerenaLanguages: miscState.resolveSerenaLanguages,

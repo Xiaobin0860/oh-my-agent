@@ -43,6 +43,15 @@ vi.mock("../../io/tarball.js", () => ({
   })),
 }));
 
+vi.mock("../../io/git-recommended.js", () => ({
+  maybeApplyRecommendedGitConfig: vi.fn(async () => ({
+    available: true,
+    applied: [],
+    skipped: [],
+    alreadyOk: ["rerere.enabled", "init.defaultBranch"],
+  })),
+}));
+
 vi.mock("../commands/migrations/index.js", () => ({
   runMigrations: vi.fn(() => []),
 }));

@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { inspectRecommendedGitConfig } from "../../io/git-recommended.js";
 import { getMemoriesPath } from "../../io/memory.js";
 import { SERENA_INSTALL_HINT } from "../../io/serena.js";
 import { downloadAndExtract } from "../../io/tarball.js";
@@ -27,6 +28,7 @@ import { collectStateDoctorCheck } from "./state-health.js";
 import type {
   DoctorOptions,
   DoctorReport,
+  GitRecommendedDoctorCheck,
   McpCheck,
   SkillEvalCoverage,
 } from "./types.js";
@@ -153,6 +155,20 @@ export async function collectDoctorReport(
   // Only an issue when the project is Serena-activated — don't flag plain dirs.
   const serenaBinaryIssues = hasSerena && !serenaBinary.installed ? 1 : 0;
 
+  const gitStatus = inspectRecommendedGitConfig();
+  const gitRecommended: GitRecommendedDoctorCheck = {
+    available: gitStatus.available,
+    allOk: gitStatus.allOk,
+    issueCount: gitStatus.issueCount,
+    items: gitStatus.items.map((item) => ({
+      key: item.key,
+      desired: item.desired,
+      current: item.current,
+      ok: item.ok,
+      fixHint: item.fixHint,
+    })),
+  };
+
   const totalIssues =
     missingCLIs.length +
     missingSkills.length +
@@ -161,7 +177,8 @@ export async function collectDoctorReport(
     serenaReap.issues.length +
     state.issues.length +
     selfHealingIssues +
-    serenaBinaryIssues;
+    serenaBinaryIssues +
+    gitRecommended.issueCount;
 
   return {
     cwd,
@@ -176,6 +193,7 @@ export async function collectDoctorReport(
     serenaBinary,
     agentMemory,
     serenaReap,
+    gitRecommended,
     totalIssues,
     skillAudit,
     skillEval,

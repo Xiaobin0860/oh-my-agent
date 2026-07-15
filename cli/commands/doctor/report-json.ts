@@ -131,6 +131,12 @@ export function serializeReportAsJson(report: DoctorReport): string {
       })),
       issues: report.serenaReap.issues,
     },
+    gitRecommended: {
+      available: report.gitRecommended.available,
+      allOk: report.gitRecommended.allOk,
+      issueCount: report.gitRecommended.issueCount,
+      items: report.gitRecommended.items,
+    },
   };
   return JSON.stringify(payload, null, 2);
 }

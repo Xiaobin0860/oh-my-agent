@@ -10,6 +10,7 @@ import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { backupRoot } from "../../io/backup.js";
+import { maybeApplyRecommendedGitConfig } from "../../io/git-recommended.js";
 import { maybeSelfUpdate } from "../../io/self-update.js";
 import { ensureSerenaProject, inferSerenaLanguages } from "../../io/serena.js";
 import { downloadAndExtract } from "../../io/tarball.js";
@@ -402,6 +403,7 @@ export async function update(options: UpdateOptions = {}): Promise<void> {
             : `${remoteManifest.metadata?.totalFiles ?? 0} files updated successfully`,
         );
 
+        await maybeApplyRecommendedGitConfig({ nonInteractive });
         await maybePromptGitHubStar(nonInteractive);
       } finally {
         cleanup();

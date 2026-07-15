@@ -77,15 +77,32 @@ The installer always creates Claude Code symlinks (`.claude/skills/`). It also g
 Also create symlinks for GitHub Copilot? (.github/skills/)
 ```
 
-### 7. Git rerere setup
+### 7. Recommended global git config
 
-The installer checks if `git rerere` (reuse recorded resolution) is enabled. If not, it offers to enable it globally:
+Near the end of `oma install` and `oma update`, the CLI inspects two **global** git settings that help multi-agent workflows:
+
+| Key | Desired value | Why |
+|:----|:--------------|:----|
+| `rerere.enabled` | `true` | Reuse recorded resolution — multi-agent merges often hit the same conflicts; rerere replays your previous fix |
+| `init.defaultBranch` | `main` | Consistent default branch name for new repos |
+
+If a value is missing or different, the CLI offers an interactive confirm (default **yes**):
 
 ```
-Enable git rerere? (Recommended for multi-agent merge conflict reuse)
+Enable git rerere? (Recommended for multi-agent merge conflict reuse) (unset)
+Set git init.defaultBranch to main? (Recommended global default) (currently "master")
 ```
 
-This is recommended because multi-agent workflows can produce merge conflicts, and rerere remembers how you resolved them so the same resolution is applied automatically next time.
+Accepting runs the equivalent of:
+
+```bash
+git config --global rerere.enabled true
+git config --global init.defaultBranch main
+```
+
+**Non-interactive paths** (`--yes`, `--ci`, `CI=true`) never write global git config. They only print a skip note with the manual fix commands.
+
+`oma doctor` reports the same checks under **Git Config**, counts mismatches as issues, exposes them as `gitRecommended` in `--json` output, and can apply fixes interactively.
 
 ### 8. MCP configuration
 
@@ -403,6 +420,6 @@ Vendor-native agent files are generated from `.agents/agents/` by `oma link`, `o
 
 `installGlobalWorkflows()` installs workflow files that may be needed globally (outside the project directory).
 
-### 11. Git rerere + MCP configuration
+### 11. Recommended git config + MCP
 
-As described in the CLI path above, the installer optionally configures git rerere and MCP settings.
+As described in the CLI path above, install/update optionally configure recommended **global** git settings (`rerere.enabled`, `init.defaultBranch`) via interactive consent, and may configure MCP settings where applicable.

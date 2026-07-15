@@ -34,7 +34,7 @@ export async function renderDoctorReport(report: DoctorReport): Promise<void> {
     renderHookWrappers(report);
     renderSelfHealing(report);
     await promptRepair(report);
-    renderFooter(report);
+    await renderFooter(report);
   } catch (error) {
     p.log.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

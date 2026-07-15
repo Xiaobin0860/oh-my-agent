@@ -128,6 +128,38 @@ vi.mock("node:fs", async (importOriginal) => {
   };
 });
 
+vi.mock("../../io/git-recommended.js", () => ({
+  inspectRecommendedGitConfig: vi.fn(() => ({
+    available: true,
+    items: [
+      {
+        key: "rerere.enabled",
+        desired: "true",
+        current: "true",
+        ok: true,
+        promptMessage: "",
+        fixHint: "git config --global rerere.enabled true",
+      },
+      {
+        key: "init.defaultBranch",
+        desired: "main",
+        current: "main",
+        ok: true,
+        promptMessage: "",
+        fixHint: "git config --global init.defaultBranch main",
+      },
+    ],
+    allOk: true,
+    issueCount: 0,
+  })),
+  maybeApplyRecommendedGitConfig: vi.fn(async () => ({
+    available: true,
+    applied: [],
+    skipped: [],
+    alreadyOk: ["rerere.enabled", "init.defaultBranch"],
+  })),
+}));
+
 // ---- import module under test AFTER mocks ----
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
@@ -474,6 +506,8 @@ describe("self-healing doctor check", () => {
         report.missingSkills.length +
         report.agentMemory.issues.length +
         report.serenaReap.issues.length +
+        report.state.issues.length +
+        report.gitRecommended.issueCount +
         1,
     );
   });

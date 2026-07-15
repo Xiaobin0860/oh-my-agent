@@ -77,15 +77,32 @@ oma
 Also create symlinks for GitHub Copilot? (.github/skills/)
 ```
 
-### 7. Git Rerere 설정
+### 7. 권장 전역 git 설정
 
-설치 프로그램은 `git rerere` (기록된 해결 재사용)가 활성화되어 있는지 확인합니다. 활성화되지 않은 경우 전역으로 활성화할 것을 제안합니다:
+`oma install`과 `oma update` 끝에서 CLI가 멀티 에이전트 워크플로우에 도움이 되는 **전역** git 설정 두 가지를 검사합니다:
+
+| 키 | 권장 값 | 이유 |
+|:---|:--------|:-----|
+| `rerere.enabled` | `true` | 기록된 해결 재사용 — 멀티 에이전트 머지에서 같은 충돌이 반복될 때 이전 해결을 자동 적용 |
+| `init.defaultBranch` | `main` | 새 저장소의 기본 브랜치 이름을 일관되게 유지 |
+
+값이 없거나 다르면 대화형 confirm을 제안합니다(기본값 **yes**):
 
 ```
-Enable git rerere? (Recommended for multi-agent merge conflict reuse)
+Enable git rerere? (Recommended for multi-agent merge conflict reuse) (unset)
+Set git init.defaultBranch to main? (Recommended global default) (currently "master")
 ```
 
-멀티 에이전트 워크플로우에서 머지 충돌이 발생할 수 있으므로 이 옵션이 권장됩니다. rerere는 충돌을 어떻게 해결했는지 기억하여 다음에 동일한 해결을 자동으로 적용합니다.
+수락 시 다음 명령과 동일하게 설정합니다:
+
+```bash
+git config --global rerere.enabled true
+git config --global init.defaultBranch main
+```
+
+**비대화형 경로**(`--yes`, `--ci`, `CI=true`)에서는 전역 git 설정을 쓰지 않습니다. 수동 수정 명령 힌트만 출력합니다.
+
+`oma doctor`는 같은 항목을 **Git Config**로 보고하고, 불일치를 이슈로 집계하며, `--json`의 `gitRecommended`로 노출하고, 대화형으로 수정을 제안할 수 있습니다.
 
 ### 8. MCP 설정
 
@@ -428,6 +445,6 @@ oma dashboard:web
 
 `installGlobalWorkflows()`가 전역으로 필요할 수 있는 워크플로우 파일(프로젝트 디렉토리 외부)을 설치합니다.
 
-### 11. Git Rerere + MCP 설정
+### 11. 권장 git 설정 + MCP
 
-위의 CLI 경로에서 설명한 대로, 설치 프로그램이 선택적으로 git rerere와 MCP 설정을 구성합니다.
+위의 CLI 경로에서 설명한 대로, install/update는 대화형 동의 하에 권장 **전역** git 설정(`rerere.enabled`, `init.defaultBranch`)을 선택적으로 구성하며, 해당되는 경우 MCP 설정도 구성할 수 있습니다.

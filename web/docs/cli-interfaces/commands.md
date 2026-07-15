@@ -29,12 +29,14 @@ oma
 5. Asks about GitHub Copilot symlinks.
 6. Downloads the latest tarball from the registry.
 7. Installs shared resources, workflows, configs, and selected skills.
-8. Installs vendor adaptations for all vendors (Antigravity, Claude, Codex, Qwen).
-9. Applies recommended Claude Code settings (`~/.claude/settings.json`) when Claude Code is detected.
-10. Creates CLI symlinks.
-11. Offers to enable `git rerere`.
-12. Offers to configure MCP for Antigravity IDE and Gemini CLI.
-13. Prompts for GitHub star if `gh` is authenticated.
+8. Installs vendor adaptations for selected vendors (project-local settings; no silent HOME-level vendor writes).
+9. Creates CLI symlinks.
+10. Offers recommended **global** git config (opt-in confirm):
+    - `rerere.enabled=true` — multi-agent merge conflict reuse
+    - `init.defaultBranch=main` — consistent default branch for new repos
+    - Skipped entirely under `--yes` / CI (prints manual fix hints instead)
+11. Offers to configure MCP where applicable.
+12. Prompts for GitHub star if `gh` is authenticated.
 
 **Example:**
 ```bash
@@ -65,18 +67,15 @@ oma doctor [--json] [--output <format>] [--profile]
 - MCP configuration: `~/.gemini/settings.json`, `~/.claude.json`, `~/.codex/config.toml`.
 - Installed skills: which skills are present and their status.
 - Memory store directory: `.agents/state/memories/` existence and file count (older projects fall back to the legacy `.serena/memories/` path).
-- Global workflows: checks `~/.gemini/antigravity/global_workflows/` installation status.
-- Git rerere: whether `rerere.enabled` is configured globally.
-- Claude Code recommended settings: checks `~/.claude/settings.json` for optimal configuration:
-- `cleanupPeriodDays >= 180` (preserve conversation history)
-- `CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS >= 100000`
-- `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE >= 80`
-- `DISABLE_ERROR_REPORTING`, `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY` set to `"1"`
-- `DISABLE_TELEMETRY` set to `"1"` unless `telemetry: true` in `.agents/oma-config.yaml` (opt-in to keep Claude Code Remote Control working)
-- Attribution strings for commits and PRs
-- User-level CLAUDE.md: checks `~/.claude/CLAUDE.md` contains the OMA integration block (`<!-- OMA:START`).
+- Dual install markers (project vs global) and related warnings.
+- Recommended **global** git config (`gitRecommended` in JSON):
+  - `rerere.enabled=true`
+  - `init.defaultBranch=main`
+  - Each mismatch counts toward `totalIssues`
+- Project vendor context files (e.g. `CLAUDE.md` / `AGENTS.md` OMA blocks when the matching CLI is installed).
+- AgentMemory, state/hooks health, Serena reaper diagnostics, and related issue counters.
 
-**Auto-repair:** If missing skills or settings are detected, `doctor` offers to install them interactively. For Claude Code settings, it can apply recommended values automatically.
+**Auto-repair:** If missing skills are detected, `doctor` offers to install them interactively. If recommended git config is missing or wrong, it offers the same opt-in global fixes used by install/update.
 
 **Examples:**
 ```bash
@@ -120,6 +119,7 @@ oma update [-f | --force] [--ci] [-y | --yes] [--all] [--vendor <vendors>]
 6. Copies new files over `.agents/`.
 7. Restores preserved files.
 8. Updates vendor adaptations and refreshes symlinks. By default this only touches vendor directories that already exist in the project.
+9. Offers recommended **global** git config (same opt-in as install: `rerere.enabled`, `init.defaultBranch`). Skipped under `--yes` / `--ci`.
 
 **Examples:**
 ```bash

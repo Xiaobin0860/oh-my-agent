@@ -118,6 +118,20 @@ export interface SerenaReapDoctorCheck {
   issues: string[];
 }
 
+/** Recommended global git settings checked by doctor (rerere, defaultBranch). */
+export interface GitRecommendedDoctorCheck {
+  available: boolean;
+  allOk: boolean;
+  issueCount: number;
+  items: Array<{
+    key: string;
+    desired: string;
+    current: string | null;
+    ok: boolean;
+    fixHint: string;
+  }>;
+}
+
 export interface DoctorReport {
   cwd: string;
   clis: CLICheck[];
@@ -132,6 +146,8 @@ export interface DoctorReport {
   serenaBinary: CLICheck;
   agentMemory: AgentMemoryDoctorCheck;
   serenaReap: SerenaReapDoctorCheck;
+  /** Recommended global git config (rerere.enabled, init.defaultBranch). */
+  gitRecommended: GitRecommendedDoctorCheck;
   totalIssues: number;
   skillAudit: SkillAuditReport;
   skillEval: SkillEvalCoverage;

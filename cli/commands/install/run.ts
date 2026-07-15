@@ -2,6 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import { maybeApplyRecommendedGitConfig } from "../../io/git-recommended.js";
 import {
   ensureSerenaBinary,
   ensureSerenaProject,
@@ -437,7 +438,8 @@ export async function install(options: InstallOptions = {}): Promise<void> {
         }
       }
 
-      p.log.info(pc.dim("Skipped global HOME-level configuration updates."));
+      // Recommended global git settings (opt-in; skipped in CI / --yes).
+      await maybeApplyRecommendedGitConfig({ nonInteractive });
 
       // Task 26 — stamp install mode into _version.json (schemaVersion=2).
       // The mode field lets `oma doctor` distinguish project vs global installs

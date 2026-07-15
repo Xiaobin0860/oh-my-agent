@@ -1,9 +1,12 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import { maybeApplyRecommendedGitConfig } from "../../../io/git-recommended.js";
 import { checkStarred } from "../../../io/github.js";
 import type { DoctorReport } from "../types.js";
 
-export function renderFooter(report: DoctorReport): void {
+export async function renderFooter(report: DoctorReport): Promise<void> {
+  await renderGitRecommended(report);
+
   if (report.hasSerena) {
     p.note(
       `${pc.green("✅")} Memory store directory exists\n${pc.dim(`${report.serenaFileCount} memory files found`)}`,
@@ -59,6 +62,43 @@ export function renderFooter(report: DoctorReport): void {
       "Support",
     );
   }
+}
+
+/**
+ * Report recommended global git settings and offer interactive fixes when
+ * something is missing or wrong. Does not mutate config in non-TTY / cancelled
+ * paths beyond the shared maybeApply helper (which is always interactive here).
+ */
+async function renderGitRecommended(report: DoctorReport): Promise<void> {
+  const git = report.gitRecommended;
+  if (!git.available) {
+    p.note(
+      `${pc.dim("git not available — skipped recommended config check")}`,
+      "Git Config",
+    );
+    return;
+  }
+
+  if (git.allOk) {
+    const lines = git.items.map(
+      (item) => `${pc.green("✅")} ${item.key}=${item.desired}`,
+    );
+    p.note(lines.join("\n"), "Git Config");
+    return;
+  }
+
+  const lines = git.items.map((item) => {
+    if (item.ok) {
+      return `${pc.green("✅")} ${item.key}=${item.desired}`;
+    }
+    const current =
+      item.current === null ? "unset" : JSON.stringify(item.current);
+    return `${pc.yellow("⚠️")} ${item.key} ${pc.dim(`(${current}, want ${item.desired})`)}\n${pc.dim(`   ${item.fixHint}`)}`;
+  });
+  p.note(lines.join("\n"), "Git Config");
+
+  // Offer the same opt-in apply path used by install/update.
+  await maybeApplyRecommendedGitConfig({ nonInteractive: false });
 }
 
 /**

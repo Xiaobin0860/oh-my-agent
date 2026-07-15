@@ -162,6 +162,14 @@ vi.mock("../../io/github.js", () => githubState);
 vi.mock("../../io/self-update.js", () => selfUpdateState);
 vi.mock("../../io/serena.js", () => serenaState);
 vi.mock("../../io/tarball.js", () => tarballState);
+vi.mock("../../io/git-recommended.js", () => ({
+  maybeApplyRecommendedGitConfig: vi.fn(async () => ({
+    available: true,
+    applied: [],
+    skipped: [],
+    alreadyOk: ["rerere.enabled", "init.defaultBranch"],
+  })),
+}));
 vi.mock("../../platform/manifest.js", async (importOriginal) => {
   // Keep real fs-touching helpers (saveLocalVersion, readVersionInstallMode,
   // readVersionSchemaVersion) so the assertions can read back what update wrote.

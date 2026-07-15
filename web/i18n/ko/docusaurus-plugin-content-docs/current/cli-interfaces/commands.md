@@ -29,10 +29,14 @@ oma
 5. GitHub Copilot 심볼릭 링크에 대해 질문합니다.
 6. 레지스트리에서 최신 tarball을 다운로드합니다.
 7. 공유 리소스, 워크플로우, 설정, 선택된 스킬을 설치합니다.
-8. 모든 벤더(Antigravity, Claude, Codex, Qwen)에 대한 벤더 적응을 설치합니다.
+8. 선택된 벤더에 대한 벤더 적응을 설치합니다 (프로젝트 로컬 설정; 조용한 HOME 레벨 벤더 write 없음).
 9. CLI 심볼릭 링크를 생성합니다.
-10. `git rerere` 활성화를 제안합니다.
-11. Antigravity IDE 및 Gemini CLI용 MCP 설정을 제안합니다.
+10. 권장 **전역** git 설정을 제안합니다 (opt-in confirm):
+    - `rerere.enabled=true` — 멀티 에이전트 머지 충돌 재사용
+    - `init.defaultBranch=main` — 새 저장소 기본 브랜치 일관성
+    - `--yes` / CI 에서는 전역 write 없이 수동 수정 힌트만 출력
+11. 해당되는 경우 MCP 설정을 제안합니다.
+12. `gh` 인증 시 GitHub star를 제안합니다.
 
 **예시:**
 ```bash
@@ -61,18 +65,16 @@ oma doctor [--json] [--output <format>]
 - 각 CLI의 인증 상태.
 - MCP 설정: `~/.gemini/settings.json`, `~/.claude.json`, `~/.codex/config.toml`.
 - 설치된 스킬: 어떤 스킬이 존재하고 그 상태.
-- Serena 메모리 디렉토리: `.serena/memories/` 존재 여부 및 파일 수.
-- 글로벌 워크플로우: `~/.gemini/antigravity/global_workflows/` 설치 상태.
-- Git rerere: `rerere.enabled` 글로벌 설정 여부.
-- Claude Code 권장 설정: `~/.claude/settings.json`의 최적 설정 확인:
-  - `cleanupPeriodDays >= 180` (대화 히스토리 보존)
-  - `CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS >= 100000`
-  - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE >= 80`
-  - 텔레메트리/에러 리포팅/피드백 서베이 비활성화
-  - 커밋·PR 어트리뷰션 문자열
-- 사용자 레벨 CLAUDE.md: `~/.claude/CLAUDE.md`에 OMA 통합 블록(`<!-- OMA:START`) 존재 여부.
+- 메모리 스토어 디렉토리: `.agents/state/memories/` 존재 여부 및 파일 수 (구버전은 레거시 `.serena/memories/` 경로로 폴백).
+- 이중 설치 마커(프로젝트 vs global) 및 관련 경고.
+- 권장 **전역** git 설정 (JSON의 `gitRecommended`):
+  - `rerere.enabled=true`
+  - `init.defaultBranch=main`
+  - 불일치마다 `totalIssues`에 반영
+- 프로젝트 벤더 컨텍스트 파일 (해당 CLI가 설치된 경우 `CLAUDE.md` / `AGENTS.md`의 OMA 블록 등).
+- AgentMemory, state/hooks 헬스, Serena reaper 진단 및 관련 이슈 카운터.
 
-**자동 복구:** 누락된 스킬이나 설정이 감지되면 대화형으로 설치를 제안합니다. Claude Code 설정은 권장값을 자동 적용할 수 있습니다.
+**자동 복구:** 누락된 스킬이 감지되면 대화형으로 설치를 제안합니다. 권장 git 설정이 없거나 다르면 install/update와 동일한 opt-in 전역 수정을 제안합니다.
 
 **예시:**
 ```bash
@@ -110,6 +112,7 @@ oma update [-f | --force] [--ci]
 6. `.agents/` 위에 새 파일을 복사합니다.
 7. 보존된 파일을 복원합니다.
 8. 벤더 적응을 업데이트하고 심볼릭 링크를 갱신합니다.
+9. 권장 **전역** git 설정을 제안합니다 (install과 동일한 opt-in: `rerere.enabled`, `init.defaultBranch`). `--yes` / `--ci` 에서는 건너뜁니다.
 
 **예시:**
 ```bash
