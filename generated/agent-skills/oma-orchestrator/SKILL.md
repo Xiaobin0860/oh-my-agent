@@ -132,7 +132,7 @@ When native runtime dispatch is available, prefer the runtime-specific native pa
 6. Domain gating must be soft: prefer a narrower `exposed_skill_set`, but fall back to flat exposure when classification confidence is low rather than starving a task of a required specialist.
 
 Current native executor paths:
-- Claude Code: `claude --agent <agent>`
+- Claude Code: Agent tool with `.claude/agents/{agent}.md` definitions (multiple Agent tool calls in one message run in parallel; results return synchronously — no polling)
 - Codex CLI: `codex exec "@agent ..."` using `.codex/agents/*.toml`
 - Gemini CLI: `gemini -p "@agent ..."` using `.gemini/agents/*.md`
 
@@ -149,9 +149,11 @@ Vendor-specific execution protocols are injected automatically for fallback CLI 
 | MAX_TURNS (review) | 15 | Turn limit for qa/debug |
 | MAX_TURNS (plan) | 10 | Turn limit for pm |
 
+These are skill-level defaults applied by the orchestrating agent; they are not read from `config/cli-config.yaml` (which carries only vendor CLI and execution settings such as `results_dir` and `timeout`).
+
 ### Memory Configuration
 
-Memory provider and tool names are configurable via `mcp.json`:
+Memory provider and tool names are configurable via `.agents/mcp.json` (not the repo-root `.mcp.json`, which is the Claude Code MCP server config):
 ```json
 {
   "memoryConfig": {
@@ -262,8 +264,15 @@ This replaces single-pass verification. Most "nitpicking" should happen agent-to
 Human review is reserved for final approval, not catching lint errors.
 
 ### Retry Logic (after review loop exhaustion)
+
+Before starting any retry, check the termination conditions (OR, whichever fires first wins):
+1. **Retry cap**: retry count for this agent has reached MAX_RETRIES — do not start another cycle.
+2. **Session cost cap**: if a quota cap is configured (`loadQuotaCap()` from `cli/io/session-cost.ts`; no cap → skip), call `checkCap(sessionId, cap)`. On `exceeded === true`, save the agent's partial results, report early termination due to quota, and do not spawn the next retry or any remaining agents in the tier.
+
+If neither condition fires:
 - 1st retry: Re-spawn agent with full review history as context
 - 2nd retry: Re-spawn with "Try a different approach" + review history
+- After MAX_RETRIES exhausted (cost cap not exceeded): activate the **Exploration Loop** (see `orchestrate.md` Step 5): generate 2-3 alternative hypotheses, spawn the same agent type with different hypothesis prompts in parallel separate workspaces, score with Quality Score when available, keep the highest-scoring approach, and record all experiments in the Experiment Ledger.
 - Final failure: Report to user with complete review trail, ask whether to continue or abort
 
 ### Clarification Debt (CD) Monitoring

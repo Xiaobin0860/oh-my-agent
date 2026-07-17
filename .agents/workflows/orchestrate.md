@@ -67,8 +67,9 @@ Look for a plan file:
    ```
 
 3. Generate session ID (format: `session-YYYYMMDD-HHMMSS`).
-4. Use memory write tool to create `orchestrator-session.md` and `task-board.md` in the memory base path.
-5. Set session status to RUNNING.
+4. **Domain gate**: for each planned task, classify it into `domain_tags` by matching against the `Intent signature` block of each installed `.agents/skills/oma-*/SKILL.md`, and derive `exposed_skill_set` (skills whose name is in `domain_tags`). If fewer than 2 skills match confidently, fall back to the full installed set and mark `exposure_fallback: true`. See `.agents/skills/oma-orchestrator/SKILL.md` (PHASE 1.5) for the full rules.
+5. Use memory write tool to create `orchestrator-session.md` and `task-board.md` in the memory base path. Record `Exposed Skills` and `Exposure Fallback` per task in `task-board.md`.
+6. Set session status to RUNNING.
 
 ---
 
@@ -84,8 +85,9 @@ oma state:verify --workflow orchestrate --checkpoint fanout-strategy
 
 For each priority tier (P0 first, then P1, etc.):
 
-- Each agent gets: task description, API contracts, relevant context from `_shared/core/context-loading.md`.
+- Each agent gets: task description, API contracts, relevant context from `_shared/core/context-loading.md`, and only its task's `exposed_skill_set` as the available specialist list (see `subagent-prompt-template.md` `{EXPOSED_SKILL_SET}`).
 - Use memory edit tool to update `task-board.md` with agent status.
+- If a failed task's review history indicates a specialist outside its `exposed_skill_set` was needed, re-classify the task and re-dispatch with the expanded set instead of retrying against the original narrow set.
 
 ### Per-Agent Dispatch
 
