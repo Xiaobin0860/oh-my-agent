@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.20.1",
-  "releaseDate": "2026-07-17T10:44:21.240Z",
+  "releaseDate": "2026-07-17T11:02:27.982Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1516,8 +1516,8 @@
     },
     {
       "path": ".agents/skills/oma-pdf/SKILL.md",
-      "sha256": "51f46c4bff8c40d39cb9905f1fb9c09dd27bc92ff234fe180c1ce23a2c14537f",
-      "size": 7783
+      "sha256": "4a3fd50945f6abbf04d8cf8b90184095c2499734e2567dc9ffd36712d750db38",
+      "size": 8538
     },
     {
       "path": ".agents/skills/oma-pdf/config/pdf-config.yaml",
@@ -1526,8 +1526,8 @@
     },
     {
       "path": ".agents/skills/oma-pdf/resources/execution-protocol.md",
-      "sha256": "48d8a95573a1503863a3175d982636a60fd5ba059e7e1bad7d7110d92140dd65",
-      "size": 3000
+      "sha256": "7680677faee542a89eabff71c4c22682b7b051fe3f0b5a114b9189ea17536823",
+      "size": 5033
     },
     {
       "path": ".agents/skills/oma-pm/SKILL.md",
@@ -2041,8 +2041,8 @@
     },
     {
       "path": ".agents/workflows/convert.md",
-      "sha256": "21743163aef41ff0489b40703f613cdab8639fda4048ed16661e3e03f50d6304",
-      "size": 8811
+      "sha256": "1ce585c6b61d9538641b64ac2ca45ef3f82c6f5f962f4bfadf30f1023b1dd1df",
+      "size": 8898
     },
     {
       "path": ".agents/workflows/debug.md",
