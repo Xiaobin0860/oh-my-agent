@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.19.2",
-  "releaseDate": "2026-07-17T06:25:43.202Z",
+  "releaseDate": "2026-07-17T06:28:09.061Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1816,23 +1816,23 @@
     },
     {
       "path": ".agents/skills/oma-tf-infra/SKILL.md",
-      "sha256": "712703c952b4ad95f40a5a49796774afe5fee237c4f8ffdde85808642cb79749",
-      "size": 11452
+      "sha256": "a31bd5a651ed97179439478ad0ee83b62866d16618c97916aa3ed07e40abde13",
+      "size": 12089
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/checklist.md",
-      "sha256": "a9087e4fa26cff36012c113fc0f5b93d8cc7dd6cec217afcd1cf334a59f824fc",
-      "size": 2189
+      "sha256": "baacaa93f282d7e706ceffb96145882f93fd85967c90b56d801d087769d8913d",
+      "size": 2385
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/cost-optimization.md",
-      "sha256": "c923dcf10b373a7eefd2ff788b5010f1ba23713e666473625d3717222a869b70",
-      "size": 12742
+      "sha256": "7289b32f105be864d0f057310c0ae4a9e5d6ebe73cc58bad4844c20464863a7f",
+      "size": 13486
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/error-playbook.md",
-      "sha256": "cb900cd1651de716f5d29aaa902e6c413467da11ab646ff99d02f6433fb6894c",
-      "size": 2280
+      "sha256": "49e6011f773d01052303bf206c318c9c4b4b92c81abe10421755db2bcf56d1f3",
+      "size": 2872
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/examples.md",
@@ -1841,8 +1841,8 @@
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/execution-protocol.md",
-      "sha256": "dd78d2c8da8ecd2b1a4df8c958dd4caf9aea44dab08eec969313072c1291fac1",
-      "size": 6315
+      "sha256": "469a361200b9e2c1577947db060be2450d919165784d497640361ae929f9571b",
+      "size": 6816
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/iso-42001-infra.md",
@@ -1851,13 +1851,13 @@
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/multi-cloud-examples.md",
-      "sha256": "6e9182810eab6ba0da796382aa61e359d7f242c1913259a5605d559851c59b2a",
-      "size": 5011
+      "sha256": "72c7fbc33c5ec99a94d85fdba632aa2f6f1b5d679f71d120c049819d50ebc0b7",
+      "size": 6563
     },
     {
       "path": ".agents/skills/oma-tf-infra/resources/policy-testing-examples.md",
-      "sha256": "f2663d0c990a31e9c7dc8c5419ef20f18151871d093b02b9523b00f13bf6ac73",
-      "size": 6029
+      "sha256": "78ec1edad489b04144c1229cf7836ce87751995e62e93abcae26e85cba323bf7",
+      "size": 6981
     },
     {
       "path": ".agents/skills/oma-translator/SKILL.md",
