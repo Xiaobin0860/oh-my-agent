@@ -113,7 +113,7 @@ wait
 
 ## Step 5: Monitor Agent Progress
 
-- Use memory read tool to poll `progress-{agent}.md` files
+- Use memory read tool to poll `progress-{agent}[-{sessionId}].md` files
 - Use MCP code analysis tools (`find_symbol` and `search_for_pattern`) to verify API contract alignment between agents
 - Use memory edit tool to record monitoring results
 

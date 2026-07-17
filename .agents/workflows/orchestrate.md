@@ -137,7 +137,7 @@ Spawn agents using `oma agent:spawn {agent_id} {prompt_file} {session_id} -w {wo
 ## Step 4: Monitor Progress
 
 Use `oma agent:status {session_id} {agent_id}` to check process health.
-Also use memory read tool to poll `progress-{agent}.md` for logic updates.
+Also use memory read tool to poll `progress-{agent}[-{sessionId}].md` for logic updates.
 
 - Use memory edit tool to update `task-board.md` with turn counts and status changes.
 - Watch for: completion, failures, crashes.
