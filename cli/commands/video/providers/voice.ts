@@ -1,19 +1,25 @@
 // VoiceProvider — oma-voice / Voicebox MCP (design 013 §5).
 //
 // Key-optional, two-branch contract (backend rule 11):
-//   real     : probe /health → voicebox_speak → generation_id →
-//              REST GET /audio/{id} (save wav into runDir/audio) →
-//              voicebox_transcribe → timing.json (source: voicebox-stt)
+//   real     : probe /health → MCP voicebox_speak (REST /speak fallback) →
+//              generation_id → REST GET /audio/{id} (save wav into
+//              runDir/audio) → MCP voicebox_transcribe (REST /transcribe
+//              fallback) → timing.json (source: voicebox-stt)
 //   fallback : silent / estimated timing, no audio file (source: estimated)
 //
-// Voicebox plays generated audio on the speakers as a side effect (design §5);
-// in mock mode we never take the real branch so replay is byte-identical and
-// silent.
+// The MCP tools live on Voicebox's Streamable HTTP surface at `<base>/mcp`;
+// audio retrieval stays REST-only (MCP has no save-to-disk). Voicebox plays
+// generated audio on the speakers as a side effect (design §5); in mock mode
+// we never take the real branch so replay is byte-identical and silent.
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { http } from "@cli/io/http";
 import { ESTIMATED_SECONDS_PER_WORD, isMockMode } from "../internal/mock.js";
 import { VOICEBOX_BASE_URL } from "../internal/readiness.js";
+import {
+  VoiceboxMcpClient,
+  type VoiceboxToolResult,
+} from "../internal/voicebox-mcp.js";
 import type {
   Availability,
   CostEstimate,
@@ -33,10 +39,25 @@ interface SynthesisResult {
   timing: Timing;
 }
 
+/** Raw transcription segments as returned by Voicebox (same shape MCP/REST). */
+interface RawTranscriptionSegment {
+  start: number;
+  end: number;
+  words?: Array<{ word: string; start: number; end: number }>;
+}
+
 export class VoiceboxVoiceProvider implements VoiceProvider {
   readonly id = "oma-voice";
 
+  private mcpClient: VoiceboxMcpClient | undefined;
+
   constructor(private readonly baseUrl: string = VOICEBOX_BASE_URL) {}
+
+  /** Lazy MCP client for Voicebox's Streamable HTTP surface at `<base>/mcp`. */
+  private mcp(): VoiceboxMcpClient {
+    this.mcpClient ??= new VoiceboxMcpClient(`${this.baseUrl}/mcp`);
+    return this.mcpClient;
+  }
 
   async available(): Promise<Availability> {
     // The estimated fallback is always reachable; "voice: none" or a down
@@ -85,10 +106,9 @@ export class VoiceboxVoiceProvider implements VoiceProvider {
   }
 
   /**
-   * Real Voicebox path. The MCP tool calls (voicebox_speak /
-   * voicebox_transcribe) are agent-runtime concerns that cannot be exercised
-   * from a unit test, so they are marked deferred; the REST /audio retrieval
-   * and /health gating below are real and live.
+   * Real Voicebox path: MCP tools first (voicebox_speak /
+   * voicebox_transcribe on `<base>/mcp`), REST second — each hop is its own
+   * key-optional pair so a Voicebox build without the MCP surface still works.
    */
   private async realSynthesis(
     lines: NarrationLine[],
@@ -98,11 +118,7 @@ export class VoiceboxVoiceProvider implements VoiceProvider {
     const rel = path.join("audio", "narration-01.wav");
     const text = lines.map((line) => line.text).join("\n");
 
-    // TODO(oma-deferred): voicebox_speak — call the MCP tool
-    //   voicebox_speak{ text, profile: opts.voice, language: opts.locale }
-    // to obtain a generation_id. Until the MCP transport is wired in this
-    // process, we derive the id from the REST submit endpoint below.
-    const generationId = await this.submitSpeak(text, opts);
+    const generationId = await this.speakGenerationId(text, opts);
 
     // ★ design §5: MCP has no save-to-disk — retrieve the wav over REST.
     const wav = await http.get(`${this.baseUrl}/audio/${generationId}`, {
@@ -111,11 +127,31 @@ export class VoiceboxVoiceProvider implements VoiceProvider {
     });
     await writeFile(path.join(opts.runDir, rel), Buffer.from(wav.data));
 
-    // TODO(oma-deferred): voicebox_transcribe — call the MCP tool
-    //   voicebox_transcribe{ audio_path } on the saved wav for word-level
-    //   timing. Until wired, request timing from the REST transcribe endpoint.
     const timing = await this.transcribe(rel, lines, opts.runDir);
     return { audio: { path: rel }, timing };
+  }
+
+  /**
+   * voicebox_speak{ text, profile, language } via MCP → generation_id;
+   * falls back to the REST submit endpoint when the MCP surface is absent or
+   * its result carries no usable id.
+   */
+  private async speakGenerationId(
+    text: string,
+    opts: VoiceOpts,
+  ): Promise<string> {
+    try {
+      const result = await this.mcp().callTool("voicebox_speak", {
+        text,
+        profile: opts.voice,
+        language: opts.locale,
+      });
+      const id = extractGenerationId(result);
+      if (id) return id;
+    } catch {
+      // MCP surface unavailable — fall through to REST.
+    }
+    return this.submitSpeak(text, opts);
   }
 
   /** REST submit for speech generation; returns the generation_id. */
@@ -131,29 +167,24 @@ export class VoiceboxVoiceProvider implements VoiceProvider {
     return id;
   }
 
-  /** REST transcribe of the saved wav into voicebox-stt timing. */
+  /**
+   * Word-level timing for the saved wav: MCP voicebox_transcribe{ audio_path }
+   * first, REST /transcribe second — same voicebox-stt timing either way.
+   */
   private async transcribe(
     audioRel: string,
     lines: NarrationLine[],
     runDir: string,
   ): Promise<Timing> {
-    const res = await http.post(
-      `${this.baseUrl}/transcribe`,
-      { audio_path: path.join(runDir, audioRel) },
-      { timeout: 60000 },
-    );
-    const data = res.data as
-      | {
-          segments?: Array<{
-            start: number;
-            end: number;
-            words?: Array<{ word: string; start: number; end: number }>;
-          }>;
-        }
-      | undefined;
-    const segments = data?.segments ?? [];
+    const audioPath = path.join(runDir, audioRel);
+    const segments =
+      (await this.transcribeViaMcp(audioPath)) ??
+      (await this.transcribeViaRest(audioPath));
     if (segments.length === 0) {
-      // Degrade to estimated timing while still keeping the real audio file.
+      // TODO(oma-deferred): whisper-cpp — a local whisper.cpp transcription
+      // hop could sit here before the estimate (enum value already reserved
+      // in Timing.source). Until wired, degrade straight to estimated timing
+      // while still keeping the real audio file.
       const est = estimateSegments(lines);
       return {
         schemaVersion: VIDEO_SCHEMA_VERSION,
@@ -190,6 +221,38 @@ export class VoiceboxVoiceProvider implements VoiceProvider {
     };
   }
 
+  /** MCP transcription; null (not throw) so the REST branch is still tried. */
+  private async transcribeViaMcp(
+    audioPath: string,
+  ): Promise<RawTranscriptionSegment[] | null> {
+    try {
+      const result = await this.mcp().callTool("voicebox_transcribe", {
+        audio_path: audioPath,
+      });
+      const payload = structuredOrJsonText(result) as
+        | { segments?: RawTranscriptionSegment[] }
+        | undefined;
+      return Array.isArray(payload?.segments) ? payload.segments : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** REST transcription of the saved wav. */
+  private async transcribeViaRest(
+    audioPath: string,
+  ): Promise<RawTranscriptionSegment[]> {
+    const res = await http.post(
+      `${this.baseUrl}/transcribe`,
+      { audio_path: audioPath },
+      { timeout: 60000 },
+    );
+    const data = res.data as
+      | { segments?: RawTranscriptionSegment[] }
+      | undefined;
+    return data?.segments ?? [];
+  }
+
   /**
    * Deterministic estimated timing, no audio file. Pure function of the lines:
    * each word gets a fixed duration, so timing.json is byte-identical on
@@ -208,6 +271,30 @@ export class VoiceboxVoiceProvider implements VoiceProvider {
       },
     };
   }
+}
+
+/** MCP tool payload: structuredContent preferred, JSON-parsed text second. */
+function structuredOrJsonText(result: VoiceboxToolResult): unknown {
+  if (result.structured && typeof result.structured === "object") {
+    return result.structured;
+  }
+  if (result.text) {
+    try {
+      return JSON.parse(result.text);
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
+/** Pull the generation_id out of a voicebox_speak MCP result. */
+function extractGenerationId(result: VoiceboxToolResult): string | undefined {
+  const payload = structuredOrJsonText(result) as
+    | { generation_id?: unknown }
+    | undefined;
+  const id = payload?.generation_id;
+  return typeof id === "string" && id.length > 0 ? id : undefined;
 }
 
 /** Shared deterministic segment estimator (also reused on partial real paths). */
