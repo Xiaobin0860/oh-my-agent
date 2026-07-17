@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.19.2",
-  "releaseDate": "2026-07-17T01:46:12.161Z",
+  "releaseDate": "2026-07-17T02:59:50.394Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1761,8 +1761,8 @@
     },
     {
       "path": ".agents/skills/oma-slide/SKILL.md",
-      "sha256": "53aeee5d7f32835e7e55cca226ea4d46a6cbc798534cb5aee59493fbca0823be",
-      "size": 17362
+      "sha256": "fa914115cb5ee722ebae3012444c2a89025d00c239a59ef4835619ba48ca803c",
+      "size": 17441
     },
     {
       "path": ".agents/skills/oma-slide/resources/animation-patterns.md",
@@ -1771,8 +1771,8 @@
     },
     {
       "path": ".agents/skills/oma-slide/resources/assets/deck-stage.js",
-      "sha256": "ae8e86b9a32717319056a1b9ca92e9256c8f0bf6161b87b7cb61a06877888252",
-      "size": 16867
+      "sha256": "7f1f87ae07428dfd5777b9b01084589282a8e6102b8ad8c05566a310ed0b07ac",
+      "size": 16946
     },
     {
       "path": ".agents/skills/oma-slide/resources/assets/viewport-base.css",
@@ -1801,8 +1801,8 @@
     },
     {
       "path": ".agents/skills/oma-slide/resources/generation-protocol.md",
-      "sha256": "ee35e815ba236c61ada4daa52cbf47cdf3dad8549b25acfa2c6bdfa8f4e6aa0e",
-      "size": 18414
+      "sha256": "9e8b9e3ac270ef337eee801f07942a125ebfb6c2fc5c9aca2cc6898b1097e680",
+      "size": 18480
     },
     {
       "path": ".agents/skills/oma-slide/resources/selection-index.json",
