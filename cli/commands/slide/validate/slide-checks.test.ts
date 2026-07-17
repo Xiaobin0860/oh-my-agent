@@ -11,6 +11,7 @@ function el(
     fontSize: 24,
     text: "",
     ancestorIndices: [],
+    lineRects: [],
     ...overrides,
   };
 }
@@ -63,6 +64,43 @@ describe("findOverlappingTextPairs", () => {
     const a = el({ rect: { x: 0, y: 0, width: 100, height: 40 } });
     const b = el({ rect: { x: 100, y: 0, width: 100, height: 40 } });
     expect(findOverlappingTextPairs([a, b])).toEqual([]);
+  });
+
+  it("compares per-line rects, not the union box, for wrapped inline siblings", () => {
+    // <em> wraps line 1 → line 2; its union bounding box spans both lines and
+    // geometrically contains the following <strong> on line 2, but its actual
+    // line boxes end before the strong starts.
+    const em = el({
+      selector: "em",
+      rect: { x: 0, y: 0, width: 500, height: 100 }, // union of both lines
+      lineRects: [
+        { x: 200, y: 0, width: 300, height: 50 }, // line 1 tail
+        { x: 0, y: 50, width: 120, height: 50 }, // line 2 head
+      ],
+    });
+    const strong = el({
+      selector: "strong",
+      rect: { x: 130, y: 50, width: 100, height: 50 }, // inside em's union box
+      lineRects: [{ x: 130, y: 50, width: 100, height: 50 }],
+    });
+    expect(findOverlappingTextPairs([em, strong])).toEqual([]);
+  });
+
+  it("still detects collisions that touch an actual line box", () => {
+    const em = el({
+      selector: "em",
+      rect: { x: 0, y: 0, width: 500, height: 100 },
+      lineRects: [
+        { x: 200, y: 0, width: 300, height: 50 },
+        { x: 0, y: 50, width: 120, height: 50 },
+      ],
+    });
+    const overlapping = el({
+      selector: "p.badge",
+      rect: { x: 100, y: 60, width: 100, height: 30 }, // hits line 2 head
+      lineRects: [{ x: 100, y: 60, width: 100, height: 30 }],
+    });
+    expect(findOverlappingTextPairs([em, overlapping])).toHaveLength(1);
   });
 });
 

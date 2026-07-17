@@ -15,6 +15,14 @@ export interface InPageTextElement {
    * is nesting, not a layout collision.
    */
   ancestorIndices: number[];
+  /**
+   * Per-line client rects (frame coordinates). A wrapped inline element's
+   * bounding rect is the UNION of its line boxes — it geometrically contains
+   * following siblings on the next line even though no glyphs collide, so
+   * the overlap check must compare line rects, not the union. Block elements
+   * have a single client rect identical to `rect`.
+   */
+  lineRects: Rect[];
 }
 
 /** Serializable result from page.evaluate. */
@@ -87,6 +95,18 @@ export const IN_PAGE_CHECK_FN = `(function() {
         if (collectedEls[ai].contains(el)) ancestorIndices.push(ai);
       }
       collectedEls.push(el);
+      var lineRects = [];
+      var crs = el.getClientRects();
+      for (var cri = 0; cri < crs.length; cri++) {
+        var cr = crs[cri];
+        if (cr.width === 0 && cr.height === 0) continue;
+        lineRects.push({
+          x: cr.left - frameRect.left,
+          y: cr.top - frameRect.top,
+          width: cr.width,
+          height: cr.height
+        });
+      }
       textElements.push({
         selector: getSelector(el),
         rect: {
@@ -97,7 +117,8 @@ export const IN_PAGE_CHECK_FN = `(function() {
         },
         fontSize: fontSize,
         text: el.textContent ? el.textContent.trim().slice(0, 60) : '',
-        ancestorIndices: ancestorIndices
+        ancestorIndices: ancestorIndices,
+        lineRects: lineRects
       });
     }
   }

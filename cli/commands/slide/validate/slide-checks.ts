@@ -114,10 +114,16 @@ export async function validateSlide(
  * the rects of its inline children (`<p>text <strong>bold</strong></p>`), so
  * pairing them geometrically would flag every inline-formatted paragraph as a
  * critical collision. `ancestorIndices` is collected in-page (DOM containment).
+ *
+ * Comparison uses per-line client rects, not the bounding union: a wrapped
+ * inline element's union box contains following siblings on the next line
+ * even though no glyphs collide.
  */
 export function findOverlappingTextPairs(
   textElements: InPageTextElement[],
 ): Array<[InPageTextElement, InPageTextElement]> {
+  const rectsOf = (e: InPageTextElement) =>
+    e.lineRects && e.lineRects.length > 0 ? e.lineRects : [e.rect];
   const pairs: Array<[InPageTextElement, InPageTextElement]> = [];
   for (let i = 0; i < textElements.length; i++) {
     for (let j = i + 1; j < textElements.length; j++) {
@@ -126,7 +132,10 @@ export function findOverlappingTextPairs(
       if (!a || !b) continue;
       // Document order puts ancestors first, so only b can descend from a.
       if (b.ancestorIndices?.includes(i)) continue;
-      if (isOverlapping(a.rect, b.rect)) {
+      const collides = rectsOf(a).some((ra) =>
+        rectsOf(b).some((rb) => isOverlapping(ra, rb)),
+      );
+      if (collides) {
         pairs.push([a, b]);
       }
     }
