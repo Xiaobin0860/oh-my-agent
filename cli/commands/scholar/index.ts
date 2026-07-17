@@ -10,17 +10,17 @@ export function registerScholarCommand(program: Command): void {
   const scholar = program
     .command("scholar")
     .description(
-      "Knows.academy paper sidecars (with OpenAlex fallback for older papers)",
+      "Knows.academy paper sidecars (OpenAlex + Semantic Scholar fallbacks)",
     );
 
   scholar
     .command("search <query...>")
-    .description("Search papers (knows.academy first, OpenAlex fallback)")
+    .description("Search papers (knows.academy → OpenAlex → Semantic Scholar)")
     .option("--max <n>", "max results per source", "10")
     .option("--year-min <year>", "OpenAlex: only papers from this year onward")
     .option(
       "--always-fallback",
-      "always include OpenAlex even if knows has hits",
+      "always include fallback sources even if knows has hits",
     )
     .action(
       runAction(async (queryParts: string[], opts: Record<string, unknown>) => {
@@ -38,7 +38,9 @@ export function registerScholarCommand(program: Command): void {
 
   scholar
     .command("resolve <query...>")
-    .description("Find best paper match across knows.academy and OpenAlex")
+    .description(
+      "Find best paper match across knows.academy, OpenAlex, Semantic Scholar",
+    )
     .action(
       runAction(async (queryParts: string[]) => {
         const result = await runResolve(queryParts.join(" "));
@@ -49,7 +51,7 @@ export function registerScholarCommand(program: Command): void {
   scholar
     .command("get <id>")
     .description(
-      "Fetch a sidecar (knows record_id) or work metadata (OpenAlex W-id, DOI)",
+      "Fetch a sidecar (knows record_id) or work metadata (W-id, DOI, arXiv:<id>, CorpusId:<n>, S2 paperId)",
     )
     .option(
       "--section <name>",
@@ -98,6 +100,7 @@ export function registerScholarCommand(program: Command): void {
       `  ${color.cyan("oma scholar resolve")} "Attention Is All You Need"\n` +
       `  ${color.cyan("oma scholar get")} --section statements knows:generated/reconvla/1.0.0\n` +
       `  ${color.cyan("oma scholar get")} 10.48550/arXiv.1706.03762\n` +
+      `  ${color.cyan("oma scholar get")} arXiv:1706.03762   ${color.dim("# Semantic Scholar: TL;DR + citation counts")}\n` +
       `  ${color.cyan("oma scholar lint")} --lenient paper.knows.yaml\n`,
   );
 }

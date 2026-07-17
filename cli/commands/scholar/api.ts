@@ -1,8 +1,11 @@
-// HTTP clients for knows.academy and OpenAlex with abstract reconstruction.
+// HTTP clients for knows.academy, OpenAlex, and Semantic Scholar with
+// abstract reconstruction.
 
 const KNOWS_BASE = "https://knows.academy";
 const OPENALEX_BASE = "https://api.openalex.org";
+const S2_BASE = "https://api.semanticscholar.org/graph/v1";
 const TIMEOUT_MS = 30_000;
+const S2_RETRY_DELAY_MS = 1_200;
 
 export interface KnowsHit {
   source: "knows.academy";
@@ -29,7 +32,24 @@ export interface OpenAlexHit {
   has_sidecar: false;
 }
 
-export type Hit = KnowsHit | OpenAlexHit;
+export interface S2Hit {
+  source: "semanticscholar";
+  id: string | null;
+  doi: string | null;
+  arxiv: string | null;
+  title: string | null;
+  year: number | null;
+  venue: string | null;
+  authors: string[];
+  abstract: string;
+  tldr: string | null;
+  oa_url: string | null;
+  cited_by_count: number | null;
+  influential_citation_count: number | null;
+  has_sidecar: false;
+}
+
+export type Hit = KnowsHit | OpenAlexHit | S2Hit;
 
 // OpenAlex only accepts the key as an `api_key` query param, so it must travel
 // in the URL — but it must never surface in error messages or logs.
@@ -37,7 +57,10 @@ export function redactUrl(url: string): string {
   return url.replace(/([?&]api_key=)[^&]*/gi, "$1***");
 }
 
-async function getJson(url: string): Promise<unknown> {
+async function getJson(
+  url: string,
+  extraHeaders: Record<string, string> = {},
+): Promise<unknown> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
@@ -45,6 +68,7 @@ async function getJson(url: string): Promise<unknown> {
       headers: {
         "User-Agent": "oma-scholar/0.1",
         Accept: "application/json",
+        ...extraHeaders,
       },
       signal: ctrl.signal,
     });
@@ -167,6 +191,90 @@ export async function fetchKnowsSidecar(
     ? `${KNOWS_BASE}/api/proxy/partial?record_id=${enc}&section=${encodeURIComponent(section)}`
     : `${KNOWS_BASE}/api/proxy/sidecars/${enc}`;
   return getJson(url);
+}
+
+// Semantic Scholar authenticates via the x-api-key header (S2_API_KEY).
+// Anonymous use shares a global pool and 429s under load, so retry once.
+function s2Headers(): Record<string, string> {
+  return process.env.S2_API_KEY ? { "x-api-key": process.env.S2_API_KEY } : {};
+}
+
+async function s2GetJson(url: string): Promise<unknown> {
+  try {
+    return await getJson(url, s2Headers());
+  } catch (err) {
+    if (!/HTTP 429/.test((err as Error).message)) throw err;
+    await new Promise((r) => setTimeout(r, S2_RETRY_DELAY_MS));
+    return getJson(url, s2Headers());
+  }
+}
+
+// Maps an identifier to a Semantic Scholar paper path, or null when the id
+// belongs to another source (knows record, OpenAlex W-id, bare DOI).
+export function s2IdToPath(identifier: string): string | null {
+  if (/^arxiv:/i.test(identifier)) {
+    return `arXiv:${identifier.slice(identifier.indexOf(":") + 1)}`;
+  }
+  if (/^corpusid:/i.test(identifier)) {
+    return `CorpusId:${identifier.slice(identifier.indexOf(":") + 1)}`;
+  }
+  if (/^[0-9a-f]{40}$/.test(identifier)) return identifier; // S2 paperId
+  return null;
+}
+
+const S2_FIELDS =
+  "title,year,venue,authors,abstract,tldr,citationCount,influentialCitationCount,externalIds,openAccessPdf";
+
+export function normalizeS2Paper(r: Record<string, unknown>): S2Hit {
+  const ext = (r.externalIds as Record<string, unknown>) ?? {};
+  const tldr = (r.tldr as Record<string, unknown> | null) ?? null;
+  const oa = (r.openAccessPdf as Record<string, unknown> | null) ?? null;
+  const authors = (r.authors as Array<Record<string, unknown>>) ?? [];
+  return {
+    source: "semanticscholar",
+    id: (r.paperId as string | null) ?? null,
+    doi: (ext.DOI as string | null) ?? null,
+    arxiv: (ext.ArXiv as string | null) ?? null,
+    title: (r.title as string | null) ?? null,
+    year: (r.year as number | null) ?? null,
+    venue: (r.venue as string | null) ?? null,
+    authors: authors
+      .map((a) => a.name)
+      .filter((x): x is string => typeof x === "string"),
+    abstract: (r.abstract as string | null) ?? "",
+    tldr: (tldr?.text as string | null) ?? null,
+    oa_url: (oa?.url as string | null) || null,
+    cited_by_count: (r.citationCount as number | null) ?? null,
+    influential_citation_count:
+      (r.influentialCitationCount as number | null) ?? null,
+    has_sidecar: false,
+  };
+}
+
+export async function searchS2(
+  query: string,
+  options: { yearMin?: number; maxResults?: number } = {},
+): Promise<S2Hit[]> {
+  const params = new URLSearchParams();
+  params.set("query", query);
+  params.set("limit", String(options.maxResults ?? 20));
+  params.set("fields", S2_FIELDS);
+  if (options.yearMin !== undefined) params.set("year", `${options.yearMin}-`);
+  try {
+    const d = (await s2GetJson(`${S2_BASE}/paper/search?${params}`)) as {
+      data?: Array<Record<string, unknown>>;
+    };
+    return (d.data ?? []).map((r) => normalizeS2Paper(r));
+  } catch (err) {
+    process.stderr.write(`semanticscholar error: ${(err as Error).message}\n`);
+    return [];
+  }
+}
+
+export async function fetchS2Paper(identifier: string): Promise<S2Hit> {
+  const path = s2IdToPath(identifier) ?? identifier;
+  const url = `${S2_BASE}/paper/${encodeURIComponent(path)}?fields=${S2_FIELDS}`;
+  return normalizeS2Paper((await s2GetJson(url)) as Record<string, unknown>);
 }
 
 export async function fetchOpenAlexWork(

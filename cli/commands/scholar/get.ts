@@ -1,4 +1,10 @@
-import { fetchKnowsSidecar, fetchOpenAlexWork, searchOpenAlex } from "./api.js";
+import {
+  fetchKnowsSidecar,
+  fetchOpenAlexWork,
+  fetchS2Paper,
+  s2IdToPath,
+  searchOpenAlex,
+} from "./api.js";
 
 const VALID_SECTIONS = new Set([
   "statements",
@@ -49,6 +55,11 @@ export async function runGet({
       }
       throw err;
     }
+  }
+  // Semantic Scholar identifiers: arXiv:<id>, CorpusId:<n>, or a 40-hex
+  // S2 paperId. DOIs and OpenAlex W-ids keep routing to OpenAlex.
+  if (s2IdToPath(id)) {
+    return fetchS2Paper(id);
   }
   return fetchOpenAlexWork(id);
 }

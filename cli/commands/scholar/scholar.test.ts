@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { reconstructAbstract, redactUrl } from "./api.js";
+import {
+  normalizeS2Paper,
+  reconstructAbstract,
+  redactUrl,
+  s2IdToPath,
+} from "./api.js";
 import { slugFromKnowsId } from "./get.js";
 import { lintDoc } from "./lint.js";
 import {
@@ -333,6 +338,61 @@ describe("slugFromKnowsId", () => {
   it("returns null for malformed knows ids", () => {
     expect(slugFromKnowsId("knows:no-slash")).toBeNull();
     expect(slugFromKnowsId("knows:only/onepart")).toBeNull();
+  });
+});
+
+describe("s2IdToPath", () => {
+  it("maps arXiv ids (case-insensitive prefix)", () => {
+    expect(s2IdToPath("arXiv:1706.03762")).toBe("arXiv:1706.03762");
+    expect(s2IdToPath("arxiv:2401.00001")).toBe("arXiv:2401.00001");
+  });
+
+  it("maps CorpusId and raw S2 paperIds", () => {
+    expect(s2IdToPath("CorpusId:13756489")).toBe("CorpusId:13756489");
+    expect(s2IdToPath("204e3073870fae3d05bcbc2f6a8e263d9b72e776")).toBe(
+      "204e3073870fae3d05bcbc2f6a8e263d9b72e776",
+    );
+  });
+
+  it("returns null for knows ids, DOIs, and OpenAlex W-ids", () => {
+    expect(s2IdToPath("knows:generated/reconvla/1.0.0")).toBeNull();
+    expect(s2IdToPath("10.48550/arXiv.1706.03762")).toBeNull();
+    expect(s2IdToPath("W2147144213")).toBeNull();
+  });
+});
+
+describe("normalizeS2Paper", () => {
+  it("maps tldr, externalIds, and citation counts", () => {
+    const hit = normalizeS2Paper({
+      paperId: "204e3073870fae3d05bcbc2f6a8e263d9b72e776",
+      externalIds: { DOI: "10.1000/xyz", ArXiv: "1706.03762" },
+      title: "Attention is All you Need",
+      year: 2017,
+      venue: "NeurIPS",
+      authors: [{ name: "A. Vaswani" }, { name: null }],
+      abstract: null,
+      tldr: { model: "tldr@v2.0.0", text: "Introduces the Transformer." },
+      citationCount: 184552,
+      influentialCitationCount: 12000,
+      openAccessPdf: { url: "" },
+    });
+    expect(hit.source).toBe("semanticscholar");
+    expect(hit.doi).toBe("10.1000/xyz");
+    expect(hit.arxiv).toBe("1706.03762");
+    expect(hit.authors).toEqual(["A. Vaswani"]);
+    expect(hit.abstract).toBe("");
+    expect(hit.tldr).toBe("Introduces the Transformer.");
+    expect(hit.cited_by_count).toBe(184552);
+    expect(hit.influential_citation_count).toBe(12000);
+    expect(hit.oa_url).toBeNull(); // empty string url → null
+    expect(hit.has_sidecar).toBe(false);
+  });
+
+  it("tolerates missing optional fields", () => {
+    const hit = normalizeS2Paper({ paperId: "x".repeat(40), title: "T" });
+    expect(hit.tldr).toBeNull();
+    expect(hit.doi).toBeNull();
+    expect(hit.authors).toEqual([]);
   });
 });
 
