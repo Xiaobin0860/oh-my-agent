@@ -21,7 +21,7 @@ Status: FAIL
    - Fix: Add @limiter.limit("5/minute")
 
 ### Passed
-- [x] Passwords hashed with bcrypt (cost 12)
+- [x] Passwords hashed with Argon2id
 - [x] JWT properly signed with RS256
 - [x] Refresh token rotation implemented
 - [x] CORS configured (not wildcard)

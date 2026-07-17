@@ -433,7 +433,7 @@ user = User(email=email, password=password) # NEVER DO THIS!
 ```python
 from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 
 # Hash before storing
 password_hash = pwd_context.hash(password)
