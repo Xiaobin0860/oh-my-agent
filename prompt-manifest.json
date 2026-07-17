@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.19.2",
-  "releaseDate": "2026-07-17T02:59:50.394Z",
+  "releaseDate": "2026-07-17T03:52:57.666Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -311,8 +311,8 @@
     },
     {
       "path": ".agents/rules/commit.md",
-      "sha256": "46e862897183decd398112d809e2e87e5fb1b117f4dd3ea83ab9abdddd21202b",
-      "size": 828
+      "sha256": "5a33af32caded4416b91862afe785da120c361c44bf1b5caf8e70a332a790589",
+      "size": 847
     },
     {
       "path": ".agents/rules/database.md",
@@ -1636,33 +1636,33 @@
     },
     {
       "path": ".agents/skills/oma-scholar/SKILL.md",
-      "sha256": "ec8322f012e2a889ae375668833c9f28e31914d62d755cb0eff3345bd53f0f9f",
-      "size": 13544
+      "sha256": "ea64f727d22820b4e4c1f66a65f2cf9786ffe71b18196da0ec3f2939cba09c3d",
+      "size": 13862
     },
     {
       "path": ".agents/skills/oma-scholar/config/scholar-config.yaml",
-      "sha256": "29fc8fd5573bd445f42988d26e7c53b1c4b2366b8aab18be138f55dda0e9228e",
-      "size": 2022
+      "sha256": "06b3176b2124a0701fc31b984c34af427adf4a99a955d64b46619df07456cd7b",
+      "size": 2095
     },
     {
       "path": ".agents/skills/oma-scholar/resources/api-endpoints.md",
-      "sha256": "299d791c60f798f38cb20834539c53766b65ca35eae405abc730f3736a144cc2",
-      "size": 4777
+      "sha256": "e15bc80cca803f091bf85e0b3a4810e6c8c30cf12c5d741a5a4d5cbf12f905d5",
+      "size": 4828
     },
     {
       "path": ".agents/skills/oma-scholar/resources/checklist.md",
-      "sha256": "308212d993d8104c6b9811d1163d687024eed0599545d11dc2308af56217ebfe",
-      "size": 3643
+      "sha256": "c3cb7c57e1bbb16b0953049c49589401848a941cdb62f413066bdb941a6359f2",
+      "size": 3909
     },
     {
       "path": ".agents/skills/oma-scholar/resources/execution-protocol.md",
-      "sha256": "3cf748d9d3794da59e88e54480178a5d3522ae7861d46bddac79101c7725ea63",
-      "size": 7973
+      "sha256": "14e76feeb3283b5c60c902bf60734b8939117c4f0414ca9322a4362e5c01ee67",
+      "size": 9120
     },
     {
       "path": ".agents/skills/oma-scholar/resources/fallback-providers.md",
-      "sha256": "1829537d247743a60bbac0bfb842511ef3e2b5b9c2729583aab93efa4f18eca0",
-      "size": 4859
+      "sha256": "216189e94530069dd68a38132949095b9e7bb2637fbd954b5e5424985959d538",
+      "size": 4904
     },
     {
       "path": ".agents/skills/oma-scholar/resources/setup-openalex.md",
@@ -1671,18 +1671,18 @@
     },
     {
       "path": ".agents/skills/oma-scholar/resources/sidecar-spec.md",
-      "sha256": "6dc71237c39bde2fd83bd615a743b5f449de4bc51f70c78f9821d803ffbdb84b",
-      "size": 10039
+      "sha256": "2b069697214436b6086739a67ea11557ecbb03e7acde170a057c5245a955cf71",
+      "size": 11108
     },
     {
       "path": ".agents/skills/oma-scholar/resources/upstream-spec-cache.md",
-      "sha256": "1bffcc0cf9b84b33a8acb6b5fc57882e88fefa202c8e4ca30a428f5e49aa85d9",
-      "size": 8386
+      "sha256": "8a7f87bbbe730f1a0175b5e300ebe33b91a499c13b20054f6c67b3cbc3f901a9",
+      "size": 44744
     },
     {
       "path": ".agents/skills/oma-scm/SKILL.md",
-      "sha256": "7096f601a13f63e2d1dd467d1bc75e1a87d08e72331ee5794bd32451fef20e57",
-      "size": 14791
+      "sha256": "d16681b8dc9037a3e25eb19040e7666cecc964f7f736fb345d2b9f4eb46cad78",
+      "size": 15122
     },
     {
       "path": ".agents/skills/oma-scm/config/cm-config.yaml",
@@ -1691,8 +1691,8 @@
     },
     {
       "path": ".agents/skills/oma-scm/config/commit-config.yaml",
-      "sha256": "a6443cb90e82b3beffe316c2331643a526bbc2a59f330e3f90added684a27e94",
-      "size": 880
+      "sha256": "8d9c8b68df4f53855a9659dfc1eae133dc3bdc3375ececdd8549a5206a6270d4",
+      "size": 1111
     },
     {
       "path": ".agents/skills/oma-scm/resources/codeowners-playbook.md",
@@ -1701,8 +1701,8 @@
     },
     {
       "path": ".agents/skills/oma-scm/resources/conventional-commits.md",
-      "sha256": "e10fc2f690d5c05bbe2c52b4d9fa5552e37727191e12a706ee9abd72088b9134",
-      "size": 3938
+      "sha256": "cedbc9d6c1b75bb57e3e2b42a3068df5b8d180899c4d6736daac0ad2c675d775",
+      "size": 4206
     },
     {
       "path": ".agents/skills/oma-scm/resources/onboarding-risk-signals.md",
@@ -2101,8 +2101,8 @@
     },
     {
       "path": ".agents/workflows/scm.md",
-      "sha256": "ece9c8c27c65420d98f550bbc917a2e65f9850916f5ae9606474246bf8de1bd2",
-      "size": 7365
+      "sha256": "bbbae3509b4409a6f9560207ac54979255584a60144e6900a7e8a98311acab5f",
+      "size": 7912
     },
     {
       "path": ".agents/workflows/stack-set.md",
