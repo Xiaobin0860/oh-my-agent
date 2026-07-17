@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.20.0",
-  "releaseDate": "2026-07-17T07:24:53.993Z",
+  "releaseDate": "2026-07-17T07:35:54.531Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -701,13 +701,13 @@
     },
     {
       "path": ".agents/skills/oma-coordination/SKILL.md",
-      "sha256": "1105bcb53eb7fa7f9e03eb9a242768a8e795685e876032a041613ff2bf983b3e",
-      "size": 5750
+      "sha256": "f137097de04a060e64f98d48a1c34500e422872aadac00d673535e419b88da66",
+      "size": 6528
     },
     {
       "path": ".agents/skills/oma-coordination/resources/examples.md",
-      "sha256": "6b4ae16033be0fd1779ad26861c25b560e95233981872f5190a46fb909ee16c1",
-      "size": 2112
+      "sha256": "1ea68c58ed380a8cf86f06f491ffbc8f765134a1a1b49e46f70a854e714c36a3",
+      "size": 2123
     },
     {
       "path": ".agents/skills/oma-db/SKILL.md",
@@ -1081,33 +1081,33 @@
     },
     {
       "path": ".agents/skills/oma-image/SKILL.md",
-      "sha256": "93c533af04545f5128c12e7f4e17ee317cf4489a1d64ec82421dc457bb4c5940",
-      "size": 15183
+      "sha256": "0b84bbd691215b27fbad956186d80997d9c84247b720cc67489831373f93a19a",
+      "size": 16499
     },
     {
       "path": ".agents/skills/oma-image/config/image-config.yaml",
-      "sha256": "87c9369b0d191e7a8b5c2f3359bf7b828266d9f078055961b45a1dd4362f5b87",
-      "size": 1088
+      "sha256": "a15444d96cb5dc271cb5fbf2a759d2a68519833c174b17053760fa044364695a",
+      "size": 1807
     },
     {
       "path": ".agents/skills/oma-image/resources/checklist.md",
-      "sha256": "580718381291459ea5d42a5ebcbb9fb0c37d90931a60c122bbf31fc6b2aafe43",
-      "size": 973
+      "sha256": "fb8be66cda37ad63f7f05145d67acd2d9e92ddb4b9c863c2ed24ea91f527b559",
+      "size": 1138
     },
     {
       "path": ".agents/skills/oma-image/resources/execution-protocol.md",
-      "sha256": "0030b8e76002e9d666f776bc91f6b9da377df720b7b0825e43f6f20c992b86dd",
-      "size": 6121
+      "sha256": "368805245d9f933cc1a4200e8fc3b9cd37e350186091917732a65f027f439cca",
+      "size": 7103
     },
     {
       "path": ".agents/skills/oma-image/resources/prompt-tips.md",
-      "sha256": "ac52146277cc861021f2250db31c3c6f1096cbeac1a7647e18efea03cc4f8a2d",
-      "size": 4606
+      "sha256": "f723d503e11e916c9c6a78a1ca62509e1b2cf91df2d3d83d9aac390848db6245",
+      "size": 4696
     },
     {
       "path": ".agents/skills/oma-image/resources/vendor-matrix.md",
-      "sha256": "00fccbe8778cdb211c7df5d6af00d6a66d98ef4c0dd1dc532a0cc04ec0aa1a23",
-      "size": 5109
+      "sha256": "669691b6055d12f230b2640447a438d0048c4730ba2e1bf14875c1b2559431c4",
+      "size": 6134
     },
     {
       "path": ".agents/skills/oma-market/SKILL.md",
@@ -1321,8 +1321,8 @@
     },
     {
       "path": ".agents/skills/oma-observability/resources/checklist.md",
-      "sha256": "1e1bb584181728db9054fb54c6b98c77839876d2aa926e0330adaeee32cc0cc9",
-      "size": 15108
+      "sha256": "29ba57638c933f18e9f4b9070c8076afb1fc4225ecae3a8a024fae96cada2c74",
+      "size": 15309
     },
     {
       "path": ".agents/skills/oma-observability/resources/examples.md",
@@ -1336,8 +1336,8 @@
     },
     {
       "path": ".agents/skills/oma-observability/resources/incident-forensics.md",
-      "sha256": "239f558c68fc48fe4fabbbe65b246852d609f680942cf258eabe25f9b0797125",
-      "size": 23428
+      "sha256": "5113fdc4128475c12c2275853d881cd1d7fe21c76543e186954df11251249b27",
+      "size": 23881
     },
     {
       "path": ".agents/skills/oma-observability/resources/intent-rules.md",
@@ -1426,8 +1426,8 @@
     },
     {
       "path": ".agents/skills/oma-observability/resources/signals/traces.md",
-      "sha256": "ad6dc7bb81fbd326d9cc6bf76167dbc788ed32a89446eeab7672c901c69dd09a",
-      "size": 19306
+      "sha256": "b2b7e8d19650f09bbbd8298da9c41480fc224a9f72acecd15875de9608eb84b0",
+      "size": 19557
     },
     {
       "path": ".agents/skills/oma-observability/resources/standards.md",
@@ -2081,8 +2081,8 @@
     },
     {
       "path": ".agents/workflows/orchestrate.md",
-      "sha256": "b0a886c8d6b1fd7c6c5739473c0307c18e89b042cc05d9d2ed859c842c047441",
-      "size": 9996
+      "sha256": "122adc04c610c41b9b2e33160c1540b8885a7a20d20417c858304db74d74d40f",
+      "size": 10010
     },
     {
       "path": ".agents/workflows/plan.md",
@@ -2151,8 +2151,8 @@
     },
     {
       "path": ".agents/workflows/work.md",
-      "sha256": "08374430de178f90dfa9a44f54d02eab172a28080bb23e76f7d7019109ab2ca3",
-      "size": 8184
+      "sha256": "9d0b03d11791110cfffadf8ec130e3bbb92855d2c1df011b79e478d5fd868305",
+      "size": 8198
     }
   ],
   "checksums": {
