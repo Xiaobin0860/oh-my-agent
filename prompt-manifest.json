@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.20.0",
-  "releaseDate": "2026-07-17T08:52:08.842Z",
+  "releaseDate": "2026-07-17T10:41:00.897Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -806,13 +806,13 @@
     },
     {
       "path": ".agents/skills/oma-deepsec/SKILL.md",
-      "sha256": "6ce343e1d20bd63c497f9afee39e53b0985944550b865ebc557116794bcc940c",
-      "size": 21732
+      "sha256": "82f9a9467318a1b286a7562f8e0ac07379d5ac1081ef9c2cc8a5b58faa5258f9",
+      "size": 21956
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/config.md",
-      "sha256": "1a80047e8af14850db2f4f17419f2e9f73af29fde3ec0cf00c774315a0c6c92e",
-      "size": 9253
+      "sha256": "8d68fb1576f0350f634ff190ef905ef290d269433e8c8f0ba523444da5dc6061",
+      "size": 9374
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/matchers.md",
@@ -821,13 +821,13 @@
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/pr-review.md",
-      "sha256": "1c7872775c31ea36bdc2a29f56e72c1b64e1a3456c393499e18f7e3c57d935c3",
-      "size": 7383
+      "sha256": "dda4bedd73565ad7d4c9e392f8f20f54b7b42a9d0be46983370e0fa9c690f512",
+      "size": 8946
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/scanning.md",
-      "sha256": "5a3e443e3f74e75364d228d53acfe664bc76f4f72dca0621fd1b155448253277",
-      "size": 7315
+      "sha256": "5d82c4728470572cd8787e37d59741a8dba9c50bd8ec07e5cbdbd1af5e512265",
+      "size": 7821
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/setup.md",
@@ -1101,8 +1101,8 @@
     },
     {
       "path": ".agents/skills/oma-market/SKILL.md",
-      "sha256": "f288b30a6a1d1eb6a4cd4ae62dca70eba40313941ca5b2f740bf4153cbd88534",
-      "size": 11233
+      "sha256": "4cb8d55aba4413e95d8576b3356d212f3dbe43d0347876465d695899696234a3",
+      "size": 11775
     },
     {
       "path": ".agents/skills/oma-market/resources/checklist.md",
@@ -1111,28 +1111,28 @@
     },
     {
       "path": ".agents/skills/oma-market/resources/error-playbook.md",
-      "sha256": "5a4436155a83b7b5846f5380847d073b896151648b4e8392d83ad4d5611c0f0d",
-      "size": 2658
+      "sha256": "be215dea2e31a9250331c6aaf7f14fa0ba40fcac6ac0f886038d8c97b7c9437d",
+      "size": 3925
     },
     {
       "path": ".agents/skills/oma-market/resources/examples.md",
-      "sha256": "d7dec08cdd1146b2858b353898e3a601e76747747ae248eca80cca9a1859c7f8",
-      "size": 9519
+      "sha256": "b531058750b398a499f5c3d376f84668159d530071e5cb508339150fcb3478da",
+      "size": 11324
     },
     {
       "path": ".agents/skills/oma-market/resources/execution-protocol.md",
-      "sha256": "bbc54c9726a5af80ddf5b4a8b72726b389b6218776bdd4656e7b9f4b32b21f54",
-      "size": 4114
+      "sha256": "b71a721dbe0d9bc84ad3a39272fe913706cc1f61e25f0843db770b7e34c330a0",
+      "size": 4121
     },
     {
       "path": ".agents/skills/oma-market/resources/frameworks/pestel.md",
-      "sha256": "1e2725b8c2b0262f679da19b20901f9d849e6ecf39e46d0bdf98298579be4552",
-      "size": 2928
+      "sha256": "bab5ce12fbb884220fbaa6cc8b8b168400385d89ad4325c1a6b1339fd1e074ad",
+      "size": 2916
     },
     {
       "path": ".agents/skills/oma-market/resources/frameworks/porters-5f.md",
-      "sha256": "7bb1611284369446c48ce030b7b7d2799d69695da08e19ee1d200fade2959533",
-      "size": 2925
+      "sha256": "5c39e43ad915644fb55ac3c3c4a0087b254f6524fc47df9a8974d695ec240418",
+      "size": 2915
     },
     {
       "path": ".agents/skills/oma-market/resources/frameworks/swot.md",
@@ -1151,23 +1151,23 @@
     },
     {
       "path": ".agents/skills/oma-market/resources/operator-packs/discovery.md",
-      "sha256": "8e1e8b64518dbc95cc199d8f5212d58111a6709d5e1bcb3882fe0669eaf37577",
-      "size": 1248
+      "sha256": "637c1c11a1ae9b2eed44bd391812e9ed830a378b08723a027c6a6ebdf3c60838",
+      "size": 1620
     },
     {
       "path": ".agents/skills/oma-market/resources/operator-packs/pain.md",
-      "sha256": "b538faca1f64b423e03d3ab2bcc4b6ecba5cbed80f8fdbabccec3e235f696741",
-      "size": 1476
+      "sha256": "51ff4d8ac776c0d9dafcef35790d81dc8992cd752659163a4b3be5b040aca973",
+      "size": 1482
     },
     {
       "path": ".agents/skills/oma-market/resources/operator-packs/positive.md",
-      "sha256": "076dc92dcc5c908b6b019a8f5be2148bf8279ec218db1fe3fa878e8f67ad57a2",
-      "size": 1252
+      "sha256": "b434354e6c30ec126d1d0f2eb43796752b263258621560570906587e53d80240",
+      "size": 1333
     },
     {
       "path": ".agents/skills/oma-market/resources/output-laws.md",
-      "sha256": "8a319ffe1fb4e43804d09f42e51acc9bdeeba0a8a7799ae76e1bed65ab01868f",
-      "size": 5529
+      "sha256": "7228456629541d7c9ed5489e17e766556fde254681afdab349d7821efea23a0d",
+      "size": 5620
     },
     {
       "path": ".agents/skills/oma-mobile/SKILL.md",
@@ -2056,8 +2056,8 @@
     },
     {
       "path": ".agents/workflows/deepsec.md",
-      "sha256": "3277ccf28d0c65c7732f5ff6c6fe24c05d49f9be4d659dd3f560e2b74bffa873",
-      "size": 12530
+      "sha256": "f12b2bc59e4d9f29aae05af2a77556b2ae1d170bb0ba245bbb7d5fe944390bf8",
+      "size": 12628
     },
     {
       "path": ".agents/workflows/design.md",
