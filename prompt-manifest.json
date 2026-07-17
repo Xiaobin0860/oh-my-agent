@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.20.0",
-  "releaseDate": "2026-07-17T07:35:54.531Z",
+  "releaseDate": "2026-07-17T08:00:26.230Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1461,8 +1461,8 @@
     },
     {
       "path": ".agents/skills/oma-orchestrator/SKILL.md",
-      "sha256": "2bad385db7566e98375d07cd246b30014a378f5041cf9ed5fee4dd360bd049ee",
-      "size": 14008
+      "sha256": "14fb9544a7f1c18e30fd23150e8a0b18d1880b1893353e4c7bbad45753524b63",
+      "size": 15359
     },
     {
       "path": ".agents/skills/oma-orchestrator/config/cli-config.yaml",
@@ -1471,13 +1471,13 @@
     },
     {
       "path": ".agents/skills/oma-orchestrator/resources/memory-schema.md",
-      "sha256": "76200cb3236cc1fd54a5f7593c1b39775bfd3b3308434254d18b3d95577c599b",
-      "size": 6118
+      "sha256": "c353d4f65dc0b901fa5e5436ac08c43608e68fbe34b5b40d1a85ea03aee3a76f",
+      "size": 6718
     },
     {
       "path": ".agents/skills/oma-orchestrator/resources/subagent-prompt-template.md",
-      "sha256": "57736518d72b1f8e46c897b0c7c9040826bc0efc71875a7dff752d840a99851b",
-      "size": 3853
+      "sha256": "83b7b9ab8703648f2cd54e02d3bbeda04c1388657930c753b5a31d6c3c86e5bb",
+      "size": 4129
     },
     {
       "path": ".agents/skills/oma-orchestrator/scripts/parallel-run.sh",
@@ -2081,8 +2081,8 @@
     },
     {
       "path": ".agents/workflows/orchestrate.md",
-      "sha256": "122adc04c610c41b9b2e33160c1540b8885a7a20d20417c858304db74d74d40f",
-      "size": 10010
+      "sha256": "9c5bd8ed84378267bcd9ae905c44314e83085bfa68f1bb2eb037e93ecd18ce19",
+      "size": 10873
     },
     {
       "path": ".agents/workflows/plan.md",
