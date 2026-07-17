@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.21.0",
-  "releaseDate": "2026-07-17T12:44:44.463Z",
+  "releaseDate": "2026-07-17T14:31:26.968Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -601,8 +601,8 @@
     },
     {
       "path": ".agents/skills/oma-architecture/resources/stakeholder-synthesis.md",
-      "sha256": "8dcd780efeb4c1bc9312dfb595140647bd9b10b2d0e3ae933b44eccadb2ea59e",
-      "size": 2378
+      "sha256": "4f51a74082b807980a5c0d99dd7bec0d13c97fa92ac022c8d6c6266fa4236dfe",
+      "size": 2457
     },
     {
       "path": ".agents/skills/oma-backend/SKILL.md",
@@ -836,8 +836,8 @@
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/scanning.md",
-      "sha256": "5d82c4728470572cd8787e37d59741a8dba9c50bd8ec07e5cbdbd1af5e512265",
-      "size": 7821
+      "sha256": "9f6042bec29e7113ef3881ee690fac95e2fcd166c9c9c77ea8d329a4a6083fe5",
+      "size": 8123
     },
     {
       "path": ".agents/skills/oma-deepsec/resources/setup.md",
@@ -1111,8 +1111,8 @@
     },
     {
       "path": ".agents/skills/oma-market/SKILL.md",
-      "sha256": "4cb8d55aba4413e95d8576b3356d212f3dbe43d0347876465d695899696234a3",
-      "size": 11775
+      "sha256": "c83ab27cbfda4d657c0afc4438e5608515aeb32e2de29ee9929572689750e231",
+      "size": 11760
     },
     {
       "path": ".agents/skills/oma-market/resources/checklist.md",
@@ -1601,8 +1601,8 @@
     },
     {
       "path": ".agents/skills/oma-qa/resources/execution-protocol.md",
-      "sha256": "cd092d52f64a1de630d9985cad9fa55fc3f942bebd7c61a799ccef44507e9d76",
-      "size": 8419
+      "sha256": "adffaa360e4c07a03cd0a74a67238cda94e4a6cfd1f563ff0d1def94f93e0b7c",
+      "size": 8416
     },
     {
       "path": ".agents/skills/oma-qa/resources/iso-quality.md",
@@ -2011,8 +2011,8 @@
     },
     {
       "path": ".agents/skills/oma-video/resources/vendor-matrix.md",
-      "sha256": "0e10f30268d588d5c2bf3b216a8fe8e96abd7179ff3c2f4bf8706401ebfceab6",
-      "size": 6389
+      "sha256": "45bc424a724cd53ee8343c34f177f513fe37016da2437df93c7644157a223b26",
+      "size": 6413
     },
     {
       "path": ".agents/skills/oma-voice/SKILL.md",
@@ -2046,8 +2046,8 @@
     },
     {
       "path": ".agents/workflows/architecture.md",
-      "sha256": "e84e5e9168d0caf0c2ebaed2286077af7dd214b33d9c3714cf80ed384bb571ca",
-      "size": 5373
+      "sha256": "ee1e6baedb5f6f48b19ae3735c35317e08c27f84d0912ace483f35fe3ea06317",
+      "size": 5417
     },
     {
       "path": ".agents/workflows/brainstorm.md",
@@ -2071,8 +2071,8 @@
     },
     {
       "path": ".agents/workflows/deepsec.md",
-      "sha256": "f12b2bc59e4d9f29aae05af2a77556b2ae1d170bb0ba245bbb7d5fe944390bf8",
-      "size": 12628
+      "sha256": "a0f3e75691edbfa50596e812df57b99ab6b71e4eff2f54af8e567e666d65d530",
+      "size": 12857
     },
     {
       "path": ".agents/workflows/design.md",
