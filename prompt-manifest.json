@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.21.0",
-  "releaseDate": "2026-07-17T12:02:10.637Z",
+  "releaseDate": "2026-07-17T12:39:01.464Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1761,8 +1761,8 @@
     },
     {
       "path": ".agents/skills/oma-skill-creator/SKILL.md",
-      "sha256": "aedaa5bb09f3693e3525679ac8a6a3521852728637492bb5d23ecceed60b6e58",
-      "size": 10427
+      "sha256": "eeaaab9c1b6b1fbb9891f59cf91fc67c45a5606c4105c8db3cb546f7f35052ec",
+      "size": 11087
     },
     {
       "path": ".agents/skills/oma-skill-creator/resources/ssl-lite-template.md",
@@ -1771,8 +1771,8 @@
     },
     {
       "path": ".agents/skills/oma-skill-creator/resources/validation-checklist.md",
-      "sha256": "94921bfbb784e41aa595c08a1002486c8d4fd4d0e86d57b61d1c3ca1d139ad8b",
-      "size": 4214
+      "sha256": "0040314934e5d3a7698fc8f68cccac61972ab69eadc8ec1ae9cc7be709fe031b",
+      "size": 4882
     },
     {
       "path": ".agents/skills/oma-slide/SKILL.md",
