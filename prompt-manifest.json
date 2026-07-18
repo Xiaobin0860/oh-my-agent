@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.21.3",
-  "releaseDate": "2026-07-18T07:33:55.796Z",
+  "releaseDate": "2026-07-18T11:17:32.460Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -211,8 +211,8 @@
     },
     {
       "path": ".agents/hooks/core/triggers.json",
-      "sha256": "df8381c53ec63043f1cace1058c490b880fe803f3182515584cbe212cf4cc3a8",
-      "size": 85467
+      "sha256": "faa6edd5a556e6107ebd66a541d65632a76937d0ba4aa05b07eab9508120f134",
+      "size": 84127
     },
     {
       "path": ".agents/hooks/core/types.ts",
@@ -466,13 +466,13 @@
     },
     {
       "path": ".agents/skills/_shared/core/vendor-detection.md",
-      "sha256": "a90c409e0b34cdf329007f72179eaec64920d7b93406089ea3884ad26c5f2538",
-      "size": 3881
+      "sha256": "43845f556d70bb98abb47e8108143c27eb0728ed8a9c3b0170387e1567c07414",
+      "size": 4318
     },
     {
       "path": ".agents/skills/_shared/runtime/event-spec.md",
-      "sha256": "8f1b177703cdec8e0981d3414bb2b7cc5a0a2766e3ab0641630cd436111af0fc",
-      "size": 5110
+      "sha256": "ef6de9f860a193905dcdb2fb6ad83c49aa7d187bfcb82b9dd70e1d970e17bb58",
+      "size": 5561
     },
     {
       "path": ".agents/skills/_shared/runtime/execution-protocols/antigravity.md",
@@ -2061,8 +2061,8 @@
     },
     {
       "path": ".agents/workflows/convert.md",
-      "sha256": "1ce585c6b61d9538641b64ac2ca45ef3f82c6f5f962f4bfadf30f1023b1dd1df",
-      "size": 8898
+      "sha256": "42d546979c1073ce46a52b0737d6ae923b8b54a09f0134e7b78105d59e79bf71",
+      "size": 9140
     },
     {
       "path": ".agents/workflows/debug.md",
@@ -2071,8 +2071,8 @@
     },
     {
       "path": ".agents/workflows/deepinit.md",
-      "sha256": "237c4bbe4bd7816c6c44418bfd2c33af8b50023a5180e0716c6f171e3fb6efe0",
-      "size": 14507
+      "sha256": "aaf6697ec810588312cfacc18844e069283f9d2d5dd93535c2d6c7e5a0bbfc7a",
+      "size": 14733
     },
     {
       "path": ".agents/workflows/deepsec.md",
@@ -2086,18 +2086,18 @@
     },
     {
       "path": ".agents/workflows/docs.md",
-      "sha256": "271ad8b51ea6cbfef338b1e08682ded6dfab3ddab8b07ab94f2470d2592a8dd4",
-      "size": 8952
+      "sha256": "e97b3341a8f67baba1e3558d5cf0b043f7e99a2b5bd84fd6b36fdf6363e7891c",
+      "size": 8978
     },
     {
       "path": ".agents/workflows/orchestrate.md",
-      "sha256": "a9df54d5d6e78bed587a3234b0f813b759aa0814b9cb73c768d55b07b13a8ff2",
-      "size": 12114
+      "sha256": "e8a0db7f4a3b97bc66a1e4447ed6a6285a180356628408bca6f20b7ad07e3cf6",
+      "size": 12156
     },
     {
       "path": ".agents/workflows/plan.md",
-      "sha256": "4cbe5214e8413ecd5a4f62e1f2d0b8eaf433b83c24296affa58838efbba3a55f",
-      "size": 8692
+      "sha256": "ef90affced1091b4c997dc6a3d85fb3140d95692aba64c8f2818836875324c45",
+      "size": 9474
     },
     {
       "path": ".agents/workflows/ralph/resources/judge-protocol.md",
@@ -2106,8 +2106,8 @@
     },
     {
       "path": ".agents/workflows/ralph.md",
-      "sha256": "e0d3efed762c7d8b1eead614d5a1d288a00e75d63e926170f3c6877902bd348a",
-      "size": 19097
+      "sha256": "af128775e6c05619f83a7fc2bd8de753e42f54ee61a147c0ef2bc26968b7cd4d",
+      "size": 19405
     },
     {
       "path": ".agents/workflows/recap.md",
@@ -2116,13 +2116,13 @@
     },
     {
       "path": ".agents/workflows/review.md",
-      "sha256": "52253ed6412e942266d0b6799fe9f4ab29aa5cb076766b3a6a45b2725aa751cb",
-      "size": 5474
+      "sha256": "ee0c7502f2581ff27f832fe25d84113b1be2337350180e234d8884f0463616fe",
+      "size": 5761
     },
     {
       "path": ".agents/workflows/schedule.md",
-      "sha256": "254b9f208443dcf21e7b266dedd1e93418aa0980e65a24f01252d5f978270316",
-      "size": 3092
+      "sha256": "4a68669aa063c9f16ffe6e0ca2007bf69c7f18d3d6f21a1807dbcfed3d8b7558",
+      "size": 3335
     },
     {
       "path": ".agents/workflows/scm.md",
@@ -2131,18 +2131,18 @@
     },
     {
       "path": ".agents/workflows/stack-set.md",
-      "sha256": "3feb0e1e9ee8a79870edf6df57bdf86841460d5bae56aaec7434e076665b5135",
-      "size": 17051
+      "sha256": "a1dc7031bf64a5dc5c010b072e384e49c837ef96b2802a08060db47f89da32cb",
+      "size": 20980
     },
     {
       "path": ".agents/workflows/tools.md",
-      "sha256": "99a58050bac7564f7daf36798000999b984901e08637229ae8a0885ff7a3285b",
-      "size": 5184
+      "sha256": "169aa63cf371128c7b8bddd2f0d7b1ca9cf2feb17b147ddb73e885d3bf86d240",
+      "size": 3821
     },
     {
       "path": ".agents/workflows/ultrawork/resources/multi-review-protocol.md",
-      "sha256": "71cf42fac078ce438545e51c0afce056eb77e68d248f3e6133167255ae2b590c",
-      "size": 4518
+      "sha256": "964684472fc03e340edbd9a0fa3e2335979361842f0852e4caf95368671b5f10",
+      "size": 5007
     },
     {
       "path": ".agents/workflows/ultrawork/resources/phase-gates.md",
@@ -2151,8 +2151,8 @@
     },
     {
       "path": ".agents/workflows/ultrawork.md",
-      "sha256": "573ccf308cf0385eedbb15dabc519d41c2f15154f83f1cae383993a81af30bd1",
-      "size": 30464
+      "sha256": "397c9c4cd904f538180009de40d49166bfa771305ee21a93af06be4f74226a2e",
+      "size": 31216
     },
     {
       "path": ".agents/workflows/video.md",
@@ -2161,8 +2161,8 @@
     },
     {
       "path": ".agents/workflows/work.md",
-      "sha256": "9a716550ae6d341b44d409cd7fbe59a0ea1e0817b84d5e06e74594c53de42687",
-      "size": 8236
+      "sha256": "4cb7cd4ad6de0c202918f1c7f83ace7215cf2f52e5a62876bacbae0bc4a0dc0f",
+      "size": 9383
     }
   ],
   "checksums": {
