@@ -1,5 +1,23 @@
 # Changelog
 
+## [10.22.0](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.21.3...cli-v10.22.0) (2026-07-18)
+
+
+### Features
+
+* **cli:** add docs/plans to managed gitignore patterns ([876d881](https://github.com/first-fluke/oh-my-agent/commit/876d881b0b241b37b5470b56fd1b2a43ba2a2645))
+
+
+### Bug Fixes
+
+* **hooks:** exclude convert and narrow work trigger keywords ([333beba](https://github.com/first-fluke/oh-my-agent/commit/333bebac7edc23ccfed010ccd1d4029876fb42f7))
+
+
+### Documentation
+
+* **plans:** track design docs referenced by committed skills ([89e84d7](https://github.com/first-fluke/oh-my-agent/commit/89e84d70b043ed4317e3ecda50b60b959484dc40))
+* **workflows:** align workflow specs with audit findings ([d75672e](https://github.com/first-fluke/oh-my-agent/commit/d75672eb531b7487f761da25406944857a0564e9))
+
 ## [10.21.3](https://github.com/first-fluke/oh-my-agent/compare/cli-v10.21.2...cli-v10.21.3) (2026-07-18)
 
 
