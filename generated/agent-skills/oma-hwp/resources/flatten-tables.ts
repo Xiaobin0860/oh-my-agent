@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+/// <reference path="./turndown-plugin-gfm.d.ts" />
 /**
  * flatten-tables.ts: post-process kordoc output:
  *   1. convert HTML <table> blocks to GFM pipe tables
