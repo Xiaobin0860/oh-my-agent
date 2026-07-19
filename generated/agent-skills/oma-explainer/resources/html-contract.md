@@ -40,7 +40,7 @@ font-family: Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Noto San
 - Clicking an option (or using Enter/Space) must reveal correct/incorrect immediately.
 - Include per-option feedback text (explain *why* wrong answers are wrong).
 - Feedback must be announced via an `aria-live="polite"` region for screen readers.
-- Correct answers must be randomly distributed across option positions (no position bias).
+- Quiz data lives in a JS array of `{question, options: [{text, correct, feedback}]}` objects. Options are shuffled client-side (Fisher-Yates) on EVERY page load, so positions change on each refresh and no position bias can survive. Feedback stays attached to its option object, never to a rendered position, and option labels (A/B/C/D) are assigned after the shuffle.
 - Display a final score summary at the end of the quiz.
 - The entire quiz must be fully keyboard-navigable.
 

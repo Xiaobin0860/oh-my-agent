@@ -91,6 +91,7 @@ These should visually interrupt the prose to draw the reader's attention to crit
 The explainer must read with authoritative clarity, smooth transitions between sections, and an engaging tone.
 
 - **English Prose**: Aim for Martin Kleppmann-like clarity. Classic style, engaging, logically rigorous but accessible.
+- **Punctuation restraint**: Em-dashes are limited to a handful per document. Prefer commas, colons, parentheses, or a second sentence. CJK prose avoids em-dashes entirely (mirrors the repo's `cjk-em-dash` lint rule for translated docs).
 - **CJK Output**: Follow the `translation_voice` register configured in `.agents/oma-config.yaml`.
 - **i18n Rules**: Prose and quiz content must be in the user's requested language. However, following `.agents/rules/i18n-guide.md`, **code blocks, identifiers, and inline code are always in English**. Do not translate technical terms or variable names.
 
