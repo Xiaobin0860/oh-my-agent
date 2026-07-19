@@ -27,6 +27,7 @@
         "./.agents/skills/oma-design",
         "./.agents/skills/oma-dev-workflow",
         "./.agents/skills/oma-docs",
+        "./.agents/skills/oma-explainer",
         "./.agents/skills/oma-frontend",
         "./.agents/skills/oma-hwp",
         "./.agents/skills/oma-image",

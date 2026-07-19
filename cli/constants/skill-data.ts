@@ -71,6 +71,10 @@ export const SKILLS: SkillsRegistry = {
       desc: `Verify documentation references against the current codebase, propose updates for diff-affected docs, detect i18n translation drift, and lint translated docs for CJK style issues. Use to check if docs still match reality (broken file paths, CLI commands, config keys, env vars, scripts), to surface docs that may need updating after code changes, or to find stale or style-broken translations.`,
     },
     {
+      name: "oma-explainer",
+      desc: `Turn a code change (diff, PR, branch, commit range) into a rich, self-contained interactive HTML explainer with Background / Intuition / Code / Quiz sections. Use for explain, walkthrough, code-change explanation, diff/PR/branch explainer requests — 설명서, 해설, コード解説, 代码讲解. Produces a single offline-capable HTML file with diagrams, callouts, and an accessible quiz.`,
+    },
+    {
       name: "oma-hwp",
       desc: `Convert HWP / HWPX / HWPML files to Markdown using kordoc. Extracts text, headings, tables, lists, images, footnotes, and hyperlinks. Use for Korean word processor files (Hangul), government documents, and AI-ready data preparation.`,
     },
@@ -88,7 +92,7 @@ export const SKILLS: SkillsRegistry = {
     },
     {
       name: "oma-recap",
-      desc: `Analyze conversation histories from multiple AI tools (Grok, Claude, Codex, Qwen, Cursor, Antigravity) and generate themed daily/period work summaries. Filter by date or time window.`,
+      desc: `Analyze conversation histories from multiple AI tools (Grok, Claude, Codex, Gemini, Qwen, Cursor, Antigravity) and generate themed daily/period work summaries. Filter by date or time window.`,
     },
     {
       name: "oma-refactor",

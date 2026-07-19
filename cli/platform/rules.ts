@@ -233,7 +233,7 @@ function buildVendorBlock(vendor: string, rules: ParsedRule[]): string {
     "|----------|------|-------------|",
     "| orchestrate | `orchestrate.md` | Parallel subagents + Review Loop |",
     "| work | `work.md` | Step-by-step with remediation loop |",
-    "| ultrawork | `ultrawork.md` | 5-Phase Gate Loop (11 reviews) |",
+    "| ultrawork | `ultrawork.md` | 5-Phase Gate Loop with cross-context reviews |",
     "| ralph | `ralph.md` | Persistent loop wrapping ultrawork with an independent judge |",
     "| plan | `plan.md` | PM task breakdown |",
     "| brainstorm | `brainstorm.md` | Design-first ideation |",
@@ -241,7 +241,7 @@ function buildVendorBlock(vendor: string, rules: ParsedRule[]): string {
     "| design | `design.md` | Design system + DESIGN.md with anti-pattern enforcement |",
     "| review | `review.md` | QA audit |",
     "| debug | `debug.md` | Root cause + minimal fix |",
-    "| deepsec | `deepsec.md` | Drive `oma-deepsec` end-to-end (setup / scan / pr-review / matchers / triage) |",
+    "| deepsec | `deepsec.md` | Drive `oma-deepsec` end-to-end (setup / scan / pr-review / matchers / triage / config / troubleshoot) |",
     "| scm | `scm.md` | SCM + Git operations + Conventional Commits |",
     "| docs | `docs.md` | Documentation drift verify + sync |",
     "| recap | `recap.md` | Daily / period AI conversation recap |",
@@ -249,8 +249,9 @@ function buildVendorBlock(vendor: string, rules: ParsedRule[]): string {
     "| convert | `convert.md` | File format conversion by category: documents→Markdown (oma-pdf/oma-hwp), image/video/audio transcode (ffmpeg) |",
     "| video | `video.md` | Brief → script → assets → render-spec → Remotion (oma-video) |",
     "| schedule | `schedule.md` | Register & manage time-based agent jobs via `oma schedule:*` |",
+    "| explain | `explain.md` | Diff/PR/branch → self-contained interactive HTML explainer via oma-explainer |",
     "",
-    "(`tools` and `stack-set` are slash-invoked utilities, and `schedule` is a slash-invoked workflow (`oma schedule:*` time-based jobs); all are intentionally excluded from keyword detection.)",
+    '(`tools` and `stack-set` are slash-invoked utilities, `schedule` is a slash-invoked workflow (`oma schedule:*` time-based jobs), `convert` is slash-invoked to avoid false positives on "convert this code" phrasing, and `explain` is slash-invoked because "explain" is everyday vocabulary, excluded from keyword detection to avoid false positives; all are intentionally excluded from keyword detection.)',
     "",
     `To execute: read and follow \`.agents/workflows/{name}.md\` step by step.`,
     "",
@@ -334,4 +335,30 @@ export function mergeRulesIndexForVendor(
   const block = buildVendorBlock(vendor, rules);
   mergeOmaBlock(join(targetDir, fileName), block);
   return true;
+}
+
+/**
+ * Render the full content of a `cli/`-scoped vendor doc (`cli/CLAUDE.md` /
+ * `cli/AGENTS.md`): the vendor OMA block WITHOUT the project-rules index
+ * (rules tables are a project-root concern), spliced into `existingContent`'s
+ * OMA markers when present so content outside the block survives. Pure —
+ * callers (emit) handle file IO, keeping scratch-base drift runs read-only
+ * against the committed file.
+ */
+export function renderCliVendorDoc(
+  vendor: string,
+  existingContent: string | null,
+): string {
+  const block = buildVendorBlock(vendor, []);
+  if (existingContent) {
+    const startIdx = existingContent.indexOf(OMA_START_PREFIX);
+    const endIdx = existingContent.indexOf(OMA_END);
+    if (startIdx !== -1 && endIdx !== -1) {
+      const before = existingContent.slice(0, startIdx);
+      const after = existingContent.slice(endIdx + OMA_END.length);
+      return `${before}${block}${after}`;
+    }
+    return `${existingContent.trimEnd()}\n\n${block}\n`;
+  }
+  return `${block}\n`;
 }

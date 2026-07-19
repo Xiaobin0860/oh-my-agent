@@ -50,7 +50,7 @@ Reviewers are read-only evaluators. Implementation and refactor **actions** (Pha
 3. Read `.agents/skills/_shared/runtime/memory-protocol.md` for memory protocol.
 4. Read `.agents/skills/_shared/runtime/event-spec.md` for L1 event protocol.
 5. Emit required L1 decisions by calling `oma state:emit` directly, as documented in `.agents/skills/_shared/runtime/event-spec.md`.
-6. Read `.agents/workflows/ultrawork/resources/multi-review-protocol.md` (11 review guides)
+6. Read `.agents/workflows/ultrawork/resources/multi-review-protocol.md` (12 review guides)
 7. Read `.agents/skills/_shared/core/quality-principles.md` (4 principles)
 8. Read `.agents/workflows/ultrawork/resources/phase-gates.md` (gate definitions)
 9. Resolve the session ID:
