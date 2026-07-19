@@ -158,6 +158,10 @@ export interface PlanDispatchOptions {
    * Suppresses auto_approve_flag and appends the vendor's read_only_flag.
    * Emits console.warn when the vendor has no read_only_flag defined. */
   readOnly?: boolean;
+  /** Absolute workspace path the spawned agent must be able to write.
+   * Threaded to external builders for vendors that confine writes to a
+   * trusted root (antigravity/agy → `--add-dir`). */
+  workspace?: string;
 }
 
 export function planDispatch(
@@ -169,9 +173,10 @@ export function planDispatch(
   env: NodeJS.ProcessEnv = process.env,
   options: PlanDispatchOptions = {},
 ): DispatchPlan {
-  const { readOnly = false } = options;
+  const { readOnly = false, workspace } = options;
   const invOptions: NativeInvocationOptions & ExternalInvocationOptions = {
     readOnly,
+    workspace,
   };
 
   const runtimeVendor = detectRuntimeVendor(env);

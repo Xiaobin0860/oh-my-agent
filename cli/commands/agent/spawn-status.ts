@@ -128,6 +128,41 @@ export function getFindingsHandle(sessionId: string) {
   };
 }
 
+/**
+ * True when a `result-*` memory artifact naming this session and modified at
+ * or after `sinceMs` exists under the workspace (memories dir or legacy
+ * `.agents/results`). Used to detect agy runs that exited 0 but wrote their
+ * artifacts outside the workspace (tech-debt #7).
+ */
+export function hasSessionResultArtifact(
+  workspace: string,
+  sessionId: string,
+  sinceMs: number,
+): boolean {
+  const dirs = [
+    getMemoriesPath(workspace),
+    path.join(workspace, ".agents", "results"),
+  ];
+  for (const dir of dirs) {
+    let entries: string[];
+    try {
+      entries = fs.readdirSync(dir);
+    } catch {
+      continue;
+    }
+    if (!Array.isArray(entries)) continue;
+    for (const entry of entries) {
+      if (!entry.startsWith("result-") || !entry.includes(sessionId)) continue;
+      try {
+        if (fs.statSync(path.join(dir, entry)).mtimeMs >= sinceMs) return true;
+      } catch {
+        // unreadable entry — ignore
+      }
+    }
+  }
+  return false;
+}
+
 export async function spawnAgent(
   agentId: string,
   prompt: string,
@@ -255,7 +290,7 @@ export async function spawnAgent(
     promptFlag,
     promptContent,
     undefined,
-    { readOnly: readOnly ?? false },
+    { readOnly: readOnly ?? false, workspace: resolvedWorkspace },
   );
   console.log(
     color.dim(
@@ -316,6 +351,7 @@ export async function spawnAgent(
   }
   const { command, args, env } = invocation;
 
+  const spawnStartMs = Date.now();
   const child = spawnProcess(command, args, {
     cwd: resolvedWorkspace,
     stdio: ["ignore", logStream, logStream],
@@ -389,6 +425,26 @@ export async function spawnAgent(
       } catch (err) {
         console.warn(
           `[${agentId}] could not persist terminal status (non-fatal): ${String(err)}`,
+        );
+      }
+
+      // agy can exit 0 having written its artifacts into its own trusted root
+      // instead of the workspace (tech-debt #7). Surface that loudly instead
+      // of letting the "completed" status mask an empty workspace.
+      if (
+        code === 0 &&
+        dispatch.targetVendor === "antigravity" &&
+        dispatch.mode === "external" &&
+        !hasSessionResultArtifact(
+          resolvedWorkspace,
+          sessionId,
+          spawnStartMs - 2_000,
+        )
+      ) {
+        console.warn(
+          color.yellow(
+            `[${agentId}] exited 0 but wrote no session result artifact under the workspace — agy may have written to its own trusted root (~/.gemini/antigravity-cli). Verify agy workspace trust / --add-dir support.`,
+          ),
         );
       }
 

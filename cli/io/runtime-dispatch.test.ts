@@ -9,6 +9,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  primeAgyCaps,
+  resetAgyCapsCache,
+} from "./runtime-dispatch/agy-caps.js";
+import {
   buildExternalInvocation,
   detectRuntimeVendor,
   planDispatch,
@@ -106,6 +110,9 @@ describe("planDispatch — forced-external runtimes", () => {
   });
 
   it("antigravity runtime + antigravity target → mode:'native' (agy)", () => {
+    // Pin the caps probe to agy 1.0 so the assertion is machine-independent
+    // (a real probe on a box with agy 1.1+ would legitimately add --model).
+    primeAgyCaps({ modelFlag: false, addDir: false });
     const plan = planDispatch(
       "test-agent",
       "antigravity",
@@ -114,6 +121,7 @@ describe("planDispatch — forced-external runtimes", () => {
       "hello",
       { OMA_RUNTIME_VENDOR: "antigravity" },
     );
+    resetAgyCapsCache();
     expect(plan.mode).toBe("native");
     expect(plan.runtimeVendor).toBe("antigravity");
     expect(plan.invocation.command).toBe("agy");
@@ -126,6 +134,23 @@ describe("planDispatch — forced-external runtimes", () => {
     // No `--model` or `--thinking-budget` — those flags do not exist in agy 1.0.
     expect(plan.invocation.args).not.toContain("--model");
     expect(plan.invocation.args).not.toContain("--thinking-budget");
+  });
+
+  it("antigravity native dispatch appends --model when the installed agy supports it (1.1+)", () => {
+    primeAgyCaps({ modelFlag: true, addDir: true });
+    const plan = planDispatch(
+      "test-agent",
+      "antigravity",
+      { prompt_flag: "-p" },
+      "-p",
+      "hello",
+      { OMA_RUNTIME_VENDOR: "antigravity" },
+    );
+    resetAgyCapsCache();
+    expect(plan.mode).toBe("native");
+    // Per-agent plan resolution (repo config → antigravity preset) supplies the
+    // model id; with caps present it must be forwarded as `--model <id>`.
+    expect(plan.invocation.args).toContain("--model");
   });
 
   it("prints a WARN message when forced to external for qwen", () => {
@@ -529,15 +554,60 @@ describe("buildExternalInvocation — vendor branches", () => {
     expect(inv.args).toContain("--dangerously-skip-permissions");
   });
 
-  it("antigravity: stale `model_flag` in vendorConfig is dropped (agy 1.0 has no --model)", () => {
+  it("antigravity: stale `model_flag` in vendorConfig is dropped when agy lacks --model (agy 1.0)", () => {
+    primeAgyCaps({ modelFlag: false, addDir: false });
     const inv = buildExternalInvocation(
       "antigravity",
       { model_flag: "--model", default_model: "gemini-3.1-pro" },
       "-p",
       "hi",
     );
+    resetAgyCapsCache();
     expect(inv.args).not.toContain("--model");
     expect(inv.args).not.toContain("gemini-3.1-pro");
+  });
+
+  it("antigravity: vendorConfig model flag passes through when agy supports --model (1.1+)", () => {
+    primeAgyCaps({ modelFlag: true, addDir: false });
+    const inv = buildExternalInvocation(
+      "antigravity",
+      { model_flag: "--model", default_model: "gemini-3.1-pro" },
+      "-p",
+      "hi",
+    );
+    resetAgyCapsCache();
+    expect(inv.args).toContain("--model");
+    expect(inv.args).toContain("gemini-3.1-pro");
+  });
+
+  it("antigravity: --add-dir {workspace} granted when agy supports it (tech-debt #7)", () => {
+    primeAgyCaps({ modelFlag: false, addDir: true });
+    const inv = buildExternalInvocation(
+      "antigravity",
+      {},
+      "-p",
+      "hi",
+      undefined,
+      { workspace: "/tmp/ws" },
+    );
+    resetAgyCapsCache();
+    const i = inv.args.indexOf("--add-dir");
+    expect(i).toBeGreaterThan(-1);
+    expect(inv.args[i + 1]).toBe("/tmp/ws");
+  });
+
+  it("antigravity: no --add-dir when agy lacks it (agy 1.0)", () => {
+    primeAgyCaps({ modelFlag: false, addDir: false });
+    const inv = buildExternalInvocation(
+      "antigravity",
+      {},
+      "-p",
+      "hi",
+      undefined,
+      { workspace: "/tmp/ws" },
+    );
+    resetAgyCapsCache();
+    expect(inv.args).not.toContain("--add-dir");
   });
 
   it("isolation_flags split into argv tokens", () => {

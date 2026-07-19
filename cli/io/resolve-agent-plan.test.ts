@@ -25,12 +25,16 @@
  * 18.  buildAgentPlanArgs for Codex → -m args
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   parseCodexConfig,
   serializeCodexConfig,
   setCodexReasoningEffort,
 } from "../vendors/codex/settings.js";
+import {
+  primeAgyCaps,
+  resetAgyCapsCache,
+} from "./runtime-dispatch/agy-caps.js";
 import {
   buildAgentPlanArgs,
   ConfigError,
@@ -590,7 +594,10 @@ describe("buildAgentPlanArgs — Qwen", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildAgentPlanArgs — antigravity & unknown", () => {
-  it("antigravity cli yields empty args — agy 1.0 has no --model or --thinking-budget flag", () => {
+  afterEach(() => resetAgyCapsCache());
+
+  it("antigravity yields empty args when agy lacks --model (agy 1.0)", () => {
+    primeAgyCaps({ modelFlag: false, addDir: false });
     const basePlan = resolveAgentPlanFromConfig("backend", CODEX_ONLY_CONFIG);
     const antigravityPlan = {
       ...basePlan,
@@ -598,6 +605,20 @@ describe("buildAgentPlanArgs — antigravity & unknown", () => {
       cliModel: "gemini-3.1-pro",
     };
     expect(buildAgentPlanArgs(antigravityPlan)).toEqual([]);
+  });
+
+  it("antigravity passes --model {cliModel} when the installed agy supports it (1.1+)", () => {
+    primeAgyCaps({ modelFlag: true, addDir: true });
+    const basePlan = resolveAgentPlanFromConfig("backend", CODEX_ONLY_CONFIG);
+    const antigravityPlan = {
+      ...basePlan,
+      cli: "antigravity" as const,
+      cliModel: "gemini-3.1-pro",
+    };
+    expect(buildAgentPlanArgs(antigravityPlan)).toEqual([
+      "--model",
+      "gemini-3.1-pro",
+    ]);
   });
 
   it("unknown cli yields empty args", () => {

@@ -1,3 +1,4 @@
+import { detectAgyCaps } from "./agy-caps.js";
 import { toPiThinking } from "./pi-model-map.js";
 import type { AgentPlan } from "./types.js";
 
@@ -28,8 +29,10 @@ export function qwenThinkingFlag(plan: AgentPlan): string | null {
  * - claude: --model {cliModel}
  * - qwen:   -m {cliModel}  + optional --thinking / --no-thinking flag
  * - cursor: [] (model flag injected before trailing prompt by injectCursorModelBeforeTrailingPrompt)
- * - antigravity: [] (agy 1.0 has no `--model` or `--thinking-budget` flag — model selection
- *                    is config-driven; effort/thinking are dropped silently)
+ * - antigravity: --model {cliModel} when the installed agy advertises the flag
+ *                (1.1+, probed via agy-caps). agy 1.0 had no model flag, so a
+ *                probe miss drops it and model selection stays config-driven;
+ *                effort/thinking are dropped silently either way.
  */
 export function buildAgentPlanArgs(plan: AgentPlan): string[] {
   const args: string[] = [];
@@ -58,7 +61,11 @@ export function buildAgentPlanArgs(plan: AgentPlan): string[] {
       break;
     }
     case "antigravity": {
-      // agy 1.0 exposes no model or thinking-budget flag — model is config-driven.
+      // agy 1.0 exposed no model flag; 1.1+ added `--model`. Probe the
+      // installed binary once and pass the per-agent model only when supported.
+      if (detectAgyCaps().modelFlag) {
+        args.push("--model", plan.cliModel);
+      }
       break;
     }
     case "pi": {

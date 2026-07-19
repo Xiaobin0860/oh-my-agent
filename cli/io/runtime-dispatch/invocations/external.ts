@@ -2,6 +2,7 @@ import {
   splitArgs,
   type VendorConfig,
 } from "../../../platform/agent-config.js";
+import { detectAgyCaps } from "../agy-caps.js";
 import type { Invocation } from "../types.js";
 
 export interface ExternalInvocationOptions {
@@ -9,6 +10,10 @@ export interface ExternalInvocationOptions {
    * Suppresses `auto_approve_flag` and appends the vendor's `read_only_flag`.
    * Emits a console.warn when the vendor has no `read_only_flag` defined. */
   readOnly?: boolean;
+  /** Absolute workspace path the agent must be able to write. Used by vendors
+   * whose CLI confines writes to a trusted root unless granted explicitly
+   * (antigravity/agy → `--add-dir`). */
+  workspace?: string;
 }
 
 /**
@@ -294,7 +299,7 @@ const buildGenericExternalInvocation: ExternalInvocationBuilder = ({
   promptContent,
   options,
 }) => {
-  const { readOnly = false } = options;
+  const { readOnly = false, workspace } = options;
 
   // Vendors whose CLI binary name differs from the vendor identifier.
   const binaryByVendor: Record<string, string> = {
@@ -318,14 +323,23 @@ const buildGenericExternalInvocation: ExternalInvocationBuilder = ({
     optionArgs.push(vendorConfig.output_format_flag);
   }
 
-  // agy 1.0 has no `--model` flag — defensively skip emitting one for the
-  // antigravity vendor even when a stale vendorConfig carries it.
+  // agy 1.0 had no `--model` flag — skip a vendorConfig model flag for the
+  // antigravity vendor unless the installed agy advertises support (1.1+).
+  // model_flag/default_model are checked FIRST so the caps probe only runs
+  // when a model flag would actually be emitted.
   if (
-    vendor !== "antigravity" &&
     vendorConfig.model_flag &&
-    vendorConfig.default_model
+    vendorConfig.default_model &&
+    (vendor !== "antigravity" || detectAgyCaps().modelFlag)
   ) {
     optionArgs.push(vendorConfig.model_flag, vendorConfig.default_model);
+  }
+
+  // agy confines file writes to its own trusted root (~/.gemini/antigravity-cli)
+  // unless the workspace is granted explicitly, so a subagent can exit 0 with
+  // its artifacts outside the repo. Grant the workspace when agy supports it.
+  if (vendor === "antigravity" && workspace && detectAgyCaps().addDir) {
+    optionArgs.push("--add-dir", workspace);
   }
 
   if (vendorConfig.isolation_flags) {
