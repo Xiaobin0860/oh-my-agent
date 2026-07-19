@@ -146,7 +146,8 @@ outputs:
 
 ### Preconditions
 - Resolvable git repository, not mid-merge/rebase
-- Non-empty, non-binary-only diff for the resolved ref
+- Explainable diff for the resolved ref (non-empty, not binary-only, not generated-only or
+  version-bump-only — see the predicate in `.agents/workflows/explain.md` Step 1)
 - `gh` authenticated when a PR ref is requested
 
 ### Effects and side effects
@@ -167,4 +168,3 @@ Driven end-to-end by `.agents/workflows/explain.md` (slash-only; `disable-model-
 ## References
 - `resources/document-structure.md` — document content contract
 - `resources/html-contract.md` — HTML behavior, validation checklist, secret gates
-- `docs/plans/designs/022-oma-explainer.md` — approved design (contract SSOT)

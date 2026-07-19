@@ -48,7 +48,7 @@ font-family: Pretendard, 'Pretendard Variable', 'Apple SD Gothic Neo', 'Noto San
 Execute the following grep-based checks on the generated HTML. 
 Loop: fix and re-validate at most **3 iterations**, then STOP and surface the failing items to the user.
 
-**Known false positives — do not "fix" example code.** A hit located inside a `<pre>` block that merely *quotes* a matching pattern as illustrative text (a commented-out `@import` in a "what not to do" snippet, an example `api_key` in a config walkthrough) is not a live resource load or a real secret. Log such hits as reviewed false positives in the provenance footer instead of mangling the example, and do not count them against the 3-iteration budget. Live `<head>` / `<script src>` references and actual secret values must still be fixed or gated.
+**Known false positives — do not "fix" example code.** A hit located inside a `<pre>` block that merely *quotes* a matching pattern as illustrative text (a commented-out `@import` in a "what not to do" snippet, an example `api_key` in a config walkthrough) is not a live resource load or a real secret. Log such hits as reviewed false positives in the provenance footer instead of mangling the example, and do not count them against the 3-iteration budget. Live `<head>` / `<script src>` references and actual secret values must still be fixed or gated. (Related: this contract's own §3 comment legitimately contains the literal `@font-face` — the §6 greps do not match it, and a stricter v2 validator must not flag it either.)
 
 - **No external resource loads** (zero matches required):
   ```bash
@@ -62,10 +62,10 @@ Loop: fix and re-validate at most **3 iterations**, then STOP and surface the fa
   ```bash
   grep -i -E '<script[ >]' {file}
   ```
-- **Filename matches format:**
+- **Filename matches format** (the pattern is anchored, so check the basename, not the full path):
   Ensure filename follows `{YYYY-MM-DD}-{slug}.html` with the date in `Asia/Seoul` timezone.
   ```bash
-  echo "{file}" | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}-.+\.html$'
+  basename "{file}" | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}-.+\.html$'
   ```
 - **Final-HTML secret scan** (zero matches required, see §7):
   ```bash
@@ -83,6 +83,7 @@ Secrets must be gated at two stages:
 Mirroring a MINIMAL pattern set for secret-like literal values (API keys, tokens, private keys, passwords, connection strings):
 - **Excluded Files:** `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa`, `id_rsa*`
 - **Regex Pattern:** `(api_key|api-key|secret|password|token|private[-_]key|connection[-_]string)\s*[=:]\s*["']?[A-Za-z0-9\-_]{16,}["']?`
+  (canonical pattern — the embedded quotes break naive single-quoted shell pasting; run it via the pre-escaped §6 "final-HTML secret scan" invocation)
 
 **On Any Hit:**
 - **STOP** immediately.
