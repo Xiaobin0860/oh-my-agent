@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.22.0",
-  "releaseDate": "2026-07-19T02:11:07.944Z",
+  "releaseDate": "2026-07-19T02:25:33.304Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -1001,13 +1001,13 @@
     },
     {
       "path": ".agents/skills/oma-explainer/resources/document-structure.md",
-      "sha256": "0dbf97ba948631ef170d854dcbe853d50723afb551bec7ceab7ff8a54473f7b9",
-      "size": 4372
+      "sha256": "abb4ca68b6508c13040feedf2eb71061cbd7da5ff76c197516e9c886991a8131",
+      "size": 4610
     },
     {
       "path": ".agents/skills/oma-explainer/resources/html-contract.md",
-      "sha256": "5b8eed81083db6fd02d4116c8a7b3b94de8250278654076cc020ced68182fd24",
-      "size": 6038
+      "sha256": "4f99faeb923de8a385ec8f4971788743c3bdcdd0f4c609a783eb469cc5067a9f",
+      "size": 6316
     },
     {
       "path": ".agents/skills/oma-frontend/SKILL.md",
