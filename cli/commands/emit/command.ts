@@ -3,6 +3,7 @@ import type { Command } from "commander";
 import { emitAgentSkills } from "../../platform/emit/agent-skills.js";
 import { emitAgentsMd } from "../../platform/emit/agents-md.js";
 import { emitClaudePlugin } from "../../platform/emit/claude-plugin.js";
+import { emitCliDocs } from "../../platform/emit/cli-docs.js";
 import type { AgentSkillsEmitReport } from "../../platform/emit/types.js";
 import {
   addOutputOptions,
@@ -16,6 +17,7 @@ const EMIT_TARGETS = [
   "agent-skills",
   "claude-plugin",
   "agents-md",
+  "cli-docs",
   "all",
 ] as const;
 type EmitCliTarget = (typeof EMIT_TARGETS)[number];
@@ -72,6 +74,9 @@ export function runEmit(options: RunEmitOptions): EmitRunReport {
       join(outDir, "generated", "agents-md"),
     );
   }
+  if (target === "cli-docs" || target === "all") {
+    report.cliDocs = emitCliDocs(repoRoot, outDir);
+  }
 
   return report;
 }
@@ -82,7 +87,8 @@ export function registerEmitCommand(program: Command): void {
       .command("emit")
       .description(
         "Emit standards-conformant artifacts from the .agents/ SSOT " +
-          "(Agent Skills spec, Claude Code plugin marketplace, AGENTS.md)",
+          "(Agent Skills spec, Claude Code plugin marketplace, AGENTS.md, " +
+          "cli/-scoped vendor docs)",
       )
       .option(
         "--target <target>",

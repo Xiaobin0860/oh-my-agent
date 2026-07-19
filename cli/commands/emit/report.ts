@@ -2,12 +2,14 @@ import type {
   AgentSkillsEmitReport,
   AgentsMdEmitReport,
   ClaudePluginEmitReport,
+  CliDocsEmitReport,
 } from "../../platform/emit/types.js";
 
 export interface EmitRunReport {
   agentSkills?: AgentSkillsEmitReport;
   claudePlugin?: ClaudePluginEmitReport;
   agentsMd?: AgentsMdEmitReport;
+  cliDocs?: CliDocsEmitReport;
 }
 
 export function renderJson(report: EmitRunReport): string {
@@ -44,6 +46,16 @@ function renderAgentsMdSection(report: AgentsMdEmitReport): string[] {
   ];
 }
 
+function renderCliDocsSection(report: CliDocsEmitReport): string[] {
+  const lines = [`cli-docs -> ${report.outDir}`];
+  for (const file of report.files) {
+    lines.push(
+      `  [${file.changed ? "UPDATED" : "unchanged"}] ${file.outPath} (${file.vendor})`,
+    );
+  }
+  return lines;
+}
+
 export function renderText(report: EmitRunReport): string {
   const lines: string[] = [];
   if (report.agentSkills)
@@ -52,5 +64,6 @@ export function renderText(report: EmitRunReport): string {
     lines.push(...renderClaudePluginSection(report.claudePlugin), "");
   if (report.agentsMd)
     lines.push(...renderAgentsMdSection(report.agentsMd), "");
+  if (report.cliDocs) lines.push(...renderCliDocsSection(report.cliDocs), "");
   return lines.join("\n").trimEnd();
 }

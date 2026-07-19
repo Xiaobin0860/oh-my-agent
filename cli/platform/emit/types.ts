@@ -3,6 +3,7 @@ export const EMIT_TARGETS = [
   "agent-skills",
   "claude-plugin",
   "agents-md",
+  "cli-docs",
 ] as const;
 
 export type EmitTarget = (typeof EMIT_TARGETS)[number];
@@ -49,7 +50,21 @@ export interface AgentsMdEmitReport {
   existingDiffers: boolean;
 }
 
+export interface CliDocEmitResult {
+  vendor: string;
+  outPath: string;
+  /** true when the emitted content differs from the committed file. */
+  changed: boolean;
+}
+
+export interface CliDocsEmitReport {
+  target: "cli-docs";
+  outDir: string;
+  files: CliDocEmitResult[];
+}
+
 export type EmitReport =
   | AgentSkillsEmitReport
   | ClaudePluginEmitReport
-  | AgentsMdEmitReport;
+  | AgentsMdEmitReport
+  | CliDocsEmitReport;

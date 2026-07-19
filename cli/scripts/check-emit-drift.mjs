@@ -25,6 +25,9 @@ const CLI_DIR = join(fileURLToPath(new URL(".", import.meta.url)), "..");
 const REPO_ROOT = join(CLI_DIR, "..");
 const GENERATED_DIR = join(REPO_ROOT, "generated");
 const MARKETPLACE_REL = join(".claude-plugin", "marketplace.json");
+// Generated cli/-scoped vendor docs (emit --target cli-docs). Hand-editing
+// these reintroduces the drift this gate exists to prevent.
+const CLI_DOC_RELS = [join("cli", "CLAUDE.md"), join("cli", "AGENTS.md")];
 
 function listFilesRecursive(dir) {
   if (!existsSync(dir)) return [];
@@ -89,6 +92,28 @@ function diffMarketplace(scratchDir) {
     : [`changed: ${MARKETPLACE_REL}`];
 }
 
+function diffCliDocs(scratchDir) {
+  const problems = [];
+  for (const rel of CLI_DOC_RELS) {
+    const fresh = join(scratchDir, rel);
+    const committed = join(REPO_ROOT, rel);
+    if (!existsSync(fresh)) {
+      problems.push(`fresh emit did not produce ${rel}`);
+      continue;
+    }
+    if (!existsSync(committed)) {
+      problems.push(
+        `missing committed ${rel} — run \`oma emit\` and commit it`,
+      );
+      continue;
+    }
+    if (readFileSync(fresh, "utf-8") !== readFileSync(committed, "utf-8")) {
+      problems.push(`changed: ${rel}`);
+    }
+  }
+  return problems;
+}
+
 const scratchDir = mkdtempSync(join(tmpdir(), "oma-emit-drift-"));
 
 try {
@@ -114,16 +139,18 @@ try {
     GENERATED_DIR,
   );
   const marketplaceIssues = diffMarketplace(scratchDir);
+  const cliDocIssues = diffCliDocs(scratchDir);
 
   if (
     missing.length === 0 &&
     extra.length === 0 &&
     changed.length === 0 &&
-    marketplaceIssues.length === 0
+    marketplaceIssues.length === 0 &&
+    cliDocIssues.length === 0
   ) {
     console.log(
-      "emit drift: none — generated/ and .claude-plugin/marketplace.json " +
-        "match a fresh `oma emit`",
+      "emit drift: none — generated/, .claude-plugin/marketplace.json, and " +
+        "cli/{CLAUDE,AGENTS}.md match a fresh `oma emit`",
     );
     process.exit(0);
   }
@@ -136,6 +163,7 @@ try {
     console.error(`  stale in generated/ (no longer emitted): ${f}`);
   for (const f of changed) console.error(`  changed: generated/${f}`);
   for (const issue of marketplaceIssues) console.error(`  ${issue}`);
+  for (const issue of cliDocIssues) console.error(`  ${issue}`);
   console.error(
     "Run `oma emit --target all` at the repo root and commit the result.",
   );
