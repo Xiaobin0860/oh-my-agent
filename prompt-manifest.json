@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.23.1",
-  "releaseDate": "2026-07-19T11:19:43.224Z",
+  "releaseDate": "2026-07-20T07:15:46.146Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -301,8 +301,8 @@
     },
     {
       "path": ".agents/oma-config.yaml",
-      "sha256": "b600dfb9da8f448b9b2723825adbed040952fe09c5bae536224abe66ad86b170",
-      "size": 13177
+      "sha256": "67548a3ea4553beb560284bcaeff9d600cbd15fc39168df0fc0af4bc03927b5a",
+      "size": 13351
     },
     {
       "path": ".agents/rules/backend.md",
@@ -1486,8 +1486,8 @@
     },
     {
       "path": ".agents/skills/oma-orchestrator/config/cli-config.yaml",
-      "sha256": "16bf70b889744781b00ec96873f6e3935927751af2fe3c75cec8c07ba92fe95c",
-      "size": 2686
+      "sha256": "29fc62f4015ee21fe5c5ca19d16b9e8456f84f3ac4af286a1efe769b67ffef17",
+      "size": 3340
     },
     {
       "path": ".agents/skills/oma-orchestrator/resources/memory-schema.md",
