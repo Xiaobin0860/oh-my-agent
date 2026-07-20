@@ -2,7 +2,7 @@ import {
   splitArgs,
   type VendorConfig,
 } from "../../../platform/agent-config.js";
-import { detectAgyCaps } from "../agy-caps.js";
+import { agyPrintTimeoutArgs, detectAgyCaps } from "../agy-caps.js";
 import type { Invocation } from "../types.js";
 
 export interface ExternalInvocationOptions {
@@ -340,6 +340,11 @@ const buildGenericExternalInvocation: ExternalInvocationBuilder = ({
   // its artifacts outside the repo. Grant the workspace when agy supports it.
   if (vendor === "antigravity" && workspace && detectAgyCaps().addDir) {
     optionArgs.push("--add-dir", workspace);
+  }
+
+  // Lift agy's 5m print-mode ceiling (see agyPrintTimeoutArgs).
+  if (vendor === "antigravity") {
+    optionArgs.push(...agyPrintTimeoutArgs());
   }
 
   if (vendorConfig.isolation_flags) {

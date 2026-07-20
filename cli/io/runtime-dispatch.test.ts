@@ -153,6 +153,63 @@ describe("planDispatch — forced-external runtimes", () => {
     expect(plan.invocation.args).toContain("--model");
   });
 
+  // Parity with the external agy path: both builders spawn the same binary, so
+  // a flag present in only one makes an agy subagent behave differently
+  // depending on which runtime launched it.
+  it("antigravity native dispatch grants --add-dir {workspace} when agy supports it", () => {
+    primeAgyCaps({ addDir: true });
+    const plan = planDispatch(
+      "test-agent",
+      "antigravity",
+      { prompt_flag: "-p" },
+      "-p",
+      "hello",
+      { OMA_RUNTIME_VENDOR: "antigravity" },
+      { workspace: "/tmp/ws" },
+    );
+    resetAgyCapsCache();
+    expect(plan.mode).toBe("native");
+    const i = plan.invocation.args.indexOf("--add-dir");
+    expect(i).toBeGreaterThan(-1);
+    expect(plan.invocation.args[i + 1]).toBe("/tmp/ws");
+  });
+
+  it("antigravity native dispatch omits --add-dir when agy lacks it (agy 1.0)", () => {
+    primeAgyCaps({ addDir: false });
+    const plan = planDispatch(
+      "test-agent",
+      "antigravity",
+      { prompt_flag: "-p" },
+      "-p",
+      "hello",
+      { OMA_RUNTIME_VENDOR: "antigravity" },
+      { workspace: "/tmp/ws" },
+    );
+    resetAgyCapsCache();
+    expect(plan.invocation.args).not.toContain("--add-dir");
+  });
+
+  // Regression: agy print mode aborts at its 5m default with no result, which
+  // surfaces to the orchestrator as a hang that crashed at exactly 5 minutes.
+  it("antigravity native dispatch raises agy's 5m print ceiling", () => {
+    primeAgyCaps({ printTimeout: true });
+    const plan = planDispatch(
+      "test-agent",
+      "antigravity",
+      { prompt_flag: "-p" },
+      "-p",
+      "hello",
+      { OMA_RUNTIME_VENDOR: "antigravity" },
+    );
+    resetAgyCapsCache();
+    const i = plan.invocation.args.indexOf("--print-timeout");
+    expect(i).toBeGreaterThan(-1);
+    expect(plan.invocation.args[i + 1]).toBe("30m");
+    // -p stays a value flag: the prompt must still follow it immediately.
+    const pIdx = plan.invocation.args.indexOf("-p");
+    expect(plan.invocation.args[pIdx + 1]).toMatch(/hello/);
+  });
+
   it("prints a WARN message when forced to external for qwen", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     planDispatch("test-agent", "claude", minimalVendorConfig, "-p", "hello", {
@@ -549,9 +606,31 @@ describe("buildExternalInvocation — vendor branches", () => {
   });
 
   it("antigravity: command defaults to `agy` binary, auto_approve_flag falls back to --dangerously-skip-permissions", () => {
+    // Prime the caps cache so the builder does not shell out to the real `agy
+    // --help` for its --print-timeout probe.
+    primeAgyCaps({});
     const inv = buildExternalInvocation("antigravity", {}, "-p", "hi");
+    resetAgyCapsCache();
     expect(inv.command).toBe("agy");
     expect(inv.args).toContain("--dangerously-skip-permissions");
+  });
+
+  // Regression: agy print mode aborts at its 5m default with no result, which
+  // surfaces to the orchestrator as a hang that crashed at exactly 5 minutes.
+  it("antigravity: --print-timeout raises agy's 5m print ceiling", () => {
+    primeAgyCaps({ printTimeout: true });
+    const inv = buildExternalInvocation("antigravity", {}, "-p", "hi");
+    resetAgyCapsCache();
+    const i = inv.args.indexOf("--print-timeout");
+    expect(i).toBeGreaterThan(-1);
+    expect(inv.args[i + 1]).toBe("30m");
+  });
+
+  it("antigravity: no --print-timeout when agy lacks it (agy 1.0)", () => {
+    primeAgyCaps({ printTimeout: false });
+    const inv = buildExternalInvocation("antigravity", {}, "-p", "hi");
+    resetAgyCapsCache();
+    expect(inv.args).not.toContain("--print-timeout");
   });
 
   it("antigravity: stale `model_flag` in vendorConfig is dropped when agy lacks --model (agy 1.0)", () => {

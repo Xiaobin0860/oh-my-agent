@@ -175,16 +175,24 @@ export const RAW_REGISTRY: ReadonlyMap<string, ModelSpec> = new Map([
   // -------------------------------------------------------------------------
   // Antigravity (agy CLI) (2)
   // -------------------------------------------------------------------------
-  // agy 1.0 has no `--model` flag — these entries are nominal: they let users
-  // declare intent in oma-config.yaml and surface the right auth hint in
-  // `oma doctor`, but at dispatch time the CLI uses its config-driven default.
+  // agy 1.0 has no `--model` flag — on that version these entries are nominal:
+  // they let users declare intent in oma-config.yaml and surface the right auth
+  // hint in `oma doctor`, but dispatch falls back to the config-driven default.
+  //
+  // agy 1.1+ DOES accept `--model`, but only the display-name IDs printed by
+  // `agy models` ("Gemini 3.1 Pro (High)") — a slug like `gemini-3.1-pro` is
+  // rejected with `Error: invalid --model`. `cli_model` therefore stores the
+  // exact display ID, tier included; the registry key stays slug-shaped because
+  // that is the user-facing form in oma-config.yaml. The parenthesised tier is
+  // agy's effort dial, so `supports.effort` lists the tiers agy actually
+  // publishes for that model and `agyModelForEffort` swaps the suffix.
   [
     "antigravity/gemini-3.1-pro",
     {
       cli: "antigravity",
-      cli_model: "gemini-3.1-pro",
+      cli_model: "Gemini 3.1 Pro (High)",
       supports: {
-        effort: null,
+        effort: { type: "granular", levels: ["low", "high"] },
         apply_patch: false,
         task_budget: false,
         prompt_cache: true,
@@ -200,9 +208,9 @@ export const RAW_REGISTRY: ReadonlyMap<string, ModelSpec> = new Map([
     "antigravity/gemini-3.5-flash",
     {
       cli: "antigravity",
-      cli_model: "gemini-3.5-flash",
+      cli_model: "Gemini 3.5 Flash (Medium)",
       supports: {
-        effort: null,
+        effort: { type: "granular", levels: ["low", "medium", "high"] },
         apply_patch: false,
         task_budget: false,
         prompt_cache: true,

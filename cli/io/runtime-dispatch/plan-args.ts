@@ -1,3 +1,4 @@
+import type { EffortLevel } from "../../platform/model-registry/types.js";
 import { detectAgyCaps } from "./agy-caps.js";
 import { toPiThinking } from "./pi-model-map.js";
 import type { AgentPlan } from "./types.js";
@@ -20,6 +21,38 @@ export function qwenThinkingFlag(plan: AgentPlan): string | null {
   return "--no-thinking";
 }
 
+/** agy publishes its effort dial as a parenthesised tier on the model name. */
+const AGY_EFFORT_TIER: Record<string, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  xhigh: "High",
+};
+
+/**
+ * Resolve the exact `--model` value for an agy invocation.
+ *
+ * `plan.cliModel` already holds a valid display ID with its default tier
+ * (e.g. "Gemini 3.1 Pro (High)"). When the agent pins an effort, swap the tier
+ * suffix — but only for a tier agy actually publishes for that model, since an
+ * unknown tier makes agy exit with `Error: invalid --model` instead of falling
+ * back. Anything unmapped keeps the registry default.
+ */
+export function agyModelForEffort(plan: AgentPlan): string {
+  const effortSpec = plan.spec.supports.effort;
+  if (!plan.effort || effortSpec?.type !== "granular") return plan.cliModel;
+
+  // Match on the resolved tier, not the raw effort: `xhigh` has no agy tier of
+  // its own and collapses onto "High", which IS published.
+  const tier = AGY_EFFORT_TIER[plan.effort];
+  if (!tier || !effortSpec.levels.includes(tier.toLowerCase() as EffortLevel)) {
+    return plan.cliModel;
+  }
+  const base = plan.cliModel.match(/^(.*?)\s*\([^()]*\)$/)?.[1];
+  if (!base) return plan.cliModel;
+  return `${base} (${tier})`;
+}
+
 /**
  * Build the CLI args fragment for invoking an agent with its AgentPlan.
  * Returns args to splice into a subprocess invocation after the subcommand.
@@ -29,10 +62,11 @@ export function qwenThinkingFlag(plan: AgentPlan): string | null {
  * - claude: --model {cliModel}
  * - qwen:   -m {cliModel}  + optional --thinking / --no-thinking flag
  * - cursor: [] (model flag injected before trailing prompt by injectCursorModelBeforeTrailingPrompt)
- * - antigravity: --model {cliModel} when the installed agy advertises the flag
+ * - antigravity: --model {display ID} when the installed agy advertises the flag
  *                (1.1+, probed via agy-caps). agy 1.0 had no model flag, so a
- *                probe miss drops it and model selection stays config-driven;
- *                effort/thinking are dropped silently either way.
+ *                probe miss drops it and model selection stays config-driven.
+ *                Effort rides on the model's parenthesised tier — see
+ *                agyModelForEffort.
  */
 export function buildAgentPlanArgs(plan: AgentPlan): string[] {
   const args: string[] = [];
@@ -64,7 +98,7 @@ export function buildAgentPlanArgs(plan: AgentPlan): string[] {
       // agy 1.0 exposed no model flag; 1.1+ added `--model`. Probe the
       // installed binary once and pass the per-agent model only when supported.
       if (detectAgyCaps().modelFlag) {
-        args.push("--model", plan.cliModel);
+        args.push("--model", agyModelForEffort(plan));
       }
       break;
     }

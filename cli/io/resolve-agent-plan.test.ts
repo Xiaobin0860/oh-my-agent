@@ -602,7 +602,7 @@ describe("buildAgentPlanArgs — antigravity & unknown", () => {
     const antigravityPlan = {
       ...basePlan,
       cli: "antigravity" as const,
-      cliModel: "gemini-3.1-pro",
+      cliModel: "Gemini 3.1 Pro (High)",
     };
     expect(buildAgentPlanArgs(antigravityPlan)).toEqual([]);
   });
@@ -613,11 +613,13 @@ describe("buildAgentPlanArgs — antigravity & unknown", () => {
     const antigravityPlan = {
       ...basePlan,
       cli: "antigravity" as const,
-      cliModel: "gemini-3.1-pro",
+      cliModel: "Gemini 3.1 Pro (High)",
     };
+    // agy only accepts `agy models` display IDs; the slug form makes it exit
+    // with `Error: invalid --model` before the prompt runs.
     expect(buildAgentPlanArgs(antigravityPlan)).toEqual([
       "--model",
-      "gemini-3.1-pro",
+      "Gemini 3.1 Pro (High)",
     ]);
   });
 

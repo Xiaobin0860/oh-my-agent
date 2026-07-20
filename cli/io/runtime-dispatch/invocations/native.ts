@@ -2,6 +2,7 @@ import {
   splitArgs,
   type VendorConfig,
 } from "../../../platform/agent-config.js";
+import { agyPrintTimeoutArgs, detectAgyCaps } from "../agy-caps.js";
 import type { Invocation } from "../types.js";
 
 export interface NativeInvocationOptions {
@@ -9,6 +10,10 @@ export interface NativeInvocationOptions {
    * Suppresses `auto_approve_flag` and appends the vendor's `read_only_flag`.
    * Emits a console.warn when the vendor has no `read_only_flag` defined. */
   readOnly?: boolean;
+  /** Absolute workspace path the agent must be able to write. Used by vendors
+   * whose CLI confines writes to a trusted root unless granted explicitly
+   * (antigravity/agy → `--add-dir`). Mirrors ExternalInvocationOptions. */
+  workspace?: string;
 }
 
 export function buildMentionPrompt(
@@ -97,12 +102,19 @@ export function buildCodexNativeInvocation(
 /**
  * Antigravity CLI (agy) headless mode: `agy [--dangerously-skip-permissions] -p "<prompt>"`.
  *
- * Notes on the real binary (verified against agy 1.0):
+ * Notes on the real binary:
  * - `-p` is a *value* flag — the prompt is its argument, not a trailing positional.
- * - There is no `--model` / `-m` flag (model selection is config-driven), and
- *   no `--thinking-budget`. We deliberately do not forward those even if the
- *   resolved vendorConfig carries them.
+ * - agy 1.0 had no `--model`, `--add-dir`, or `--print-timeout`; 1.1 added all
+ *   three. Each is gated on an `agy --help` probe (see agy-caps) so a 1.0 binary
+ *   silently keeps the old config-driven behavior. There is still no
+ *   `--thinking-budget`, so effort rides on the model's tier suffix.
+ * - `--model` accepts only `agy models` display IDs ("Gemini 3.1 Pro (High)").
  * - Auto-approve defaults to `--dangerously-skip-permissions`.
+ *
+ * Flag coverage is deliberately kept at parity with the external agy path in
+ * invocations/external.ts — the two builders spawn the same binary, and a gap in
+ * one shows up as an agy subagent that behaves differently depending on which
+ * runtime happened to launch it.
  *
  * https://antigravity.google/docs/cli-overview
  */
@@ -112,7 +124,7 @@ export function buildAntigravityNativeInvocation(
   vendorConfig: VendorConfig,
   options: NativeInvocationOptions = {},
 ): Invocation {
-  const { readOnly = false } = options;
+  const { readOnly = false, workspace } = options;
   const command = vendorConfig.command || "agy";
   const args: string[] = [];
 
@@ -130,6 +142,26 @@ export function buildAntigravityNativeInvocation(
     args.push("--dangerously-skip-permissions");
   }
 
+  // model_flag/default_model are checked FIRST so the caps probe only runs when
+  // a model flag would actually be emitted. When a per-agent plan is resolved,
+  // planDispatch strips default_model and appends the plan's own `--model`.
+  if (
+    vendorConfig.model_flag &&
+    vendorConfig.default_model &&
+    detectAgyCaps().modelFlag
+  ) {
+    args.push(vendorConfig.model_flag, vendorConfig.default_model);
+  }
+
+  // agy confines file writes to its own trusted root unless the workspace is
+  // granted explicitly, so a subagent can exit 0 with its artifacts outside the
+  // repo — and the orchestrator then finds no result file.
+  if (workspace && detectAgyCaps().addDir) {
+    args.push("--add-dir", workspace);
+  }
+
+  // Lift agy's 5m print-mode ceiling before the prompt (see agyPrintTimeoutArgs).
+  args.push(...agyPrintTimeoutArgs());
   args.push("-p", buildMentionPrompt(agentId, promptContent));
 
   return { command, args, env: { ...process.env } };

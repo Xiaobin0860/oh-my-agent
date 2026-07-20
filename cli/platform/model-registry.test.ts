@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
@@ -57,6 +58,40 @@ describe("CORE_REGISTRY", () => {
     for (const [, spec] of antigravitySlugs) {
       expect(spec.supports.native_dispatch_from).toContain("antigravity");
     }
+  });
+
+  // Regression: agy's `--model` only accepts the display IDs from `agy models`
+  // ("Gemini 3.1 Pro (High)"). A slug-shaped cli_model makes agy exit with
+  // `Error: invalid --model` before running the prompt, killing every spawned
+  // antigravity subagent. Verify the current list with `agy models`.
+  it("antigravity cli_model values use agy display-ID form, not slugs", async () => {
+    const { CORE_REGISTRY } = await import("./model-registry.js");
+    for (const [slug, spec] of CORE_REGISTRY) {
+      if (spec.cli !== "antigravity") continue;
+      expect(
+        spec.cli_model,
+        `${slug}: cli_model must be an \`agy models\` display ID`,
+      ).toMatch(/^\S+(?: \S+)+ \((Low|Medium|High|Thinking)\)$/);
+    }
+  });
+
+  // The orchestrator's cli-config.yaml is the other place an agy model id is
+  // written down, and it had no antigravity entry at all — every agy spawn ran
+  // on hardcoded code fallbacks with nothing configurable.
+  it("orchestrator cli-config.yaml declares antigravity with a display-ID default_model", async () => {
+    const { readCliConfig } = await import("./agent-config/config-io.js");
+    const repoRoot = join(import.meta.dirname, "..", "..");
+    const vendor = readCliConfig(repoRoot)?.vendors?.antigravity;
+    expect(
+      vendor,
+      "cli-config.yaml must declare the antigravity vendor",
+    ).toBeDefined();
+    expect(vendor?.command).toBe("agy");
+    expect(vendor?.prompt_flag).toBe("-p");
+    expect(vendor?.auto_approve_flag).toBe("--dangerously-skip-permissions");
+    expect(vendor?.default_model).toMatch(
+      /^\S+(?: \S+)+ \((Low|Medium|High|Thinking)\)$/,
+    );
   });
 
   it("all entries have api_only: false", async () => {
