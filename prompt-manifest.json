@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.24.0",
-  "releaseDate": "2026-07-22T14:34:56.177Z",
+  "releaseDate": "2026-07-22T23:37:42.629Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -991,18 +991,18 @@
     },
     {
       "path": ".agents/skills/oma-explainer/SKILL.md",
-      "sha256": "2d1036148379f65fe77320e687c0e919dcc4710d86588cdefbd24e32559e1d43",
-      "size": 8952
+      "sha256": "c6aa3e361069ec9d5aefeab66f4d894003d08609ea231366f9ed2d866b291b30",
+      "size": 8966
     },
     {
       "path": ".agents/skills/oma-explainer/resources/document-structure.md",
-      "sha256": "abb4ca68b6508c13040feedf2eb71061cbd7da5ff76c197516e9c886991a8131",
-      "size": 4610
+      "sha256": "36f2205dc3be3c2d3e06b8a3255be1ca7380ef6c059ed87feb19c80b2536c80f",
+      "size": 5354
     },
     {
       "path": ".agents/skills/oma-explainer/resources/html-contract.md",
-      "sha256": "4f99faeb923de8a385ec8f4971788743c3bdcdd0f4c609a783eb469cc5067a9f",
-      "size": 6316
+      "sha256": "ef3f9b79648b3cd0b718833d66da740db4afc9d2057351568d91619ce8483661",
+      "size": 6909
     },
     {
       "path": ".agents/skills/oma-frontend/SKILL.md",
