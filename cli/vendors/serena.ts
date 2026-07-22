@@ -1,3 +1,6 @@
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
 export const RECOMMENDED_CHROME_DEVTOOLS_MCP = {
   command: "npx",
   args: [
@@ -7,6 +10,58 @@ export const RECOMMENDED_CHROME_DEVTOOLS_MCP = {
     "--isolated",
   ] as string[],
 } as const;
+
+export const RECOMMENDED_FIREFOX_DEVTOOLS_MCP = {
+  command: "npx",
+  args: [
+    "-y",
+    "@mozilla/firefox-devtools-mcp@latest",
+    "--autoProfile",
+  ] as string[],
+} as const;
+
+export type DevToolsBrowser = "chrome" | "firefox";
+
+export function syncDevToolsMcp(
+  installRoot: string,
+  browsers: DevToolsBrowser[],
+): void {
+  const mcpFiles = [
+    join(installRoot, ".agents", "mcp.json"),
+    join(installRoot, ".agents", "mcp_config.json"),
+    join(installRoot, ".mcp.json"),
+  ];
+
+  const browserList = Array.isArray(browsers) ? browsers : [];
+
+  for (const file of mcpFiles) {
+    if (!existsSync(file)) continue;
+    try {
+      const data = JSON.parse(readFileSync(file, "utf-8"));
+      if (!data || typeof data !== "object" || !data.mcpServers) continue;
+
+      const mcpServers = data.mcpServers as Record<string, unknown>;
+
+      if (browserList.includes("chrome")) {
+        mcpServers["chrome-devtools"] = { ...RECOMMENDED_CHROME_DEVTOOLS_MCP };
+      } else {
+        delete mcpServers["chrome-devtools"];
+      }
+
+      if (browserList.includes("firefox")) {
+        mcpServers["firefox-devtools"] = {
+          ...RECOMMENDED_FIREFOX_DEVTOOLS_MCP,
+        };
+      } else {
+        delete mcpServers["firefox-devtools"];
+      }
+
+      writeFileSync(file, JSON.stringify(data, null, 2) + "\n");
+    } catch {
+      // ignore parse errors
+    }
+  }
+}
 
 export type SerenaMcpServerLike = {
   command?: unknown;

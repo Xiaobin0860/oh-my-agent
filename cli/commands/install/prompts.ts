@@ -11,6 +11,7 @@ import {
   vendorRequiresHomeConsent,
 } from "../../platform/skills-installer.js";
 import type { CliTool, CliVendor } from "../../types/index.js";
+import type { DevToolsBrowser } from "../../vendors/serena.js";
 import {
   getExistingLanguage,
   getExistingPreset,
@@ -411,7 +412,7 @@ export async function promptBackendVariant(
   nonInteractive: boolean,
 ): Promise<Record<string, string>> {
   const variantSelections: Record<string, string> = {};
-  if (selectedSkills.includes("oma-backend")) {
+  if (selectedSkills?.includes("oma-backend")) {
     const backendLang = nonInteractive
       ? "python"
       : await p.select({
@@ -441,8 +442,9 @@ export async function promptBackendVariant(
       p.cancel("Cancelled.");
       process.exit(0);
     }
-    if (backendLang !== "other") {
-      variantSelections["oma-backend"] = backendLang as string;
+    const chosenLang = (backendLang as string) || "python";
+    if (chosenLang !== "other") {
+      variantSelections["oma-backend"] = chosenLang;
     }
   }
   return variantSelections;
@@ -491,4 +493,41 @@ export async function selectClisWithConsent(
   }
 
   return selectedClis;
+}
+
+export async function promptDevToolsBrowsers(
+  nonInteractive: boolean,
+  cleanup: () => void,
+): Promise<DevToolsBrowser[]> {
+  const defaultBrowsers: DevToolsBrowser[] = ["chrome"];
+
+  if (nonInteractive) {
+    return defaultBrowsers;
+  }
+
+  const selected = await p.multiselect({
+    message: "Select Browser DevTools MCP servers to enable:",
+    options: [
+      {
+        value: "chrome",
+        label: "Chrome DevTools MCP",
+        hint: "npx -y chrome-devtools-mcp@latest --no-usage-statistics --isolated",
+      },
+      {
+        value: "firefox",
+        label: "Firefox DevTools MCP",
+        hint: "npx -y @mozilla/firefox-devtools-mcp@latest --autoProfile",
+      },
+    ],
+    initialValues: defaultBrowsers,
+    required: false,
+  });
+
+  if (p.isCancel(selected)) {
+    cleanup();
+    p.cancel("Cancelled.");
+    process.exit(0);
+  }
+
+  return (selected as DevToolsBrowser[]) ?? defaultBrowsers;
 }

@@ -118,3 +118,33 @@ describe("withSerenaContext", () => {
     expect(withSerenaContext(server, "antigravity")).toBe(server);
   });
 });
+
+describe("syncDevToolsMcp", () => {
+  it("syncs chrome and firefox MCP servers into mcp.json", async () => {
+    const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } =
+      await import("node:fs");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const { syncDevToolsMcp, RECOMMENDED_FIREFOX_DEVTOOLS_MCP } = await import(
+      "./serena.js"
+    );
+
+    const tmp = mkdtempSync(join(tmpdir(), "oma-devtools-test-"));
+    try {
+      const agentsDir = join(tmp, ".agents");
+      mkdirSync(agentsDir, { recursive: true });
+      const mcpFile = join(agentsDir, "mcp.json");
+      writeFileSync(mcpFile, JSON.stringify({ mcpServers: {} }));
+
+      syncDevToolsMcp(tmp, ["chrome", "firefox"]);
+
+      const parsed = JSON.parse(readFileSync(mcpFile, "utf-8"));
+      expect(parsed.mcpServers["chrome-devtools"]).toBeDefined();
+      expect(parsed.mcpServers["firefox-devtools"]).toEqual(
+        RECOMMENDED_FIREFOX_DEVTOOLS_MCP,
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});

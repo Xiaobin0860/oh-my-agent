@@ -40,6 +40,7 @@ import {
   DEAD_PID_GRACE_MS,
   lockPath,
 } from "../../utils/install-lock.js";
+import { type DevToolsBrowser, syncDevToolsMcp } from "../../vendors/serena.js";
 import { link } from "../link/run.js";
 import { runMigrations } from "../migrations/index.js";
 import {
@@ -236,6 +237,8 @@ export async function install(options: InstallOptions = {}): Promise<void> {
 
     const vendors = await promptVendors(installRoot, nonInteractive);
 
+    const devToolsBrowsers: DevToolsBrowser[] = ["chrome"];
+
     const modelPreset = await promptModelPreset(
       installRoot,
       vendors,
@@ -282,7 +285,7 @@ export async function install(options: InstallOptions = {}): Promise<void> {
         installRules(repoDir, installRoot);
         installConfigs(repoDir, installRoot, false);
 
-        for (const skillName of selectedSkills) {
+        for (const skillName of selectedSkills ?? []) {
           spinner.message(`Installing ${pc.cyan(skillName)}...`);
           installSkill(
             repoDir,
@@ -293,6 +296,9 @@ export async function install(options: InstallOptions = {}): Promise<void> {
         }
 
         spinner.stop("Skills installed!");
+
+        // Sync DevTools MCP servers (Chrome / Firefox) into .agents/mcp.json etc.
+        syncDevToolsMcp(installRoot, devToolsBrowsers);
 
         // Patch oma-config.yaml with selected language, model_preset, and vendors.
         // Uses regex-level replacement to preserve user-edited fields (timezone, etc.).

@@ -67,3 +67,12 @@ describe("PRESET_BACKED_VENDORS", () => {
     expect(PRESET_BACKED_VENDORS as readonly string[]).not.toContain("mixed");
   });
 });
+
+describe("promptDevToolsBrowsers", () => {
+  it("defaults to ['chrome'] in non-interactive mode", async () => {
+    const { promptDevToolsBrowsers } = await import("./prompts.js");
+    const cleanup = () => {};
+    const result = await promptDevToolsBrowsers(true, cleanup);
+    expect(result).toEqual(["chrome"]);
+  });
+});
