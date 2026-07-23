@@ -1715,11 +1715,6 @@
       "size": 17231
     },
     {
-      "path": ".agents/skills/oma-scm/config/cm-config.yaml",
-      "sha256": "e79090d628599186b8695c83f1270a39ae1e246a771c427d204839773d9177ee",
-      "size": 1220
-    },
-    {
       "path": ".agents/skills/oma-scm/config/commit-config.yaml",
       "sha256": "7ae6559e04eb483397caef86075be44cbc277cafa5442454d9fb0b8db6b6288d",
       "size": 1343
