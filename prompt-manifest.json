@@ -1,7 +1,7 @@
 {
   "name": "oh-my-agent",
   "version": "10.25.0",
-  "releaseDate": "2026-07-23T10:47:09.341Z",
+  "releaseDate": "2026-07-23T11:07:47.378Z",
   "repository": "https://github.com/first-fluke/oh-my-agent",
   "files": [
     {
@@ -171,8 +171,8 @@
     },
     {
       "path": ".agents/hooks/core/scm-guard.ts",
-      "sha256": "1c4394fabb81268e6644f6eb230648948532af1d173d9cad2d6a878e5d08bd2e",
-      "size": 7950
+      "sha256": "eb53b61f723108ea42a7677c4ac1d4f5358cccc60e93026c941714f5237c2f9d",
+      "size": 8142
     },
     {
       "path": ".agents/hooks/core/serena-primer.ts",
@@ -301,8 +301,8 @@
     },
     {
       "path": ".agents/oma-config.yaml",
-      "sha256": "5a7c3e3f284140fca99aaaaebbbe1fbeca0f5e60f12e297a2e9ebd8507c81604",
-      "size": 13351
+      "sha256": "7fd98c231af5ec54547b22af1e7a85e462961f48f10a431ebddcd3ab465c6b6a",
+      "size": 14501
     },
     {
       "path": ".agents/rules/backend.md",
@@ -1711,13 +1711,8 @@
     },
     {
       "path": ".agents/skills/oma-scm/SKILL.md",
-      "sha256": "df1c50f3fc7652dfff8d8e5d65c40bcc6abf3fe13616f00b8df99c9d437a29f6",
-      "size": 17231
-    },
-    {
-      "path": ".agents/skills/oma-scm/config/commit-config.yaml",
-      "sha256": "7ae6559e04eb483397caef86075be44cbc277cafa5442454d9fb0b8db6b6288d",
-      "size": 1343
+      "sha256": "e66a1615b3523097ee09d6d615af190383137c41bc8b0b68063e0442c42ac64d",
+      "size": 17079
     },
     {
       "path": ".agents/skills/oma-scm/resources/codeowners-playbook.md",
@@ -2136,8 +2131,8 @@
     },
     {
       "path": ".agents/workflows/scm.md",
-      "sha256": "97b0545f8052c9a217d5a88b29620797aa8866ae58d947b23e047dbde8fd52e5",
-      "size": 8432
+      "sha256": "e407a2aa85b0d3bd00a8048df1dbfaa5b2b6c2f7b4ed7bc25f6c7db540871755",
+      "size": 8411
     },
     {
       "path": ".agents/workflows/stack-set.md",
@@ -2181,6 +2176,6 @@
   "metadata": {
     "skillCount": 33,
     "workflowCount": 24,
-    "totalFiles": 435
+    "totalFiles": 433
   }
 }
